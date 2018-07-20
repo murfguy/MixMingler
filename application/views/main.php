@@ -119,6 +119,7 @@
 			<div class="infoBox">
 				<h4 class="infoHeader">MixMingler News</h4>
 				<div class="infoInterior">
+					<p>v0.1.2 released to Alpha build.</p>
 					<p>We are now working towards <b>v0.2: Types</b>.</p>
 				</div>
 			</div>

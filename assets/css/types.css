@@ -55,9 +55,11 @@ div.typeInfo > p.stats > span.onlineStat {
 	Examples of sizes:
 	Large = "Followed" games listed at top of types listing (this is the default style)
 	Medium = normal listing on types listing page
-	Small = types that appear in 'common games' section of profiles
+	Small = types that appear in 'offline games' section of types list page
+	Extra Small = types that appear in 'common games' section of profiles
 	Mini = types that appear in 'followed games' sections of profiles/home pages
 ----------------------------*/
+
 
 div.typeInfo.med {
 	width: 140px;
@@ -87,4 +89,28 @@ div.typeInfo.sml > p.stats {
 	color: #ccc;
 	margin: 0px;
 	display: none;
+}
+
+
+div.typeInfo.xsm {
+	width: 60px;
+	padding: 0;
+	border-radius: 10px;
+}
+
+div.typeInfo.xsm > p.typeName {
+	font-size: 12px;
+}
+
+div.typeInfo.xsm > p.stats {
+	font-size: 12px;
+	color: #ccc;
+	margin: 0px;
+	display: none;
+}
+
+div.typeInfo.xsm > a > img.coverArt {
+	width: 100%;
+	border-bottom: 0px;
+	margin-bottom: 0px;
 }

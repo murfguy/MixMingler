@@ -81,25 +81,29 @@
 
 		</div>
 		<div class="col-7">
-			<h2>Top Streams</h2>
-			<div class="row">
 			<?php
-				foreach($activeStreams as $stream) {
-					if (empty($stream['user']['avatarUrl'])) {
-						$stream['user']['avatarUrl'] = "http://mixmingler.murfguy.com/assets/graphics/blankAvatar.png";
-					}
 
-					echo "<div class=\"streamerListing\">";
-					//echo "<img src=\"".$stream['user']['avatarUrl']."\" width=\"100\" class=\"avatar\" />";
-					echo "<a href=\"/user/".$stream['token']."\"><img class=\"live-thumb list\" src=\"https://thumbs.mixer.com/channel/".$stream['id'].".small.jpg\" onerror=\"this.src='/assets/graphics/blankThumb.jpg'\" width=\"200\"/></a>";
-					echo "<p class=\"streamerName\"><a href=\"/user/".$stream['token']."\">".$stream['token']."</a></p>";
-					echo "<p class=\"streamerStats\">Current Views: ".$stream['viewersCurrent']." | Followers: ".$stream['numFollowers']."</p>";
+				if (!empty($activeStreams)) {
+					echo "<div class=\"row\">";
+					foreach($activeStreams as $stream) {
+						if (empty($stream['user']['avatarUrl'])) {
+							$stream['user']['avatarUrl'] = "http://mixmingler.murfguy.com/assets/graphics/blankAvatar.png";
+						}
+
+						echo "<div class=\"streamerListing\">";
+						//echo "<img src=\"".$stream['user']['avatarUrl']."\" width=\"100\" class=\"avatar\" />";
+						echo "<a href=\"/user/".$stream['token']."\"><img class=\"live-thumb list\" src=\"https://thumbs.mixer.com/channel/".$stream['id'].".small.jpg\" onerror=\"this.src='/assets/graphics/blankThumb.jpg'\" width=\"200\"/></a>";
+						echo "<p class=\"streamerName\"><a href=\"/user/".$stream['token']."\">".$stream['token']."</a></p>";
+						echo "<p class=\"streamerStats\">Current Views: ".$stream['viewersCurrent']." | Followers: ".$stream['numFollowers']."</p>";
+						echo "</div>";
+					}
 					echo "</div>";
+				} else {
+					echo "<h2>No one is streaming this right now.</h2>";
 				}
-			?>
-			</div>
-			
-			</table>
+
+				
+			?>			
 		</div>
 		<div class="col userInfo">
 				
