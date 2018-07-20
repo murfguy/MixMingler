@@ -207,6 +207,10 @@ div.infoInterior {
 	padding: 0px 8px 8px 8px;
 }
 
+div.infoInterior.row {
+    margin-left: 5;
+}
+
 .infoBox p {
 	margin: 0;
 }

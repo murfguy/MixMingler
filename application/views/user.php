@@ -46,15 +46,20 @@
 
 
 					// We don't auto-track any under 25 users, and we also don't want to show this for anyone never online
-					if ($minglerData->numFollowers >= 25 || $minglerData->lastSeenOnline != "0000-00-00 00:00:00") {
-						if ($isOnline) {
-							// show "streaming for x time"
-							echo "<br>Started streaming: ".$minglerData->lastStartElapsed;
+					if ($minglerData->numFollowers >= 25) {
+
+						if ($minglerData->lastSeenOnline == "0000-00-00 00:00:00") {
+							echo "<br>Never seen online";
 						} else {
-							echo "<br>Last Online: ".$minglerData->lastSeenElapsed;
+							if ($isOnline) {
+								// show "streaming for x time"
+								echo "<br>Started streaming: ".$minglerData->lastStartElapsed;
+							} else {
+								echo "<br>Last Online: ".$minglerData->lastSeenElapsed;
+							}
 						}
 					} else {
-						echo "<br>Never seen online";
+							
 					}
 				?>
 				<!--<p class="devNote" data-toggle="tooltip" title="Planned for v0.2" data-placement="left">Planned Tweak: 'last online' should be in elapsed time format (ie: 4 hours ago)</p>
@@ -94,30 +99,34 @@
 
 		<div class="col-7 userFeed">
 
-			<div class="infoBox">
-				<h2 class="infoHeader">Common Streams</h2>
-				<div class="infoInterior">
+			<?php if ($minglerData->numFollowers >= 25) {
+				echo "<div class=\"infoBox\">";
+					echo "<h2 class=\"infoHeader\">Common Streams</h2>";
+					echo "<div class=\"infoInterior\">";
 
-					<?php
-						if (count($recentTypes) > 0) {
+						if (!empty($recentTypes)) {
 							echo "<div class=\"row\">";
-							foreach ($recentTypes as $type) {
-								echo "<div class=\"miniStreamInfo\">";
-								echo "<a href=\"/type/".$type->slug."\"><img src=\"".$type->coverUrl."\" width=\"65\" /><br>";
-								echo $type->typeName."</a>";
-								echo " (".$type->stream_count.")";
-								echo "</div>";
-							}
+								foreach ($recentTypes as $type) {
+									if (empty($type->coverUrl)) {
+										$type->coverUrl = "https://mixer.com/_latest/assets/images/main/types/default.jpg";
+									}
+									echo "<div class=\"typeInfo xsm\" data-toggle=\"tooltip\" title=\"$type->typeName: Streamed ".$type->stream_count." times\">";
+										echo "<a href=\"/type/".$type->slug."\"><img src=\"".$type->coverUrl."\" class=\"coverArt\" /></a>";
+
+										//echo "<p class=\"typeName\"><a href=\"/type/".$type->slug."\">".$type->typeName."</a></p>";
+										//echo "<p class=\"stats\"><span class=\"onlineStat\" data-toggle=\"tooltip\" data-placement=\"bottom\" title=\"Current Streams\"><i class=\"fas fa-play-circle\"></i>  ".$type->online."</span>&nbsp;&nbsp;&nbsp;&nbsp;<span class=\"onlineStat\" data-placement=\"bottom\"data-toggle=\"tooltip\" title=\"Current Viewers\"><i class=\"fas fa-eye\"></i> ".$type['viewersCurrent']."</span></p>";
+									echo "</div>";
+								}
+						
 							echo "</div>";
 						} else {
 							echo "<p>Hasn't streamed anything recently.</p>";
 						}
-					?>
-					<p class="devNote" data-toggle="tooltip" title="Planned for v0.2" data-placement="left">Planned Design: reconfigure 'common streams' to be more in line with either main 'types' listing page, OR like mini icons on home page.</p>
-					<p class="devNote" data-toggle="tooltip" title="Planned for v0.2" data-placement="left">Hide if streamer has less than 25 followers.</p>
+
+					 echo "</div>";
+			 	echo "</div>";
 				
-				</div>
-			</div>
+			} ?>
 
 
 
@@ -166,21 +175,38 @@
 							echo "<h6 class=\"infoHeader\">Following</h6>";
 							echo "<div class=\"infoInterior\">";
 								foreach($communitiesData->followed as $community) {
-								echo "<p><a href=\"/community/".$community->slug."/\">".$community->long_name."</a></p>";
+									echo "<p><a href=\"/community/".$community->slug."/\">".$community->long_name."</a></p>";
 								}
 							echo "</div>";
 						echo "</div>";
 					}
 
 
+					
 						echo "<div class=\"infoBox\">";
 							echo "<h6 class=\"infoHeader\">Followed Games</h6>";
-							echo "<div class=\"infoInterior\">";
+							if (!empty($minglerData->followedTypesData)) {
+							echo "<div class=\"infoInterior row\">";
+								//echo str_replace(";", ",", $minglerData->followedTypes);
+								foreach($minglerData->followedTypesData as $type) {
+									//echo "<p>1<a href=\"/type/".$type->slug."/\">".$type->typeName."</a></p>";
+								}
+
+									foreach ($minglerData->followedTypesData as $type) {
+									echo "<div class=\"miniTypeInfo \"><a href=\"/type/".$type->slug."\"><img class=\"miniCover\" src=\"".$type->coverUrl."\" width=\"35\" data-toggle=\"tooltip\" title=\"".$type->typeName."\" /></a></div>";
+									}
 								
-								echo "<p class=\"devNote\" data-toggle=\"tooltip\" title=\"Planned for v0.2\" data-placement=\"left\">Coming Soon</p>";
 								
-							echo "</div>";
+								
+								echo "</div>";
+							} else {
+
+								echo "<div class=\"infoInterior\">";
+								echo "<p>Hasn't followed any games yet.</p>";
+								echo "</div>";
+							}
 						echo "</div>";
+					
 					
 
 

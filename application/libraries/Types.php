@@ -63,9 +63,10 @@ class Types {
 	}
 
 	public function getTypesByIdsFromMingler($typeIds) {
-		$data = new stdClass();
-		$sql_query = "SELECT * FROM stream_types WHERE typeId IN (?)";
-		$query = $this->CI->db->query($sql_query, array($typeIds));
+		$typeIds = str_replace(";", ",", $typeIds);
+
+		$sql_query = "SELECT * FROM stream_types WHERE typeId IN ($typeIds) ORDER BY typeName ASC";
+		$query = $this->CI->db->query($sql_query);
 		$types = $query->result();
 
 		return $types;
