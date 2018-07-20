@@ -1,0 +1,168 @@
+/* -----------------
+REFACTOR PLANNING NOTES:
+
+This file should house CSS relevent to: 
+	community listings
+	community pages
+----------------- */
+
+div.communities h3 {
+	font-size: 18px;
+	text-decoration: underline;
+}
+
+div.communities ul {
+	margin-bottom: 15px;
+}
+
+
+#categoryNav a {
+	cursor: pointer;
+}
+
+#categoryNav a:hover {
+	color: rgb(197, 236, 249);;
+	text-decoration: underline;
+}
+
+
+div.communityListing {
+	min-width: 325px;
+	max-width: 325px;
+	border: 1px solid white;
+	border-radius: 8px;
+	padding: 8px;
+	margin: 0px 15px 20px 15px;
+	background-color: rgb(36, 54, 95);
+}
+
+div.communityListing > h3 {
+	font-size: 20px;
+	border-bottom: 1px solid white;
+}
+
+
+div.communityListing p {
+	margin-bottom: 0px;
+	font-size: 14px;
+}
+
+#categoryNav {
+	text-align: center;
+	border-top: 1px solid white;
+	border-bottom: 1px solid white;
+	font-size: 20px;
+	padding: 8px 0;
+	margin-bottom: 15px;
+}
+
+#categoryNav a {
+	margin: 0 10px;
+}
+
+button.commAction,
+button.typeAction {
+	min-width: 100px;
+	max-width: 100px;
+	font-size: 15px;
+	margin-right: 15px;
+	margin-bottom: 15px;
+}
+
+#memberListing div {
+	width: 20%;
+	margin: 8px 0;
+}
+#memberListing div img {
+	margin-right: 6px;
+}
+
+div.streamerList > h1 {
+	color: grey;
+	text-align: center;
+	font-size: 20px;
+	border-top: 1px solid grey;
+	border-bottom: 1px solid grey;
+	padding: 15px;
+	margin-top: 15px;
+}
+
+div.streamerList {
+	margin: 0 0 15px 0;
+}
+
+h2.noStream {
+	text-align: center;
+	color: #ccc;
+	font-size: 22px;
+	padding: 40px 0;
+}
+
+div.streamerListing {
+	width: 200px;
+	border: 2px solid #f3f5fb;
+	border-radius: 8px;
+	margin-right: 10px;
+	margin-top: 10px;
+	background-color: rgb(41, 37, 72);
+	padding: 0px;
+	padding-bottom: 4px;
+	overflow: hidden;
+}
+
+div.streamerListing.mini {
+	width: 170px;
+}
+
+
+
+div.streamerListing > a > img.live-thumb.list {
+	border: 0;
+	border-radius: 0;
+
+	border-bottom: 2px solid white;
+	margin-bottom: 6px
+}
+
+
+div.streamerListing.online {
+	border: 2px solid #4cf95b;
+}
+
+div.streamerListing:hover {
+	border: 2px solid rgb(37,188,235);
+	background-color: rgb(16, 26, 49);
+}
+
+div.streamerListing > h3 {
+	font-size: 18px;
+}
+div.streamerListing > img.avatar {
+	margin-right: 10px;
+}
+div.streamerListing > p {
+	font-size: 12px;
+	padding: 0 0 0 6px;
+	margin: 0;
+}
+
+div.streamerListing > p.streamerName,
+div.streamerListing > p.gameName {
+	font-size: 15px;
+}
+
+
+div.streamerListing > p.streamerStats {
+	font-size: 11px;
+	color: #aaa;
+}
+
+div.streamerListing.mini > p.streamerName,
+div.streamerListing.mini > p.gameName {
+	font-size: 13px;
+}
+
+div.streamerListing.mini > p.streamerStats {
+	font-size: 10px;
+	color: #aaa;
+}

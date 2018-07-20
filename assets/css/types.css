@@ -1,0 +1,90 @@
+/* -----------------
+REFACTOR PLANNING NOTES:
+
+This file should house CSS relevent to: 
+	type listings
+	type pages
+----------------- */
+
+/*--- CORE STYLE FOR A TYPE LISTING --- */
+
+div.typeInfo {
+	border: 2px solid white;
+	border-radius: 15px;
+	width: 170px;
+	margin: 8px;
+	padding-bottom: 5px;
+	overflow: hidden;
+}
+
+div.typeInfo:hover {
+	border: 2px solid rgb(37,188,235);
+	background-color: rgb(16, 26, 49);
+}
+
+div.typeInfo > a > img.coverArt {
+	width: 100%;
+	border-bottom: 2px solid white;
+	margin-bottom: 5px;
+}
+
+div.typeInfo > p {
+	margin: 0px;
+	padding: 0px 8px;
+	text-align: center;
+}
+
+div.typeInfo > p.typeName {
+	font-size: 16px;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+
+div.typeInfo > p.stats {
+	font-size: 13px;
+	color: #ccc;
+	margin: 0px;
+}
+
+div.typeInfo > p.stats > span.onlineStat {
+	cursor: pointer;
+}
+
+/* -- SIZE SPECIFIC STYLES -- 
+	Examples of sizes:
+	Large = "Followed" games listed at top of types listing (this is the default style)
+	Medium = normal listing on types listing page
+	Small = types that appear in 'common games' section of profiles
+	Mini = types that appear in 'followed games' sections of profiles/home pages
+----------------------------*/
+
+div.typeInfo.med {
+	width: 140px;
+}
+
+div.typeInfo.med > p.typeName {
+	font-size: 15px;
+}
+
+div.typeInfo.med > p.stats {
+	font-size: 12px;
+	color: #ccc;
+	margin: 0px;
+}
+
+
+div.typeInfo.sml {
+	width: 110px;
+}
+
+div.typeInfo.sml > p.typeName {
+	font-size: 12px;
+}
+
+div.typeInfo.sml > p.stats {
+	font-size: 12px;
+	color: #ccc;
+	margin: 0px;
+	display: none;
+}

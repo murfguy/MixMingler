@@ -1,0 +1,1 @@
+var server = "http://dev.mixmingler.com";
