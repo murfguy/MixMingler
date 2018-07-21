@@ -277,11 +277,11 @@ class Servlet extends CI_Controller {
 			$sql_query = "SELECT ignoredTypes FROM mixer_users WHERE name_token=?";
 			$query = $this->db->query($sql_query, array($_SESSION['mixer_user']));
 			//Convert types listto PHP array
-			$types = explode(";", $query->result()[0]->ignoredTypes);
+			$types = explode(",", $query->result()[0]->ignoredTypes);
 			// Remove the left community from the array
 			if (($key = array_search($typeID, $types)) !== false) { unset($types[$key]); }
 			// Restore to string.
-			$types = implode(';', $types);
+			$types = implode(',', $types);
 			
 			// UPDATE Database with updated list of communities
 			$sql_query = "UPDATE mixer_users SET ignoredTypes = ? WHERE name_token=?";

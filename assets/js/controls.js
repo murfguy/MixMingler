@@ -146,8 +146,8 @@ var baseActionUrl = baseURL+"/servlet/";
 			case "ignore": 
 				actionUrl += "ignoreType/";
 
-				$(this).removeClass('btn-danger');
-				$(this).addClass('btn-warning');
+				$(this).removeClass('btn-warning');
+				$(this).addClass('btn-danger');
 				$(this).text('Unignore');
 				$(this).attr('id','unignore');
 				$(this).attr('title','Have this game show up in lists again.');
@@ -259,6 +259,28 @@ var baseActionUrl = baseURL+"/servlet/";
 				break;
 			}
 	});
+
+
+	$("div.inactiveView").hide();
+	console.log("HIDE!");
+	$("a.viewToggle.accountTypes").click(function () {
+		console.log("toggle account type management view");
+		category = $(this).attr('category');
+		console.log(" --  "+category);
+
+		switch (category) {
+			case "followed":
+				$("div#followed").show();
+				$("div#ignored").hide();
+				break;
+
+			case "ignored":
+				$("div#followed").hide();
+				$("div#ignored").show();
+				break;
+			}
+	});
+
 
 	var coreLimit = 4;
 	$('input.coreCommunities').on('change', function(evt) {
@@ -383,3 +405,4 @@ function logout(tgtUser) {
 			//console.log(json.message);
 		});
 }
+

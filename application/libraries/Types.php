@@ -72,6 +72,11 @@ class Types {
 		return $types;
 	}
 
+	public function getTypeFromMixer($typeId) {
+		$content = file_get_contents("https://mixer.com/api/v1/types/$typeId");
+		return json_decode($content, true);
+	}
+
 	public function getSpecifiedTypesFromMixer($typesBatch) {
 		$url = "https://mixer.com/api/v1/types";
 		$currentPage = 0;
@@ -172,7 +177,7 @@ class Types {
 	}
 
 	public function getRecentStreamsForType($typeId) {
-		$sql_query = "SELECT *, (SELECT name_token FROM mixer_users WHERE mixer_users.mixer_id=timeline_events.mixer_id) as username, (SELECT avatarUrl FROM mixer_users WHERE mixer_users.mixer_id=timeline_events.mixer_id) as avatarUrl FROM timeline_events WHERE eventType='type' AND extraVars=? AND eventTime > DATE_SUB(NOW(), INTERVAL 7 DAY) ORDER BY eventTime DESC LIMIT 0, 100";
+		$sql_query = "SELECT *, (SELECT name_token FROM mixer_users WHERE mixer_users.mixer_id=timeline_events.mixer_id) as username, (SELECT avatarUrl FROM mixer_users WHERE mixer_users.mixer_id=timeline_events.mixer_id) as avatarUrl, MAX(eventTime) as eventTime FROM timeline_events WHERE eventType='type' AND extraVars=? AND eventTime > DATE_SUB(NOW(), INTERVAL 7 DAY) GROUP BY timeline_events.mixer_id ORDER BY eventTime DESC LIMIT 0, 50";
 		$query = $this->CI->db->query($sql_query, array($typeId));
 		$feedData = $query->result();
 

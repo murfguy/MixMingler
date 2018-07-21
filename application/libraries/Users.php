@@ -128,7 +128,8 @@ class Users {
 		$query = $this->CI->db->query($sql_query, array($mixerApi_data['token'], $mixerApi_data['user']['avatarUrl'], $timestamp, $mixerApi_data['partnered'], $mixerApi_data['viewersTotal'], $mixerApi_data['numFollowers'], $mixerApi_data['type']['name'], $mixerApi_data['type']['id'], $mixerApi_data['id']));
 		
 		// If current type isn't already stored, let's get it stored.
-		if (!in_array($mixerApi_data['type']['id'], $this->CI->types->getAllTypeIdsFromMingler())) {
+		$allKnownTypes = $this->CI->types->getAllTypeIdsFromMingler();
+		if (!in_array($mixerApi_data['type']['id'], $allKnownTypes )) {
 			$this->CI->types->addNewType($mixerApi_data['type']);
 		}
 

@@ -65,6 +65,15 @@ class Version {
 		----- Template --------- */
 
 		$patch = new stdClass();
+		$patch->version = "0.1.4";
+		$patch->date = date($date_string, strtotime('2018-07-20'));
+		$patch->notes = array();
+		$patch->notes[] = "Added basic status of streamer/viewer counts info on stream detail page.";
+		$patch->notes[] = "Recent streamers on stream type page are now consolidated down to one listing per streamer.";
+		$patch->notes[] = "First pass at managing followed/ignored types from account page implemented.";
+		$patchNotes[] = $patch;
+
+		$patch = new stdClass();
 		$patch->version = "0.1.3";
 		$patch->date = date($date_string, strtotime('2018-07-20'));
 		$patch->notes = array();

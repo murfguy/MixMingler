@@ -24,6 +24,7 @@ class Type extends CI_Controller {
 			$slug = $method;
 
 			$typeData = $this->types->getTypeBySlug($slug);
+
 			if ($typeData == null) {
 				echo "<p>Display for types is pending, but sadly, we don't think we've seen this game you're looking for.</p>";
 			} else {
@@ -51,6 +52,7 @@ class Type extends CI_Controller {
 
 				$displayData = new stdClass();
 				$displayData->currentUser = $currentUser;
+				$displayData->mixerData = $this->types->getTypeFromMixer($typeData->typeId);
 				$displayData->typeData = $typeData;
 				$displayData->recentStreams = $this->types->getRecentStreamsForType($typeData->typeId);;
 				$displayData->activeStreams = $this->types->getActiveStreamsFromMixerByTypeId($typeData->typeId);
