@@ -117,10 +117,12 @@
 			<p class="devNote" data-toggle="tooltip" title="Planned for v0.3" data-placement="left">[Planned] AJAX system for loading news feeds in order to improve performance and load time.</p>
 
 			<div class="infoBox">
-				<h4 class="infoHeader">MixMingler News</h4>
+				<h4 class="infoHeader">MixMingler Notices</h4>
 				<div class="infoInterior">
-					<p>v0.1.2 released to Alpha build.</p>
-					<p>We are now working towards <b>v0.2: Types</b>.</p>
+					<div class="userFeedItem">
+						<p class="post">v0.1.4 Release (see <a href="/alpha/">Version History for notes</a>). This is a Release Candidate for v0.2-Types. Please visit the #testing-requests channel in the <a href="https://discord.gg/hcS64t9">MixMingler Discord</a> to help verify current functionality updates. If enough testing/feedback is completed, we will mark v0.2 as complete and move on to v0.3 development.</p>
+						<p class="postHead"><span class="postTime">21 July 2018</span></p>
+					</div>
 				</div>
 			</div>
 
