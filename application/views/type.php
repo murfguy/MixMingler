@@ -12,6 +12,7 @@
 					<?php echo "<p style\"text-align: center; font-size:20px\"><span class=\"onlineStat\" data-toggle=\"tooltip\" data-placement=\"bottom\" title=\"Current Streams\"><i class=\"fas fa-play-circle\"></i>  ".$mixerData['online']."</span>&nbsp;&nbsp;&nbsp;&nbsp;<span class=\"onlineStat\" data-placement=\"bottom\"data-toggle=\"tooltip\" title=\"Current Viewers\"><i class=\"fas fa-eye\"></i> ".$mixerData['viewersCurrent']."</span></p>";
 
 					?>
+					<p><a href="https://mixer.com/browse/games/<?php echo "$typeData->typeId"; ?>">View <?php echo $typeData->typeName; ?> on Mixer</a></p>
 					<!--<p><i class="fas fa-play-circle"></i> <?php echo $mixerData['online'] ?>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 					<i class="fas fa-eye"></i> <?php echo $mixerData['viewersCurrent'] ?></p>
 					<p class="devNote" data-toggle="tooltip" title="Planned for v0.2" data-placement="left">Coming soon</p>-->

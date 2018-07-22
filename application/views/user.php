@@ -111,7 +111,7 @@
 										$type->coverUrl = "https://mixer.com/_latest/assets/images/main/types/default.jpg";
 									}
 									echo "<div class=\"typeInfo xsm\" data-toggle=\"tooltip\" title=\"$type->typeName: Streamed ".$type->stream_count." times\">";
-										echo "<a href=\"/type/$type->id/".$type->slug."\"><img src=\"".$type->coverUrl."\" class=\"coverArt\" /></a>";
+										echo "<a href=\"/type/$type->typeId/".$type->slug."\"><img src=\"".$type->coverUrl."\" class=\"coverArt\" /></a>";
 
 										//echo "<p class=\"typeName\"><a href=\"/type/".$type->slug."\">".$type->typeName."</a></p>";
 										//echo "<p class=\"stats\"><span class=\"onlineStat\" data-toggle=\"tooltip\" data-placement=\"bottom\" title=\"Current Streams\"><i class=\"fas fa-play-circle\"></i>  ".$type->online."</span>&nbsp;&nbsp;&nbsp;&nbsp;<span class=\"onlineStat\" data-placement=\"bottom\"data-toggle=\"tooltip\" title=\"Current Viewers\"><i class=\"fas fa-eye\"></i> ".$type['viewersCurrent']."</span></p>";

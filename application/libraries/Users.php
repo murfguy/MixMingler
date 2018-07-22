@@ -237,7 +237,8 @@ class Users {
 
 	public function getUsersRecentStreamTypes($mixer_id) {
 		$sql_query = "SELECT *, (SELECT name_token FROM mixer_users WHERE mixer_users.mixer_id= timeline_events.mixer_id) as name_token, 
-(SELECT typeName FROM stream_types WHERE stream_types.typeId= timeline_events.extraVars) as typeName,
+(SELECT typeName FROM stream_types WHERE stream_types.typeId= timeline_events.extraVars) as typeName, 
+(SELECT typeId FROM stream_types WHERE stream_types.typeId= timeline_events.extraVars) as typeId,
 (SELECT slug FROM stream_types WHERE stream_types.typeId= timeline_events.extraVars) as slug,
 (SELECT coverUrl FROM stream_types WHERE stream_types.typeId= timeline_events.extraVars) as coverUrl,
 COUNT(DISTINCT DATE(eventTime)) as stream_count
