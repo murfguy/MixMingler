@@ -154,7 +154,7 @@ class News {
 
 			if ($type != null) {
 				//$typeLink = "<a href=\"/type/$type->slug\">".$type->name."</a>";
-				$typeLink = "<a href=\"/type/$type->slug\">".$type->typeName."</a>";
+				$typeLink = "<a href=\"/type/$type->typeId/$type->slug\">".$type->typeName."</a>";
 
 				$eventText = str_replace("{typeId:".$id."}", $typeLink, $eventText);
 			} else {

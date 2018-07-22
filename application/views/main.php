@@ -86,7 +86,7 @@
 
 							foreach ($followedTypes as $type) {
 								echo "<div class=\"newsFeed gamesFeed\" id=\"typeNews-".$type['id']."\" />";
-								echo "<h3><a href=\"/type/".$slugs[$type['id']]."\">".$type['name']."</a></h3>";
+								echo "<h3><a href=\"/type/".$type['id']."/".$slugs[$type['id']]."\">".$type['name']."</a></h3>";
 
 								
 								echo "<div class=\"topStreams\" id=\"type-".$type['id']."\">";

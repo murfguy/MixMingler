@@ -41,7 +41,7 @@
 								foreach ($followedTypesData as $type) {
 									echo "<tr>";
 									echo "<td><img src=\"$type->coverUrl\" width=\"40\"></td>";
-									echo "<td><a href=\"/type/$type->slug\">$type->typeName</a></td>";
+									echo "<td><a href=\"/type/$type->typeId/$type->slug\">$type->typeName</a></td>";
 									echo "<td><button type=\"button\" data-toggle=\"tooltip\" title=\"Stop getting updates about this game.\" id=\"unfollow\" typeId=\"".$type->typeId."\" class=\"typeAction btn-sm btn-danger\">Unfollow</button></td>";
 									echo "</tr>";
 								}
@@ -68,7 +68,7 @@
 								foreach ($ignoredTypesData as $type) {
 									echo "<tr>";
 									echo "<td><img src=\"$type->coverUrl\" width=\"40\"></td>";
-									echo "<td>$type->typeName</td>";
+									echo "<td><a href=\"/type/$type->typeId/$type->slug\">$type->typeName</a></td>";
 									echo "<td><button type=\"button\" data-toggle=\"tooltip\" title=\"Have this game show up in lists again.\" id=\"unignore\" typeId=\"".$type->typeId."\" class=\"typeAction btn-sm btn-danger\">Unignore</button></td>";
 									echo "</tr>";
 								}

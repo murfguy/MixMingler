@@ -9,7 +9,7 @@ class Type extends CI_Controller {
 		echo "<h1>Coming Soon!</h1>";
 	}
 
-	public function _remap($method) {
+	public function _remap($method, $params = array()) {
 		$this->load->database();
 		$this->load->library('users');
 		$this->load->library('news');
@@ -20,10 +20,26 @@ class Type extends CI_Controller {
 		if ($method != "index") {
 			// use type slug to find display type
 
-			// Just want to rename this var for clarity's sake.
-			$slug = $method;
+			if (ctype_digit($method)) {
+				// This is a type id input
+				$typeData = $this->types->getTypeById($method);
+				$typeId = $method;
 
-			$typeData = $this->types->getTypeBySlug($slug);
+				// Let's see if we have a slug, and if not, create the one we'd know
+				if (!empty($params)) {
+					$slug = $params[0];
+				} else {
+					$slug = $this->types->createSlug($typeData->typeName);
+				}
+
+			} else {
+				// This is a slug input
+				$typeData = $this->types->getTypeBySlug($method);
+				if (!empty($typeData)) {
+					$typeId = $typeData->typeId;
+					$slug = $method;
+				}
+			}
 
 			if ($typeData == null) {
 				echo "<p>Display for types is pending, but sadly, we don't think we've seen this game you're looking for.</p>";

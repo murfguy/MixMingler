@@ -230,6 +230,10 @@ LIMIT 0, 50";
 		return strtolower($typeName); // returns slugged version, lower case
 	}
 
+	public function getTypeURL($typeId, $typeSlug) {
+		return "/type/$typeId/$typeSlug/";
+	}
+
 	public function getSyncQueryDataArray($type) {
 		if ($type['coverUrl'] == null) {
 			$type['coverUrl']  = "https://mixer.com/_latest/assets/images/main/types/default.jpg";
