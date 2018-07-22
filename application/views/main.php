@@ -86,7 +86,7 @@
 
 							foreach ($followedTypes as $type) {
 								echo "<div class=\"newsFeed gamesFeed\" id=\"typeNews-".$type['id']."\" />";
-								echo "<h3><a href=\"/type/".$slugs[$type['id']]."\">".$type['name']."</a></h3>";
+								echo "<h3><a href=\"/type/".$type['id']."/".$slugs[$type['id']]."\">".$type['name']."</a></h3>";
 
 								
 								echo "<div class=\"topStreams\" id=\"type-".$type['id']."\">";
@@ -119,6 +119,7 @@
 			<div class="infoBox">
 				<h4 class="infoHeader">MixMingler News</h4>
 				<div class="infoInterior">
+					<p>v0.1.2 released to Alpha build.</p>
 					<p>We are now working towards <b>v0.2: Types</b>.</p>
 				</div>
 			</div>

@@ -64,7 +64,11 @@ class User extends CI_Controller {
 			$minglerData->lastTypeSlug = $this->types->createSlug($minglerData->lastType);
 
 			$minglerData->lastStartElapsed = $this->tools->getElapsedTimeString(strtotime($minglerData->lastStreamStart));
-			$minglerData->lastSeenElapsed = $this->tools->getElapsedTimeString(strtotime($minglerData->lastSeenOnline));
+			$minglerData->lastSeenElapsed = $this->tools->getElapsedTimeString(strtotime($minglerData->lastSeenOnline));		
+
+			if (!empty($minglerData->followedTypes)) {
+				$minglerData->followedTypesData = $this->types->getTypesByIdsFromMingler($minglerData->followedTypes);
+			}
 
 
 			// --------------------------------------------------------------------------------
@@ -103,6 +107,7 @@ class User extends CI_Controller {
 			if (!empty($minglerData->followedCommunities)) {
 				$communitiesData->followed = $this->communities->getCommunitiesFromList($minglerData->followedCommunities);
 			} 
+
 
 			// --------------------------------------------------------------------------------
 			// Portion #4: Prep Data, and Display in Single User view

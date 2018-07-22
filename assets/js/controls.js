@@ -146,8 +146,8 @@ var baseActionUrl = baseURL+"/servlet/";
 			case "ignore": 
 				actionUrl += "ignoreType/";
 
-				$(this).removeClass('btn-danger');
-				$(this).addClass('btn-warning');
+				$(this).removeClass('btn-warning');
+				$(this).addClass('btn-danger');
 				$(this).text('Unignore');
 				$(this).attr('id','unignore');
 				$(this).attr('title','Have this game show up in lists again.');
@@ -240,53 +240,47 @@ var baseActionUrl = baseURL+"/servlet/";
 		}
 	});
 
+	$("div.inactiveView").hide();
+	console.log("HIDE!");
 	$("a.typeToggle").click(function () {
-		/*console.log("toggle type view");
+		console.log("toggle type view");
 		category = $(this).attr('category');
 		console.log(" --  "+category);
 
-		if (category != "all") {
-			$(".communityListing").hide();
-			$("."+category).show();
-		} else {
-			$(".communityListing").show();
-		}
+		switch (category) {
+			case "followed":
+				$("div#followed").show();
+				$("div#allActive").hide();
+				break;
+
+			case "active":
+				$("div#followed").hide();
+				$("div#allActive").show();
+				break;
+			}
+	});
+
+
+	$("div.inactiveView").hide();
+	console.log("HIDE!");
+	$("a.viewToggle.accountTypes").click(function () {
+		console.log("toggle account type management view");
+		category = $(this).attr('category');
+		console.log(" --  "+category);
 
 		switch (category) {
-			case "all":
-				$("#communitiesList h2 span.mixBlue").text("All");
-				$("#communityDescription").text("Well, here's all the communities, ranked by popularity. If you want to drill down further, just check the categories above.");
+			case "followed":
+				$("div#followed").show();
+				$("div#ignored").hide();
 				break;
-			case "style":
-				$("#communitiesList h2 span.mixBlue").text("Style");
-				$("#communityDescription").text("Some streamers are chill. Others are competitive. Others wear funny costumes. Regardless of the style you seek, you can find them all here.");
+
+			case "ignored":
+				$("div#followed").hide();
+				$("div#ignored").show();
 				break;
-			case "content":
-				$("#communitiesList h2 span.mixBlue").text("Content");
-				$("#communityDescription").text("Want to find streamers by the kind of content they provide, or the genre of games they play? Well look no further.");
-				break;
-			case "platform":
-				$("#communitiesList h2 span.mixBlue").text("Platform");
-				$("#communityDescription").text("Pop on in, and find allies in your faction of the great Console Wars!");
-				break;
-			case "region":
-				$("#communitiesList h2 span.mixBlue").text("Regional");
-				$("#communityDescription").text("Find local hot streamers in your area!");
-				break;
-			case "game":
-				$("#communitiesList h2 span.mixBlue").text("Game");
-				$("#communityDescription").text("For some streamers, one game and one game alone is life. Want to find someone who lives and breathes your favorite game? Then you've come to the right spot!");
-				break;
-			case "streamers":
-				$("#communitiesList h2 span.mixBlue").text("Streamer");
-				$("#communityDescription").text("Have a certain streamer you love? Ones you adore and count yourself amongst the diehards? Then come and in be counted as a member of their community!");
-				break;
-			case "misc":
-				$("#communitiesList h2 span.mixBlue").text("Misc.");
-				$("#communityDescription").text("For everything else.");
-				break;
-		}*/
+			}
 	});
+
 
 	var coreLimit = 4;
 	$('input.coreCommunities').on('change', function(evt) {
@@ -411,3 +405,4 @@ function logout(tgtUser) {
 			//console.log(json.message);
 		});
 }
+

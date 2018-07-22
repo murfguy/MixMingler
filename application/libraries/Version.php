@@ -14,7 +14,7 @@ class Version {
 
 		$this->major = 0;
 		$this->minor = 1;
-		$this->revision = 2;
+		$this->revision = 3;
 		$this->stage = "Alpha";
 
 		// Load Database
@@ -63,6 +63,27 @@ class Version {
 		$patch->notes[] = "note";
 		$patchNotes[] = $patch;
 		----- Template --------- */
+
+		$patch = new stdClass();
+		$patch->version = "0.1.4";
+		$patch->date = date($date_string, strtotime('2018-07-20'));
+		$patch->notes = array();
+		$patch->notes[] = "Added basic status of streamer/viewer counts info on stream detail page.";
+		$patch->notes[] = "Recent streamers on stream type page are now consolidated down to one listing per streamer.";
+		$patch->notes[] = "First pass at managing followed/ignored types from account page implemented.";
+		$patchNotes[] = $patch;
+
+		$patch = new stdClass();
+		$patch->version = "0.1.3";
+		$patch->date = date($date_string, strtotime('2018-07-20'));
+		$patch->notes = array();
+		$patch->notes[] = "Streamlined design on 'common games' on type detail page.";
+		$patch->notes[] = "Added note for when there are no active streams on a type's detail page.";
+		$patch->notes[] = "Followed games is now listed in streamer profile.";
+		$patch->notes[] = "Common games, and time notices hidden for streamers with under 25 followers.";
+		$patch->notes[] = "Types list now can now toggle between 'followed' types and 'active' types.";
+		$patch->notes[] = "Time of user registration to MixMingler is now being tracked.";
+		$patchNotes[] = $patch;
 
 		$patch = new stdClass();
 		$patch->version = "0.1.2";
