@@ -74,7 +74,7 @@
 								}
 							} else {
 								echo "<tr>";
-								echo "<td colspan=\"3\">You haven't followed any games.</td>";
+								echo "<td colspan=\"3\">You haven't ignored any games.</td>";
 								echo "</tr>";
 							}
 						?>
