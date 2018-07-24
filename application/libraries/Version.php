@@ -13,9 +13,9 @@ class Version {
 		$this->CI =& get_instance();
 
 		$this->major = 0;
-		$this->minor = 1;
-		$this->revision = 3;
-		$this->stage = "Alpha";
+		$this->minor = 2;
+		$this->revision = 0;
+		$this->stage = "Types";
 
 		// Load Database
 		//$this->CI->load->database();
@@ -65,12 +65,24 @@ class Version {
 		----- Template --------- */
 
 		$patch = new stdClass();
-		$patch->version = "0.1.4";
-		$patch->date = date($date_string, strtotime('2018-07-20'));
+		$patch->version = "0.2.0";
+		$patch->date = date($date_string, strtotime('2018-07-24'));
 		$patch->notes = array();
-		$patch->notes[] = "Added basic status of streamer/viewer counts info on stream detail page.";
+		$patch->notes[] = "Stable Release of v0.2-Types!";
+		$patch->notes[] = "Login/Logout buttons now in header.";
+		$patch->notes[] = "Improvements to alpha/version info page.";
+		$patch->notes[] = "Icons added to navigation.";
+		$patch->notes[] = "Alpha Info added to navigation.";
+		$patchNotes[] = $patch;
+
+		$patch = new stdClass();
+		$patch->version = "0.1.4";
+		$patch->date = date($date_string, strtotime('2018-07-21'));
+		$patch->notes = array();
+		$patch->notes[] = "Fixed a backend issue that was causing bad database insertions on types. Required adjustments to type URLs.";
+		$patch->notes[] = "Added basic status of streamer/viewer counts and 'view on mixer' link on stream detail page.";
 		$patch->notes[] = "Recent streamers on stream type page are now consolidated down to one listing per streamer.";
-		$patch->notes[] = "First pass at managing followed/ignored types from account page implemented.";
+		$patch->notes[] = "Now able to manage followed/ignored types from account management page.";
 		$patchNotes[] = $patch;
 
 		$patch = new stdClass();

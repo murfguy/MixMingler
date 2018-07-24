@@ -63,13 +63,18 @@ class Types {
 	}
 
 	public function getTypesByIdsFromMingler($typeIds) {
-		$typeIds = str_replace(";", ",", $typeIds);
+		if (!empty($typeIds)) {
 
-		$sql_query = "SELECT * FROM stream_types WHERE typeId IN ($typeIds) ORDER BY typeName ASC";
-		$query = $this->CI->db->query($sql_query);
-		$types = $query->result();
+			$typeIds = str_replace(";", ",", $typeIds);
 
-		return $types;
+			$sql_query = "SELECT * FROM stream_types WHERE typeId IN ($typeIds) ORDER BY typeName ASC";
+			$query = $this->CI->db->query($sql_query);
+			$types = $query->result();
+
+			return $types;
+		} else {
+			return null;
+		}
 	}
 
 	public function getTypeFromMixer($typeId) {

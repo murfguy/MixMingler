@@ -41,7 +41,7 @@ class Account extends CI_Controller {
 
 
 			// Get Followed/Ignored Games
-			$viewData->followedTypesData = $this->types->getTypesByIdsFromMingler($minglerData->followedTypes);
+			$viewData->followedTypesData = $this->types->getTypesByIdsFromMingler($minglerData->followedTypes);			
 			$viewData->ignoredTypesData = $this->types->getTypesByIdsFromMingler($minglerData->ignoredTypes);
 
 

@@ -36,33 +36,44 @@
             </li>-->
             <?php
               if (isset($_SESSION['mixer_user'])) {
-                echo "<li class=\"navItem\" ><a class=\"nav-link\" style=\"color: rgb(37,188,235)\" href=\"/user/".$_SESSION['mixer_user']."\">".$_SESSION['mixer_user']."</a></li>";
+                echo "<li class=\"navItem\" ><a class=\"nav-link\" style=\"color: rgb(37,188,235)\" href=\"/user/".$_SESSION['mixer_user']."\"> ".$_SESSION['mixer_user']."</a></li>";
               }
             ?>
             <li class="nav-item">
-              <a class="nav-link" href="/user/">Streamers</a>
+              <a class="nav-link" href="/user/"><i class="fas fa-user"></i> Streamers</a>
             </li>
             <li class="nav-item">
-              <a class="nav-link" href="/type/">Games</a>
+              <a class="nav-link" href="/type/"><i class="fas fa-gamepad"></i> Games</a>
             </li>
             <li class="nav-item">
-              <a class="nav-link" href="/community/">Communities</a>
+              <a class="nav-link" href="/community/"><i class="fas fa-users"></i> Communities</a>
             </li>
             <li class="nav-item">
-              <a class="nav-link" href="/faq/">FAQ</a>
+              <a class="nav-link" href="/faq/"><i class="fas fa-question-circle"></i> FAQ</a>
             </li>
             <?php
               if (isset($_SESSION['mixer_user'])) {
-                echo "<li class=\"navItem\"><a class=\"nav-link\" href=\"/account/\">Account</a></li>";
-                echo "<li class=\"navItem\"><a class=\"nav-link\" onclick=\"logout()\">Logout</a></li>";
+                echo "<li class=\"navItem\"><a class=\"nav-link\" href=\"/account/\"><i class=\"fas fa-user-cog\"></i> Account</a></li>";
               }
 
              if (isset($_SESSION['mingler_role'])) {
                if (in_array($_SESSION['mingler_role'], array('owner','admin','dev'))) {
-                 echo "<li class=\"navItem\"><a class=\"nav-link\" href=\"/admin/\" style=\"color: red;\">Admin</a></li>";
+                 echo "<li class=\"navItem\"><a class=\"nav-link\" href=\"/admin/\" style=\"color: #f59292;\"><i class=\"fas fa-cog\"></i> Admin</a></li>";
                }
              }
             ?>
+          </ul>
+           <ul class="nav navbar-nav navbar-right">
+          <?php
+              if (isset($_SESSION['mixer_user'])) {
+                echo "<li class=\"navItem\"><a class=\"nav-link\" onclick=\"logout()\"><i class=\"fas fa-sign-out-alt\"></i> Logout</a></li>";
+              } else {
+                echo "<li class=\"navItem\"><a class=\"nav-link\" href=\"/auth/session/\"><span class=\"mixBlue\"><i class=\"fas fa-sign-in-alt\"></i> Login w/ Mixer</span></a></li>";
+              }
+            ?>
+            <li class="nav-item">
+              <a class="nav-link" href="/alpha/"><i class="fas fa-bug"></i> Alpha Info</a>
+            </li>
           </ul>
         </div>
       </nav>

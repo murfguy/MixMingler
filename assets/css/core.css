@@ -260,3 +260,22 @@ div.icons {
 div.actionButtons > button {
 	width: 100%;
 }
+
+
+div.inactiveView {
+	display: hidden;
+}
+
+div.activeView {
+	display: block;
+}
+
+div.card {
+	margin-bottom: 5px;
+}
+
+
+
+div.card-body > ul {
+	color: black;
+}

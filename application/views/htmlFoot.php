@@ -23,6 +23,7 @@
 
 
 	<!-- MixMingler Internal Javascript -->
+	<script type="text/javascript" src="<?php echo base_url();?>assets/js/viewControls.js" ></script>
 	<script type="text/javascript" src="<?php echo base_url();?>assets/js/controls.js" ></script>
 </body>
 </html>
