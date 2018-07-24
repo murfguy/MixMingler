@@ -120,8 +120,8 @@
 				<h4 class="infoHeader">MixMingler Notices</h4>
 				<div class="infoInterior">
 					<div class="userFeedItem">
-						<p class="post">v0.1.4 Release (see <a href="/alpha/">Version History for notes</a>). This is a Release Candidate for v0.2-Types. Please visit the #testing-requests channel in the <a href="https://discord.gg/hcS64t9">MixMingler Discord</a> to help verify current functionality updates. If enough testing/feedback is completed, we will mark v0.2 as complete and move on to v0.3 development.</p>
-						<p class="postHead"><span class="postTime">21 July 2018</span></p>
+						<p class="post">v0.2.0-Type Released!!!! (see <a href="/alpha/">Version History for notes</a>). We are officially moving into development on v0.3-Communities! Please visit the <a href="https://discord.gg/hcS64t9">MixMingler Discord</a> to provide any feedback.</p>
+						<p class="postHead"><span class="postTime">24 July 2018</span></p>
 					</div>
 				</div>
 			</div>
