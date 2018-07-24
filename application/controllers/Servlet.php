@@ -305,6 +305,18 @@ class Servlet extends CI_Controller {
 		$this->returnData();
 	}
 
+	public function applyUserRole() {
+		$this->returnData->name_token = $_REQUEST['name_token'];
+		$this->returnData->success = true;
+		$this->returnData->message = "Applied Role to ".$_REQUEST['name_token'];
+
+		// Update User Role
+
+		// if role is dev or admin, add to news feed
+
+		$this->returnData();
+	}
+
 
 
 	public function apiTest() {

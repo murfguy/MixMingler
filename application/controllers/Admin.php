@@ -5,6 +5,7 @@ class Admin extends CI_Controller {
 	{
 		$this->load->library('users');
 		$this->load->library('news');
+		$this->load->helper('form');
 		$this->load->database();
 		
 		if (isset($_SESSION['mixer_id'])) {
@@ -28,6 +29,7 @@ class Admin extends CI_Controller {
 					$viewData = new stdClass();
 					$viewData->logins = $logins;
 					$viewData->registrations = $registrations;
+
 
 					$this->load->view('htmlHead');
 					$this->load->view('admin', $viewData);

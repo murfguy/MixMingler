@@ -6,6 +6,7 @@ class Version {
 	private $major;
 	private $minor;
 	private $revision;
+	private $build;
 	private $stage;
 
 	public function __construct() {
@@ -14,7 +15,8 @@ class Version {
 
 		$this->major = 0;
 		$this->minor = 2;
-		$this->revision = 0;
+		$this->revision = 1;
+		$this->build = 1;
 		$this->stage = "Types";
 
 		// Load Database
@@ -63,6 +65,12 @@ class Version {
 		$patch->notes[] = "note";
 		$patchNotes[] = $patch;
 		----- Template --------- */
+		$patch = new stdClass();
+		$patch->version = "0.2.1";
+		$patch->date = date($date_string, strtotime('2018-07-24'));
+		$patch->notes = array();
+		$patch->notes[] = "Admin Panel updated";
+		$patchNotes[] = $patch;
 
 		$patch = new stdClass();
 		$patch->version = "0.2.0";

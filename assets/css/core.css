@@ -196,6 +196,10 @@ div.infoBox {
 	background-color: rgb(41, 37, 72);
 }
 
+div.infoBox.col {
+	margin-right: 8px;
+}
+
 div.infoBox > .infoHeader {
 	border-bottom: 1px solid #90a9d2;
 	padding: 8px 0px 0px 8px;

@@ -3,9 +3,9 @@
 		<h1>Alpha Version Information</h1>
 	</div>
 	<nav id="categoryNav">
-		<a class="infoToggle" category="info">Alpha Info</a> | 
-		<a class="infoToggle" category="version">Version History</a> | 
-		<a class="infoToggle" category="roadmap">Roadmap</a>
+		<a class="viewToggle" category="info">Alpha Info</a> | 
+		<a class="viewToggle" category="version">Version History</a> | 
+		<a class="viewToggle" category="roadmap">Roadmap</a>
 	</nav>
 
 

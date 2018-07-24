@@ -376,7 +376,8 @@ var baseActionUrl = baseURL+"/servlet/";
 
 	});
 
-	setInfoToggleListeners();
+	setViewToggleListeners();
+	setFormListeners();
 
 })();
 
