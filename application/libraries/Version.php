@@ -13,9 +13,9 @@ class Version {
 		$this->CI =& get_instance();
 
 		$this->major = 0;
-		$this->minor = 1;
-		$this->revision = 4;
-		$this->stage = "Alpha";
+		$this->minor = 2;
+		$this->revision = 0;
+		$this->stage = "Types";
 
 		// Load Database
 		//$this->CI->load->database();
@@ -63,6 +63,17 @@ class Version {
 		$patch->notes[] = "note";
 		$patchNotes[] = $patch;
 		----- Template --------- */
+
+		$patch = new stdClass();
+		$patch->version = "0.2.0";
+		$patch->date = date($date_string, strtotime('2018-07-24'));
+		$patch->notes = array();
+		$patch->notes[] = "Stable Release of v0.2-Types!";
+		$patch->notes[] = "Login/Logout buttons now in header.";
+		$patch->notes[] = "Improvements to alpha/version info page.";
+		$patch->notes[] = "Icons added to navigation.";
+		$patch->notes[] = "Alpha Info added to navigation.";
+		$patchNotes[] = $patch;
 
 		$patch = new stdClass();
 		$patch->version = "0.1.4";

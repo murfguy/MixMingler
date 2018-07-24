@@ -240,7 +240,6 @@ var baseActionUrl = baseURL+"/servlet/";
 		}
 	});
 
-	$("div.inactiveView").hide();
 	console.log("HIDE!");
 	$("a.typeToggle").click(function () {
 		console.log("toggle type view");
@@ -376,6 +375,8 @@ var baseActionUrl = baseURL+"/servlet/";
 				});
 
 	});
+
+	setInfoToggleListeners();
 
 })();
 

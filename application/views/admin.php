@@ -6,11 +6,10 @@
 	<div class="row">
 		<div class="col-3">
 			<h4>Recent Logins</h4>
-
 			<p>
 			<?php
 				foreach ($logins as $user) {
-					echo "<a href=\"/user/$user->name_token\"><img src=\"$user->avatarURL\" class=\"avatar thin-border\" width=\"25px\">$user->name_token</a><span class=\"postTime\">$user->loginTime</span><br>";
+					echo "<a href=\"/user/$user->name_token\"><img src=\"$user->avatarURL\" class=\"avatar thin-border\" width=\"25px\"> $user->name_token</a><span class=\"postTime\">$user->loginTime</span><br>";
 				}
 			?>
 			</p>
@@ -19,7 +18,7 @@
 			<p>
 			<?php
 				foreach ($registrations as $user) {
-					echo "<a href=\"/user/$user->name_token\"><img src=\"$user->avatarURL\" class=\"avatar thin-border\" width=\"25px\">$user->name_token</a><br>";
+					echo "<a href=\"/user/$user->name_token\"><img src=\"$user->avatarURL\" class=\"avatar thin-border\" width=\"25px\"> $user->name_token</a><br>";
 				}
 			?>
 			</p>

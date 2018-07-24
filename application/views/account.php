@@ -5,9 +5,6 @@
 
 	<p class="devNote">Account Management features are planned to added/implemented alongside appropriate features. See the <a href="/alpha/">Alpha Information Page</a> for more info. Bugs or incomplete implementations are expected in this area if dev notes are present for associated tasks.</p>
 
-
-
-
 	<div class="row">
 		<div class="col-3">
 			<h2>Tools</h2>	
