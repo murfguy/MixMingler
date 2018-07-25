@@ -14,10 +14,6 @@ class News {
 		$this->CI->load->library('types');
 	}
 
-	public function some_method() {
-
-	}
-
 	public function addNews($mixer_id, $eventText, $eventType, $extraVars = "") {
 		$sql_query = "INSERT INTO timeline_events (mixer_id, eventText, eventType, extraVars) VALUES (?, ?, ?, ?)";
 		$values = array($mixer_id, $eventText, $eventType, $extraVars);
@@ -94,6 +90,46 @@ class News {
 		}
 
 		return $newsContainer;
+	}
+
+	public function getEventString($event, $params = "") {
+		switch ($event) {
+			case "newSiteRole":
+				return "{username} became a MixMingler ".$params[0].".";
+				break;
+
+			case "firstSync":
+				return "{username} was first synced with MixMingler.";
+				break;
+
+			case "joinMixMingler":
+				return "{username} joined MixMingler.";
+				break;
+
+			case "joinCommunity":
+				return "{username} joined the {commId:".$params[0]."} community.";
+				break;
+
+			case "newStreamType":
+				return "{username} started streaming {typeId:".$params[0]."}.";
+				break;
+
+			case "newCommRole":
+				return "{username} became a ".$params[0]." for the {commId:".$params[1]."} community.";
+				break;
+
+			case "badge-followers":
+				return "{username} reached {followers:".$params[0]."} followers!";
+				break;
+
+			case "badge-views":
+				return "{username} surpassed {views:".$params[0]."} views!";
+				break;
+
+			case "badge-partner":
+				return "{username} became a Mixer Partner.";
+				break;
+		}
 	}
 
 	public function displayPostTime($eventTime) {

@@ -307,12 +307,45 @@ class Servlet extends CI_Controller {
 
 	public function applyUserRole() {
 		$this->returnData->name_token = $_REQUEST['name_token'];
-		$this->returnData->success = true;
-		$this->returnData->message = "Applied Role to ".$_REQUEST['name_token'];
+		$this->returnData->success = false;
 
-		// Update User Role
+		$newRole = $_REQUEST['roles'];
+		switch ($newRole) {
+			case 'dev':
+				$role = "Developer";
+				break;
+			case 'admin':
+				$role = "Admin";
+				break;
+			default: 
+				$role = "User";
+				break;
+		}
 
-		// if role is dev or admin, add to news feed
+		$streamer = $this->users->getUserFromMinglerByToken($_REQUEST['name_token']);
+		if (!empty($streamer)) {
+			if ($newRole != $streamer->minglerRole) {
+				
+				$this->returnData->message = "Applied the $role Role to ".$_REQUEST['name_token'];
+
+				$sql_query = "UPDATE mixer_users SET minglerRole = ? WHERE name_token=?";
+				$query = $this->db->query($sql_query, array($newRole, $_REQUEST['name_token']));
+
+				if ($newRole == "admin" || $newRole == "dev") {
+					$news_str = $this->news->getEventString('newSiteRole', array($role));
+					$this->news->addNews($streamer->mixer_id, $news_str, "mingler");
+				}
+
+				$this->returnData->success = true;
+
+			} else {
+				$this->returnData->message = $_REQUEST['name_token']." is already assigned as $role.";
+			}
+		} else {
+			$this->returnData->message = $_REQUEST['name_token']." isn't a valid user.";
+		}
+		
+
 
 		$this->returnData();
 	}

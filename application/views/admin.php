@@ -83,7 +83,7 @@
 				echo form_dropdown('roles', $options, 'large');
 				//echo form_submit('submit', 'Apply Role');
 			?>
-			<button class="btn btn-primary">Apply Role</button>
+			<button class="btn btn-primary applyRole">Apply Role</button>
 			<?php
 				echo form_close();
 			?>
