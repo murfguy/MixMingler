@@ -67,26 +67,54 @@
 
 		<div id="users" class="mainView inactiveView container col">
 			<h2>Users</h2>
-			<h5>Apply Role</h5>
+
+			<div class="infoBox col-5">
+				<h4 class="infoHeader">Apply Role</h4>
+				<div class="infoInterior">
+					
+				
+
 			<?php 
 				$attributes = array('id' => 'applyRole');
 				echo form_open('servlet/applyUserRole', $attributes); 
-				echo form_input('name_token', '');
+			?>
+				<div class="form-row">
+				<div class="form-group col-md-6">
+				<?php 
+					echo form_label('User Name', 'name_token');
 
+					$attributes = array(
+						'class' => 'form-control form-control-sm',
+						'placeholder' => 'Enter user\'s name.'
+					);
+					echo form_input('name_token', '', $attributes); 
+				?>
+				</div>
+				<div class="form-group col-md-6">
+				<?
 				$options = array(
-			        'admin'         => 'Admin',
-			        'dev'           => 'Developer',
-			        'user'         => 'User'
+			        'admin' => 'Admin',
+			        'dev' => 'Developer',
+			        'user' => 'User'
+				);
+				
+				$attributes = array(
+					'class' => 'form-control form-control-sm'
 				);
 
-				$roles = array('small', 'large');
-				echo form_dropdown('roles', $options, 'large');
+				echo form_label('Select a Role', 'roles');
+				echo form_dropdown('roles', $options, 'user', $attributes);
 				//echo form_submit('submit', 'Apply Role');
 			?>
+				</div>
+			</div><!-- .form-row -->
 			<button class="btn btn-primary applyRole">Apply Role</button>
 			<?php
 				echo form_close();
 			?>
+				</div>
+			</div>
+	
 		</div>
 
 		<div id="communities" class="mainView inactiveView container col">

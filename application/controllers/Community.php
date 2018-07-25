@@ -16,9 +16,14 @@ class Community extends CI_Controller {
 		$this->load->database();
 		$this->load->library('communities');
 		$this->load->library('news');
+		$this->load->library('users');
 
 		if ($method != "index") {
-			$this->loadSingleCommunity($method);
+			if ($method != 'create') {
+				$this->loadSingleCommunity($method);
+			} else {
+				$this->loadCreateForm();
+			}
 		} else {
 			$this->loadAllCommunities();
 		}
@@ -91,6 +96,43 @@ class Community extends CI_Controller {
 		} else {
 			//echo "<h2>Community does not exist!</h2>";
 		}
+	}
+
+	private function loadCreateForm() {
+		$currentUser = $this->users->getUserFromMingler($_SESSION['mixer_id']);
+
+		// Assume all criteria are succesful
+		$creationCriteria = array(
+			'agedEnough' => true,
+			'pendingApproval' => false,
+			'recentlyFounded'=> false,
+			'bannedFromCreation' => false
+		);
+
+		// Debug/test values
+		/*$currentUser->joinedMixer = "2016-08-02";
+		$currentUser->lastFoundation = "2018-04-25";
+		$currentUser->pendingFounding = false;
+		$currentUser->bannedFromCreation = false;*/
+
+		// If user is banned from making communities: fail, and no other criteria matter.
+		if ($currentUser->bannedFromCreation) { $creationCriteria['bannedFromCreation'] = true; } else {
+			// If user isn't banned, then let's look at the other critera.
+
+			// If user's account is under 90 days old: fails
+			if (strtotime($currentUser->joinedMixer) > (time() - (60*60*24*90))) { $creationCriteria['agedEnough'] = false; }
+			
+			// If user has a pending community approval: fails
+			if ($currentUser->pendingFoundation) { $creationCriteria['pendingApproval'] = true; }
+
+			// If user founded a community less than two weeks ago: fail
+			if (strtotime($currentUser->lastFoundation) > (time() - (60*60*24*14))) { $creationCriteria['recentlyFounded'] = true; }
+		}
+
+		$data = new stdClass();
+		$data->creationCriteria = $creationCriteria;
+
+		$this->load->view('community-add', $data);
 	}
 
 	private function loadAllCommunities() {
