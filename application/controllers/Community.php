@@ -99,36 +99,36 @@ class Community extends CI_Controller {
 	}
 
 	private function loadCreateForm() {
-		$currentUser = $this->users->getUserFromMingler($_SESSION['mixer_id']);
-
 		// Assume all criteria are succesful
 		$creationCriteria = array(
 			'agedEnough' => true,
 			'pendingApproval' => false,
 			'recentlyFounded'=> false,
-			'bannedFromCreation' => false
+			'bannedFromCreation' => false,
+			'isLoggedIn' => true
 		);
 
-		// Debug/test values
-		/*$currentUser->joinedMixer = "2016-08-02";
-		$currentUser->lastFoundation = "2018-04-25";
-		$currentUser->pendingFounding = false;
-		$currentUser->bannedFromCreation = false;*/
+		if (!empty($_SESSION['mixer_id'])) {
+			$currentUser = $this->users->getUserFromMingler($_SESSION['mixer_id']);
 
-		// If user is banned from making communities: fail, and no other criteria matter.
-		if ($currentUser->bannedFromCreation) { $creationCriteria['bannedFromCreation'] = true; } else {
-			// If user isn't banned, then let's look at the other critera.
+			// If user is banned from making communities: fail, and no other criteria matter.
+			if ($currentUser->bannedFromCreation) { $creationCriteria['bannedFromCreation'] = true; } else {
+				// If user isn't banned, then let's look at the other critera.
 
-			// If user's account is under 90 days old: fails
-			if (strtotime($currentUser->joinedMixer) > (time() - (60*60*24*90))) { $creationCriteria['agedEnough'] = false; }
-			
-			// If user has a pending community approval: fails
-			if ($currentUser->pendingFoundation) { $creationCriteria['pendingApproval'] = true; }
+				// If user's account is under 90 days old: fails
+				if (strtotime($currentUser->joinedMixer) > (time() - (60*60*24*90))) { $creationCriteria['agedEnough'] = false; }
+				
+				// If user has a pending community approval: fails
+				if ($currentUser->pendingFoundation) { $creationCriteria['pendingApproval'] = true; }
 
-			// If user founded a community less than two weeks ago: fail
-			if (strtotime($currentUser->lastFoundation) > (time() - (60*60*24*14))) { $creationCriteria['recentlyFounded'] = true; }
+				// If user founded a community less than two weeks ago: fail
+				if (strtotime($currentUser->lastFoundation) > (time() - (60*60*24*14))) { $creationCriteria['recentlyFounded'] = true; }
+			}
+
+		} else {
+			 $creationCriteria['isLoggedIn'] = false;
 		}
-
+		
 		$data = new stdClass();
 		$data->creationCriteria = $creationCriteria;
 
