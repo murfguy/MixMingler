@@ -63,13 +63,23 @@ class Types {
 	}
 
 	public function getTypesByIdsFromMingler($typeIds) {
-		$typeIds = str_replace(";", ",", $typeIds);
+		if (!empty($typeIds)) {
 
-		$sql_query = "SELECT * FROM stream_types WHERE typeId IN ($typeIds) ORDER BY typeName ASC";
-		$query = $this->CI->db->query($sql_query);
-		$types = $query->result();
+			$typeIds = str_replace(";", ",", $typeIds);
 
-		return $types;
+			$sql_query = "SELECT * FROM stream_types WHERE typeId IN ($typeIds) ORDER BY typeName ASC";
+			$query = $this->CI->db->query($sql_query);
+			$types = $query->result();
+
+			return $types;
+		} else {
+			return null;
+		}
+	}
+
+	public function getTypeFromMixer($typeId) {
+		$content = file_get_contents("https://mixer.com/api/v1/types/$typeId");
+		return json_decode($content, true);
 	}
 
 	public function getSpecifiedTypesFromMixer($typesBatch) {
@@ -172,7 +182,7 @@ class Types {
 	}
 
 	public function getRecentStreamsForType($typeId) {
-		$sql_query = "SELECT *, (SELECT name_token FROM mixer_users WHERE mixer_users.mixer_id=timeline_events.mixer_id) as username, (SELECT avatarUrl FROM mixer_users WHERE mixer_users.mixer_id=timeline_events.mixer_id) as avatarUrl FROM timeline_events WHERE eventType='type' AND extraVars=? AND eventTime > DATE_SUB(NOW(), INTERVAL 7 DAY) ORDER BY eventTime DESC LIMIT 0, 100";
+		$sql_query = "SELECT *, (SELECT name_token FROM mixer_users WHERE mixer_users.mixer_id=timeline_events.mixer_id) as username, (SELECT avatarUrl FROM mixer_users WHERE mixer_users.mixer_id=timeline_events.mixer_id) as avatarUrl, MAX(eventTime) as eventTime FROM timeline_events WHERE eventType='type' AND extraVars=? AND eventTime > DATE_SUB(NOW(), INTERVAL 7 DAY) GROUP BY timeline_events.mixer_id ORDER BY eventTime DESC LIMIT 0, 50";
 		$query = $this->CI->db->query($sql_query, array($typeId));
 		$feedData = $query->result();
 
@@ -223,6 +233,10 @@ LIMIT 0, 50";
 		$typeName = preg_replace('/[^a-zA-Z0-9\-\s]/', '', $typeName); // removes non-alphanumeric characters except space and dash
 		$typeName = preg_replace('/[\-\s]/', '_', $typeName); // converts spaces and dashes to underscores
 		return strtolower($typeName); // returns slugged version, lower case
+	}
+
+	public function getTypeURL($typeId, $typeSlug) {
+		return "/type/$typeId/$typeSlug/";
 	}
 
 	public function getSyncQueryDataArray($type) {

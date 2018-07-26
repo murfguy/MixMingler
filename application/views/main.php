@@ -86,7 +86,7 @@
 
 							foreach ($followedTypes as $type) {
 								echo "<div class=\"newsFeed gamesFeed\" id=\"typeNews-".$type['id']."\" />";
-								echo "<h3><a href=\"/type/".$slugs[$type['id']]."\">".$type['name']."</a></h3>";
+								echo "<h3><a href=\"/type/".$type['id']."/".$slugs[$type['id']]."\">".$type['name']."</a></h3>";
 
 								
 								echo "<div class=\"topStreams\" id=\"type-".$type['id']."\">";
@@ -117,10 +117,12 @@
 			<p class="devNote" data-toggle="tooltip" title="Planned for v0.3" data-placement="left">[Planned] AJAX system for loading news feeds in order to improve performance and load time.</p>
 
 			<div class="infoBox">
-				<h4 class="infoHeader">MixMingler News</h4>
+				<h4 class="infoHeader">MixMingler Notices</h4>
 				<div class="infoInterior">
-					<p>v0.1.2 released to Alpha build.</p>
-					<p>We are now working towards <b>v0.2: Types</b>.</p>
+					<div class="userFeedItem">
+						<p class="post">v0.2.0-Type Released!!!! (see <a href="/alpha/">Version History for notes</a>). We are officially moving into development on v0.3-Communities! Please visit the <a href="https://discord.gg/hcS64t9">MixMingler Discord</a> to provide any feedback.</p>
+						<p class="postHead"><span class="postTime">24 July 2018</span></p>
+					</div>
 				</div>
 			</div>
 

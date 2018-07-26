@@ -15,7 +15,7 @@
     		<input class="authenticateButton" type="submit" value="Authenticate with Mixer" />
 		</form>-->
 		<div class="authBtn">
-			<button class="btn btn-secondary" onclick="window.location.href = '/auth/session/';">Authenticate with Mixer</button>
+			<button class="btn btn-secondary" onclick="window.location.href = '/auth/session/';"><i class="fas fa-sign-in-alt"></i> Login w/ Mixer</button>
 		</div>
 
 		<div style="margin-top: 20px">

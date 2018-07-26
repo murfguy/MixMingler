@@ -5,6 +5,7 @@ class Account extends CI_Controller {
 	{
 		$this->load->library('users');
 		$this->load->library('communities');
+		$this->load->library('types');
 		$this->load->database();
 		
 		if (isset($_SESSION['mixer_id'])) {
@@ -38,8 +39,10 @@ class Account extends CI_Controller {
 			$viewData->minglerData = $minglerData;
 			$viewData->communitiesData = $communitiesData;
 
-			//$viewData->follows = $this->users->getFollowedChannelsFromMixer($_SESSION['mixer_userId']);
 
+			// Get Followed/Ignored Games
+			$viewData->followedTypesData = $this->types->getTypesByIdsFromMingler($minglerData->followedTypes);			
+			$viewData->ignoredTypesData = $this->types->getTypesByIdsFromMingler($minglerData->ignoredTypes);
 
 
 			$this->load->view('htmlHead');

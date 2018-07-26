@@ -31,5 +31,6 @@ sftp-config.josn
 *.sublime-project
 /tests/tests/
 /tests/results/
+application/config/config.php
 application/config/database.php
 sftp-config.json
