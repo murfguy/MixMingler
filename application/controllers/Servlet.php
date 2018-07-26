@@ -345,7 +345,26 @@ class Servlet extends CI_Controller {
 			$this->returnData->message = $_REQUEST['name_token']." isn't a valid user.";
 		}
 		
+		$this->returnData();
+	}
 
+	public function requestCommunity() {
+		$this->returnData->success = true;
+		$this->returnData->messages = array();
+
+		if ($this->communities->communityNameExists($_REQUEST['long_name'])) {
+			$this->returnData->success = false;
+			$this->returnData->messages[] = "A community with this name already exists.";
+		} else {
+			$this->returnData->messages[] = "Community name was succesful.";
+		}
+
+		if ($this->communities->communitySlugExists($_REQUEST['slug'])) {
+			$this->returnData->success = false;
+			$this->returnData->messages[] = "A community with this URL already exists.";
+		}else {
+			$this->returnData->messages[] = "Community slug was succesful.";
+		}
 
 		$this->returnData();
 	}

@@ -109,23 +109,30 @@ class Community extends CI_Controller {
 		);
 
 		if (!empty($_SESSION['mixer_id'])) {
-			$currentUser = $this->users->getUserFromMingler($_SESSION['mixer_id']);
+			$user = $this->users->getUserFromMingler($_SESSION['mixer_id']);
+
+			$timespan = 14; // Default, two weeks
+			if ($user->numFollowers < 200) { $timespan = 7*4; } // if < 200 followers, 4 weeks
+			if ($user->numFollowers < 100) { $timespan = 7*5; } // if < 100 followers, 5 weeks
+			if ($user->numFollowers < 50) { $timespan = 7*6; } // if < 50 followers, 6 weeks
+			if ($user->minglerRole != 'user') { $timespan = 0; } // site runners can make communities whenever
 
 			// If user is banned from making communities: fail, and no other criteria matter.
-			if ($currentUser->bannedFromCreation) { $creationCriteria['bannedFromCreation'] = true; } else {
+			if ($user->bannedFromCreation) { $creationCriteria['bannedFromCreation'] = true; } else {
 				// If user isn't banned, then let's look at the other critera.
 
 				// If user's account is under 90 days old: fails
-				if (strtotime($currentUser->joinedMixer) > (time() - (60*60*24*90))) { $creationCriteria['agedEnough'] = false; }
+				if (strtotime($user->joinedMixer) > (time() - (60*60*24*90))) { $creationCriteria['agedEnough'] = false; }
 				
 				// If user has a pending community approval: fails
-				if ($currentUser->pendingFoundation) { $creationCriteria['pendingApproval'] = true; }
+				if ($user->pendingFoundation) { $creationCriteria['pendingApproval'] = true; }
 
-				// If user founded a community less than two weeks ago: fail
-				if (strtotime($currentUser->lastFoundation) > (time() - (60*60*24*14))) { $creationCriteria['recentlyFounded'] = true; }
+				// If user founded a community too recently: fail
+				if (strtotime($user->lastFoundation) > (time() - (60*60*24*$timespan))) { $creationCriteria['recentlyFounded'] = true; }
 			}
 
 		} else {
+			// If user isn't logged in: fail
 			 $creationCriteria['isLoggedIn'] = false;
 		}
 		

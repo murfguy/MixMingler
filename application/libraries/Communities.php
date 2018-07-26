@@ -95,4 +95,23 @@ class Communities {
 		return $query->result();
 	}
 
+	public function communityNameExists($commName) {
+		$sql_query = "SELECT * FROM communities WHERE long_name=?";
+		$query = $this->CI->db->query($sql_query, array($commName));
+		if ($query->num_rows() > 0) {
+			return true;
+		}
+		return false;
+	}
+
+	public function communitySlugExists($slug) {
+		$sql_query = "SELECT * FROM communities WHERE slug=?";
+		$query = $this->CI->db->query($sql_query, array($slug));
+		
+		if ($query->num_rows() > 0) {
+			return true;
+		}
+		return false;
+	}
+
 }?>

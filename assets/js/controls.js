@@ -5,6 +5,7 @@ var baseActionUrl = baseURL+"/servlet/";
 	console.log('MixMingler Start!!');
 	console.log("baseURL:" + baseURL);
 
+
 	$('[data-toggle="tooltip"]').tooltip();
 	
 	$("#protoLogin").submit(function (event) {
