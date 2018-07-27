@@ -109,38 +109,35 @@
 					</div><!-- .form-row -->
 
 
-					<div class="form-row">
-						<div class="form-group col-md-6">
-							<?php 
-								echo form_label('Summary', 'summary');
+					<div class="form-group">
+						<?php 
+							echo form_label('Summary', 'summary');
 
-								$attributes = array(
-									'id' => 'summary',
-									'class' => 'form-control form-control-sm',
-									'placeholder' => 'Shows up as hover text on thumbnails.',
-									'data-validation' => 'required length alphanumeric',
-									'data-validation-length' => 'max255',
-									'data-validation-allowing' => '-_!@#$%^&*()=+::,./?[]{}|\`~'
-								);
-								echo form_input('summary', '', $attributes); 
-							?>
-						</div>
-						<div class="form-group col-md-6">
-							<?php
-								$attributes = array(
-									'id' => 'description',
-									'class' => 'form-control form-control-sm',
-									'placeholder' => 'Shows up on community details page.',
-									'data-validation' => 'required length alphanumeric',
-									'data-validation-length' => 'max1000',
-									'data-validation-allowing' => '-_!@#$%^&*()=+::,./?[]{}|\`~'
-								);
+							$attributes = array(
+								'id' => 'summary',
+								'class' => 'form-control form-control-sm',
+								'placeholder' => 'Shows up as hover text on thumbnails.',
+								'data-validation' => 'required length',
+								'data-validation-length' => 'max100'
+							);
+							echo form_input('summary', '', $attributes); 
+						?>
+					</div>
+					<div class="form-group">
+						<?php
+							$attributes = array(
+								'id' => 'description',
+								'class' => 'form-control form-control-sm',
+								'placeholder' => 'Shows up on community details page.',
+								'data-validation' => 'required length',
+								'data-validation-length' => 'max500',
+								'rows' => '3'
+							);
 
-								echo form_label('Description', 'description');
-								echo form_textarea('description', '', $attributes);
-							?>
-						</div>
-					</div><!-- .form-row -->
+							echo form_label('Description', 'description');
+							echo form_textarea('description', '', $attributes);
+						?>
+					</div>
 
 					<button class="btn btn-primary requestCommunity">Submit Request</button>
 					<?php

@@ -249,5 +249,11 @@ ORDER BY stream_count DESC";
 		$query = $this->CI->db->query($sql_query, array($mixer_id));
 		return  $query->result();
 	}
+
+	public function getUsersPendingCommunities($mixer_id) {
+		$sql_query = "SELECT * FROM `communities` WHERE status='pending' AND founder=? ORDER BY id DESC";
+		$query = $this->CI->db->query($sql_query, array($mixer_id));
+		return  $query->result();
+	}
 }
 ?>

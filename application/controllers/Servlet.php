@@ -306,10 +306,10 @@ class Servlet extends CI_Controller {
 	}
 
 	public function applyUserRole() {
-		$this->returnData->name_token = $_REQUEST['name_token'];
+		$this->returnData->name_token = $_POST['name_token'];
 		$this->returnData->success = false;
 
-		$newRole = $_REQUEST['roles'];
+		$newRole = $_POST['roles'];
 		switch ($newRole) {
 			case 'dev':
 				$role = "Developer";
@@ -322,14 +322,14 @@ class Servlet extends CI_Controller {
 				break;
 		}
 
-		$streamer = $this->users->getUserFromMinglerByToken($_REQUEST['name_token']);
+		$streamer = $this->users->getUserFromMinglerByToken($_POST['name_token']);
 		if (!empty($streamer)) {
 			if ($newRole != $streamer->minglerRole) {
 				
-				$this->returnData->message = "Applied the $role Role to ".$_REQUEST['name_token'];
+				$this->returnData->message = "Applied the $role Role to ".$_POST['name_token'];
 
 				$sql_query = "UPDATE mixer_users SET minglerRole = ? WHERE name_token=?";
-				$query = $this->db->query($sql_query, array($newRole, $_REQUEST['name_token']));
+				$query = $this->db->query($sql_query, array($newRole, $_POST['name_token']));
 
 				if ($newRole == "admin" || $newRole == "dev") {
 					$news_str = $this->news->getEventString('newSiteRole', array($role));
@@ -339,10 +339,10 @@ class Servlet extends CI_Controller {
 				$this->returnData->success = true;
 
 			} else {
-				$this->returnData->message = $_REQUEST['name_token']." is already assigned as $role.";
+				$this->returnData->message = $_POST['name_token']." is already assigned as $role.";
 			}
 		} else {
-			$this->returnData->message = $_REQUEST['name_token']." isn't a valid user.";
+			$this->returnData->message = $_POST['name_token']." isn't a valid user.";
 		}
 		
 		$this->returnData();
@@ -352,19 +352,48 @@ class Servlet extends CI_Controller {
 		$this->returnData->success = true;
 		$this->returnData->messages = array();
 
-		if ($this->communities->communityNameExists($_REQUEST['long_name'])) {
+		if ($this->communities->communityNameExists($_POST['long_name'])) {
 			$this->returnData->success = false;
 			$this->returnData->messages[] = "A community with this name already exists.";
-		} else {
-			$this->returnData->messages[] = "Community name was succesful.";
 		}
 
-		if ($this->communities->communitySlugExists($_REQUEST['slug'])) {
+		if ($this->communities->communitySlugExists($_POST['slug'])) {
 			$this->returnData->success = false;
 			$this->returnData->messages[] = "A community with this URL already exists.";
-		}else {
-			$this->returnData->messages[] = "Community slug was succesful.";
 		}
+
+		if (empty($_POST['description'])) {
+			$this->returnData->success = false;
+			$this->returnData->messages[] = "Description wasn't provided.";
+		} 
+
+		if (empty($_POST['summary'])) {
+			$this->returnData->success = false;
+			$this->returnData->messages[] = "Summary wasn't provided.";
+		}
+		
+		if (empty($_POST['category_id'])) {
+			$this->returnData->success = false;
+			$this->returnData->messages[] = "A category wasn't selected.";
+		}
+		
+
+		if ($this->returnData->success) {
+			$inputData = array(
+				$_POST['long_name'], 
+				$_POST['slug'], 
+				$_POST['category_id'], 
+				$_POST['summary'], 
+				$_POST['description'],
+				$_SESSION['mixer_id'],
+				$_SESSION['mixer_id']
+			);
+			
+
+			$sql_query = "INSERT INTO communities (long_name, slug, category_id, summary, description, founder, admin) VALUES (?, ?, ?, ?, ?, ?, ?)";
+			$query = $this->db->query($sql_query, $inputData);
+		}
+		
 
 		$this->returnData();
 	}

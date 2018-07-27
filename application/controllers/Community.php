@@ -111,6 +111,11 @@ class Community extends CI_Controller {
 		if (!empty($_SESSION['mixer_id'])) {
 			$user = $this->users->getUserFromMingler($_SESSION['mixer_id']);
 
+			$pending = null;
+			if ($user != null) {
+				$pending = $this->users->getUsersPendingCommunities($_SESSION['mixer_id']);
+			}
+
 			$timespan = 14; // Default, two weeks
 			if ($user->numFollowers < 200) { $timespan = 7*4; } // if < 200 followers, 4 weeks
 			if ($user->numFollowers < 100) { $timespan = 7*5; } // if < 100 followers, 5 weeks
@@ -125,7 +130,7 @@ class Community extends CI_Controller {
 				if (strtotime($user->joinedMixer) > (time() - (60*60*24*90))) { $creationCriteria['agedEnough'] = false; }
 				
 				// If user has a pending community approval: fails
-				if ($user->pendingFoundation) { $creationCriteria['pendingApproval'] = true; }
+				if ($pending != null) { $creationCriteria['pendingApproval'] = true; }
 
 				// If user founded a community too recently: fail
 				if (strtotime($user->lastFoundation) > (time() - (60*60*24*$timespan))) { $creationCriteria['recentlyFounded'] = true; }
