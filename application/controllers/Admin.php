@@ -5,6 +5,7 @@ class Admin extends CI_Controller {
 	{
 		$this->load->library('users');
 		$this->load->library('news');
+		$this->load->library('communities');
 		$this->load->helper('form');
 		$this->load->database();
 		
@@ -30,6 +31,7 @@ class Admin extends CI_Controller {
 					$viewData->logins = $logins;
 					$viewData->registrations = $registrations;
 
+					$viewData->pendingCommunities = $this->communities->getCommunitiesByStatus('pending');
 
 					$this->load->view('htmlHead');
 					$this->load->view('admin', $viewData);

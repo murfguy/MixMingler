@@ -60,7 +60,7 @@
 									'class' => 'form-control form-control-sm',
 									'placeholder' => 'Enter the community\'s name.',
 									'data-validation' => 'required length',
-									'data-validation-length' => 'max25'
+									'data-validation-length' => 'max32'
 								);
 								echo form_input('long_name', '', $attributes); 
 							?>
@@ -74,7 +74,7 @@
 									'class' => 'form-control form-control-sm',
 									'placeholder' => 'The text of the url of your community',
 									'data-validation' => 'required length alphanumeric',
-									'data-validation-length' => 'max25',
+									'data-validation-length' => 'max32',
 									'data-validation-allowing' => '-_'
 								);
 								echo form_input('slug', '', $attributes); 
@@ -101,7 +101,7 @@
 							);
 
 							echo form_label('Parent Category', 'category_id');
-							echo form_dropdown('category_id', $options, 'user', $attributes);
+							echo form_dropdown('category_id', $options, '', $attributes);
 							//echo form_submit('submit', 'Apply Role');
 						?>
 						</div>

@@ -48,7 +48,7 @@
 
 					        echo "\" data-toggle=\"collapse\" data-target=\"#collapse$itemCount\" aria-expanded=\"true\" aria-controls=\"collapse$itemCount\">";
 					          echo "<b>$patch->date</b> ($patch->version)";
-					        echo "</button>";
+					          echo "</button></h5>";
 						echo "</div>";
 
 						echo "<div id=\"collapse$itemCount\" class=\"collapse";

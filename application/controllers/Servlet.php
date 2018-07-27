@@ -2,8 +2,7 @@
 class Servlet extends CI_Controller {
 	var $returnData = null;
 
-	public function __construct()
-	{
+	public function __construct() {
 		parent::__construct();
 		// Your own constructor code
 		$this->load->database();
@@ -17,12 +16,15 @@ class Servlet extends CI_Controller {
 	}
 
 	public function index() {
-
 	}
 
 	private function returnData() {
 		echo json_encode($this->returnData);
 	}
+
+	// --------------------------------------------------------------- 
+	// --- Join/Follow Community Functions --------------------------- 
+	// ---------------------------------------------------------------
 
 	public function joinCommunity($communityID) {
 		// If user is logged in
@@ -79,6 +81,7 @@ class Servlet extends CI_Controller {
 		}
 		$this->returnData();
 	}
+
 	public function followCommunity($communityID) {
 		// Add community ID to end of "followedCommunities" in mixer_user
 		// Increment follow count by one in communities
@@ -140,6 +143,10 @@ class Servlet extends CI_Controller {
 		$this->returnData();
 	}
 
+	// --------------------------------------------------------------- 
+	// --- Core Community Functions ---------------------------------- 
+	// ---------------------------------------------------------------
+
 	public function setCoreCommunity($communityID) {
 		// Add community ID to end of "followedCommunities" in mixer_user
 		// Increment follow count by one in communities
@@ -195,6 +202,10 @@ class Servlet extends CI_Controller {
 		}
 		$this->returnData();
 	}
+
+	// --------------------------------------------------------------- 
+	// --- Follow/Ignore Type Functions ------------------------------ 
+	// ---------------------------------------------------------------
 
 	public function followType($typeID) {
 		// Add type ID to end of "followedCommunities" in mixer_user
@@ -305,6 +316,10 @@ class Servlet extends CI_Controller {
 		$this->returnData();
 	}
 
+	// --------------------------------------------------------------- 
+	// --- Site Admin Functions -------------------------------------- 
+	// ---------------------------------------------------------------
+
 	public function applyUserRole() {
 		$this->returnData->name_token = $_POST['name_token'];
 		$this->returnData->success = false;
@@ -348,6 +363,31 @@ class Servlet extends CI_Controller {
 		$this->returnData();
 	}
 
+	// --------------------------------------------------------------- 
+	// --- Community Information Collection Functions ---------------- 
+	// ---------------------------------------------------------------
+
+	public function getCommunitiesByStatus () {
+		$status = $_POST['status'];
+		$this->returnData->success = true;
+		$this->returnData->status = $status;
+		
+		$$this->returnData->communities = $this->communities->getCommunitiesByStatus($status);
+
+		if ($$this->returnData->communities == null) {
+			$this->returnData->success = false;
+			$this->returnData->message = "No communities found with a status of $status.";
+		} else {
+			$this->returnData->message = "Found $query->numRows commmunities with a status of $status.";
+		}
+
+		$this->returnData();
+	}
+
+	// --------------------------------------------------------------- 
+	// --- Community Creation Functions ------------------------------ 
+	// ---------------------------------------------------------------
+
 	public function requestCommunity() {
 		$this->returnData->success = true;
 		$this->returnData->messages = array();
@@ -360,6 +400,11 @@ class Servlet extends CI_Controller {
 		if ($this->communities->communitySlugExists($_POST['slug'])) {
 			$this->returnData->success = false;
 			$this->returnData->messages[] = "A community with this URL already exists.";
+		}
+
+		if ($_POST['slug'] == "create") {
+			$this->returnData->success = false;
+			$this->returnData->messages[] = "That URL is reserved and cannot be used.";
 		}
 
 		if (empty($_POST['description'])) {
@@ -383,14 +428,15 @@ class Servlet extends CI_Controller {
 				$_POST['long_name'], 
 				$_POST['slug'], 
 				$_POST['category_id'], 
-				$_POST['summary'], 
-				$_POST['description'],
+				strip_tags($_POST['summary']), 
+				strip_tags($_POST['description']),
+				$_SESSION['mixer_id'],
+				$_SESSION['mixer_id'],
 				$_SESSION['mixer_id'],
 				$_SESSION['mixer_id']
-			);
-			
+			);			
 
-			$sql_query = "INSERT INTO communities (long_name, slug, category_id, summary, description, founder, admin) VALUES (?, ?, ?, ?, ?, ?, ?)";
+			$sql_query = "INSERT INTO communities (long_name, slug, category_id, summary, description, founder, admin, members, followers) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
 			$query = $this->db->query($sql_query, $inputData);
 		}
 		
@@ -398,6 +444,75 @@ class Servlet extends CI_Controller {
 		$this->returnData();
 	}
 
+	public function approveCommunity() {
+		$status = $_POST['status'];
+
+		$this->returnData->success = false;
+		$this->returnData->message = "Improper data received.";
+
+		$this->returnData->status = $status;
+		$this->returnData->long_name = $_POST['long_name'];
+
+
+		switch ($status) {
+			// Rejected - Closes out a creation request, but must have a reason.
+			case "rejected":
+				$sql_query = "UPDATE communities SET long_name=?, slug=NULL, category_id=?, summary=?, description=?,  siteAdminApprover=?, siteAdminNote=?, status='rejected' WHERE id=?";
+				$inputData = array(
+					$_POST['long_name'], 
+					$_POST['category_id'], 
+					$_POST['summary'], 
+					$_POST['description'],
+					$_POST['siteAdmin'],
+					$_POST['adminNote'],
+					$_POST['commId']
+				);
+				$query = $this->db->query($sql_query, $inputData);
+
+				$this->returnData->success = true;
+				$this->returnData->message = $_POST['long_name']."'s status was changed to $status.";
+				break;
+
+			// Approved - A community is recently approved for going live. Allows community admin to make edits, and publish thier community.
+			case "approved":
+				$sql_query = "UPDATE communities SET long_name=?, slug=?, category_id=?, summary=?, description=?,  siteAdminApprover=?, siteAdminNote=?, status='approved' WHERE id=?";
+				$inputData = array(
+					$_POST['long_name'], 
+					$_POST['slug'], 
+					$_POST['category_id'], 
+					$_POST['summary'], 
+					$_POST['description'],
+					$_POST['siteAdmin'],
+					$_POST['adminNote'],
+					$_POST['commId']
+				);	
+				$query = $this->db->query($sql_query, $inputData);
+
+				$this->returnData->success = true;
+				$this->returnData->message = $_POST['long_name']."'s status was changed to $status.";
+				break;
+		}
+		
+		$this->returnData();
+	}
+
+	// --------------------------------------------------------------- 
+	// --- Community Moderation Functions ---------------------------- 
+	// ---------------------------------------------------------------
+
+	// --------------------------------------------------------------- 
+	// --- News Collection Functions --------------------------------- 
+	// ---------------------------------------------------------------
+
+
+
+	// --------------------------------------------------------------- 
+	// --- Type Information Collection Functions --------------------- 
+	// --------------------------------------------------------------- 
+
+	// --------------------------------------------------------------- 
+	// --- User Information Collection Functions ---------------------- 
+	// ---------------------------------------------------------------
 
 
 	public function apiTest() {

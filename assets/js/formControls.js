@@ -13,6 +13,7 @@ function setFormListeners() {
 
 	setRequestCommunityValidationListeners();
 	$("form#requestCommunity").submit(function (event) { requestCommunity(event, $(this))} );
+	$("form.communityApproval").submit(function (event) { approveCommunity(event, $(this))} );
 }
 
 function applyUserRole(e, form) {
@@ -118,71 +119,105 @@ function requestCommunity(e, form) {
 			});
 }
 
+function approveCommunity(e, form) {
+	e.preventDefault();
+	actionUrl = baseActionUrl+"approveCommunity/";
+
+	submitButton = form.children("button.setApproval" );
+	submitButton.attr('disabled', '');
+	submitButton.text("Submitting Approval");
+	submitButton.prepend('<i class="fas fa-sync fa-spin"></i> ');
+
+	console.log("actionUrl: "+ actionUrl);
+		$.ajax({
+			url: actionUrl,
+			type: "POST",
+			dataType: "json",
+			data: form.serialize()
+		})
+			.done(function (json){
+				console.log('approveCommunity - AJAX done');
+
+				submitButton = form.children("button.setApproval" );
+				parent = form.closest("div.infoBox");
+				submitButton.removeAttr('disabled');
+				submitButton.remove("i");
+
+				if (json.success) {
+					//form.after('<div class="alert alert-success">The '+json.long_name+' community was succesfully '+json.status+'.</div>');
+
+					displayAlert(parent, json.message, 'success');
+					//$("form#requestCommunity").hide();
+					//submitButton.text("Apply Role");
+					//displayAlert($( "form#requestCommunity"), json.message, 'success');
+					parent.hide();
+				} else {
+					submitButton.text("Submit Approval");
+					displayAlert(form, json.message, 'danger');
+					
+				}
+
+			}) 
+
+			.fail(function (json){
+				console.log('approveCommunity - AJAX failed');
+				displayAlert(form, 'There was an issue communicating with the server.');
+
+				submitButton = form.children("button.setApproval" );
+					submitButton.removeAttr('disabled');
+					submitButton.remove("i");
+					submitButton.text("Submit Approval");
+					
+			})
+
+			.always(function (json){
+				console.log('approveCommunity - AJAX always');
+				console.log(json);
+				
+				//
+				//console.log(json.message);
+			});
+}
+
 function setRequestCommunityValidationListeners() {
 	console.log("setRequestCommunityValidationListeners()");
-
-	/*$.formUtils.addValidator({
-		name : 'name_taken',
-		validatorFunction: function (value, $el, config, language, $form) {
-			actionUrl = baseActionUrl+"checkCommunityName/"+$( "input#long_name" ).val();
-	 		$.ajax({
-				url: actionUrl,
-				type: "POST",
-				dataType: "json"
-			})
-				.done(function (json){
-					console.log('checkCommunityName - AJAX done');
-					//submitButton = $( "form#requestCommunity button.requestCommunity" );
-
-					//submitButton.removeAttr('disabled');
-					//submitButton.remove("i");
-
-					if (json.success) {
-						console.log("this name isn't in use");
-
-						return true;
-					} else {
-						console.log("this name is in use");
-
-						return false;
-					}
-
-				}) 
-
-				.fail(function (json){
-					console.log('checkCommunityName - AJAX failed');
-					console.log(json);
-					console.log(json.message);
-
-					return false;
-				})
-
-				.always(function (json){
-					//console.log('checkCommunityName - AJAX always');
-					//console.log(json);
-					//console.log(json.message);
-					return false;
-				});
-		},
-		errorMessage : 'That name is in use.',
-		errorMessageKey: 'nameInUse'
-	});*/
 
 	$("input#long_name").on("change paste keyup", function() {
  		console.log( "Handler for .change() called." );
 
- 		slug = $("input#long_name").val().toLowerCase();
+ 		slug = $(this).val().toLowerCase();
  		slug = slug.replace(/ /g, "-");
  		slug = slug.replace(/[^0-9a-z_-]/gi, '');
 
- 		$("input#slug").val(slug)
-		
+ 		 $(this).siblings("input#slug").val(slug)
 	});
-	// check name for invalid characters
-	// check URL for invalid characters
-	// check URL against current database
-	// check summary for invalid characters
-	// check description for invalid characters	
+
+
+	$("input.long_name").on("change paste keyup", function() {
+ 		console.log( "Handler for .change() called." );
+
+ 		target = "#slug-"+$(this).attr('id').replace('long_name-', '');
+
+ 		slug = $(this).val().toLowerCase();
+ 		slug = slug.replace(/ /g, "-");
+ 		slug = slug.replace(/[^0-9a-z_-]/gi, '');
+ 		console.log( "slug: "+slug );
+ 		console.log( "target: "+target );
+ 		console.log( "sibling: "+$(this).siblings("input.slug") );
+
+ 		 $(target).val(slug)
+	});
+
+	$("input[name=status]").click(function(){
+		console.log("selected status:"+ $(this).val())
+
+	    $(this).parent().removeClass('alert alert-success alert-danger alert-warning');
+	    if ($(this).val() == 'approved') {
+	    	$(this).parent().addClass('alert alert-success');
+	    } else {
+	    	$(this).parent().addClass('alert alert-danger');
+	    }
+	}); 
 }
 
 function displayAlert(target, message, level = "warning") {
@@ -192,7 +227,7 @@ function displayAlert(target, message, level = "warning") {
 	alert += '</div>';
 
 
-	target.prepend(alert);
+	target.before(alert);
 	$("#alertMessage").hide();
 	$("#alertMessage").fadeIn(500).delay(3000).fadeOut("slow", function(){
 	  $(this).remove();

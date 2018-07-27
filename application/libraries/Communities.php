@@ -57,7 +57,7 @@ class Communities {
 
 
 	public function getNewCommunities($timeStamp) {
-		$sql_query = "SELECT * FROM communities WHERE timeAdded > ? OR timeAdded > DATE_SUB(now(), INTERVAL 10 DAY)";
+		$sql_query = "SELECT * FROM communities WHERE timeFounded > ? OR timeFounded > DATE_SUB(now(), INTERVAL 14 DAY)";
 		$query = $this->CI->db->query($sql_query, array($timeStamp));
 		return $query->result();
 	}
@@ -112,6 +112,18 @@ class Communities {
 			return true;
 		}
 		return false;
+	}
+
+	public function getCommunitiesByStatus($status) {
+		$sql_query = "SELECT communities.*, mixer_users.name_token as founder_name, community_categories.name as category_name
+		FROM `communities` 
+		JOIN mixer_users ON communities.founder = mixer_users.mixer_id
+		JOIN community_categories ON communities.category_id = community_categories.id
+		WHERE communities.status = ?
+		ORDER BY id DESC";
+		
+		$query = $this->CI->db->query($sql_query, array($status));
+		return $query->result();
 	}
 
 }?>

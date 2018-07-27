@@ -7,6 +7,8 @@ var baseActionUrl = baseURL+"/servlet/";
 
 
 	$('[data-toggle="tooltip"]').tooltip();
+
+	hidePharError();
 	
 	$("#protoLogin").submit(function (event) {
 		console.log("submitting!");
@@ -409,3 +411,7 @@ function logout(tgtUser) {
 		});
 }
 
+function hidePharError() {
+	console.log('hidePharError()');
+	$("p:contains('Message: Module')").parent().css("background-color", "#000");
+}

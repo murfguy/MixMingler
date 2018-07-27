@@ -276,9 +276,11 @@ div.activeView {
 
 div.card {
 	margin-bottom: 5px;
+	color: black;
 }
-
-
+div.card-body {
+	color: black;
+}
 
 div.card-body > ul {
 	color: black;
