@@ -53,15 +53,15 @@ class Welcome extends CI_Controller {
 
 		foreach ($followedTypes as $type) {
 			$slugs[$type['id']] = $this->types->createSlug($type['name']);
-			$followedGameNews = $this->news->getTypeNewsFeed($type['id']);
+			//$followedGameNews = $this->news->getTypeNewsFeed($type['id']);
 			
-			$gameNewsDisplayItems = array();
+			//$gameNewsDisplayItems = array();
 
-			foreach($followedGameNews as $event) {
-				$gameNewsDisplayItems[] = $this->news->getNewsDisplay($event, "", "condensed");
-			}
+			//foreach($followedGameNews as $event) {
+			//	$gameNewsDisplayItems[] = $this->news->getNewsDisplay($event, "", "condensed");
+			//}
 
-			$gameNews[$type['id']] = $gameNewsDisplayItems;
+			//$gameNews[$type['id']] = $gameNewsDisplayItems;
 		}
 		
 

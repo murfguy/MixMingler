@@ -86,20 +86,20 @@
 
 							foreach ($followedTypes as $type) {
 								echo "<div class=\"newsFeed gamesFeed\" id=\"typeNews-".$type['id']."\" />";
-								echo "<h3><a href=\"/type/".$type['id']."/".$slugs[$type['id']]."\">".$type['name']."</a></h3>";
+									echo "<h3><a href=\"/type/".$type['id']."/".$slugs[$type['id']]."\">".$type['name']."</a></h3>";
 
 								
-								echo "<div class=\"topStreams\" id=\"type-".$type['id']."\">";
-									echo "<p>Getting top streams, please wait one moment.</p>";
-								echo "</div>";
+									echo "<div class=\"topStreams\" id=\"type-".$type['id']."\">";
+										echo "<p class=\"typeSpinner\"><i class=\"fas fa-circle-notch fa-spin\"></i> Checking Mixer for top streams. One moment please.</p>";
+									echo "</div>";
 
-								$gameNewsFeed = $gameNews[$type['id']];
+								//$gameNewsFeed = $gameNews[$type['id']];
 
-								echo "<h4>Recent Streams</h4>";
-								foreach ($gameNewsFeed as $feed) {
-									echo "<p>".$feed."</p>";
-								}
-
+									echo "<h4>Recent Activity</h4>";
+									echo '<div class="typeNews" id="news-'.$type['id'].'">';
+										echo "<p class=\"newsSpinner\"><i class=\"fas fa-circle-notch fa-spin\"></i> Checking MixMingler for recent news. One moment please.</p>";
+								
+									echo "</div>";
 								echo "</div>";
 							}
 

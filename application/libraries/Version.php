@@ -16,7 +16,6 @@ class Version {
 		$this->major = 0;
 		$this->minor = 2;
 		$this->revision = 1;
-		$this->build = 1;
 		$this->stage = "Types";
 
 		// Load Database
@@ -69,7 +68,11 @@ class Version {
 		$patch->version = "0.2.1";
 		$patch->date = date($date_string, strtotime('2018-07-24'));
 		$patch->notes = array();
-		$patch->notes[] = "Admin Panel updated";
+		$patch->notes[] = "Admin Panel: user roles assignable";
+		$patch->notes[] = "Admin Panel: approve/reject community requests";
+		$patch->notes[] = "New communities can be requested.";
+		$patch->notes[] = "Home page: news feed load asynchronously.";
+
 		$patchNotes[] = $patch;
 
 		$patch = new stdClass();

@@ -307,15 +307,6 @@ class Servlet extends CI_Controller {
 		$this->returnData();
 	}
 
-	public function getTopStreamsForType($typeId) {
-		$this->returnData->typeID = $typeId;
-		$this->returnData->success = true;
-		$this->returnData->message = "Got streams from mixer.";
- 		$this->returnData->streams = $this->types->getActiveStreamsFromMixerByTypeId($typeId, 6);
-
-		$this->returnData();
-	}
-
 	// --------------------------------------------------------------- 
 	// --- Site Admin Functions -------------------------------------- 
 	// ---------------------------------------------------------------
@@ -501,10 +492,45 @@ class Servlet extends CI_Controller {
 	// ---------------------------------------------------------------
 
 	// --------------------------------------------------------------- 
+	// --- Active Stream Information Functions ----------------------- 
+	// ---------------------------------------------------------------
+
+	public function getTopStreamsForType($typeId) {
+		sleep(1);
+		$this->returnData->typeID = $typeId;
+		$this->returnData->success = true;
+		$this->returnData->message = "Got streams from mixer.";
+ 		$this->returnData->streams = $this->types->getActiveStreamsFromMixerByTypeId($typeId, 6);
+
+		$this->returnData();
+	}
+
+	// --------------------------------------------------------------- 
 	// --- News Collection Functions --------------------------------- 
 	// ---------------------------------------------------------------
 
+	public function getNewsForType($typeId) {
+		sleep(1);
+		$this->returnData->typeID = $typeId;
+		$this->returnData->success = false;
+		$this->returnData->message = "Failed to get news.";
 
+		$typeNews = $this->news->getTypeNewsFeed($typeId);
+
+		if (!empty($typeNews)) {
+			$gameNewsDisplayItems = array();
+			foreach($typeNews as $event) {
+				$gameNewsDisplayItems[] = $this->news->getNewsDisplay($event, "", "condensed");
+			}
+			$this->returnData->success = true;
+			$this->returnData->newsFeed = $gameNewsDisplayItems;
+			$this->returnData->message = "News was collected!";
+		} else {
+			$this->returnData->message = "There was no news to collect.";
+		}
+
+		$this->returnData();
+	}
 
 	// --------------------------------------------------------------- 
 	// --- Type Information Collection Functions --------------------- 
