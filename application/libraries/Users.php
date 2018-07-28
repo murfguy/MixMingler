@@ -255,5 +255,21 @@ ORDER BY stream_count DESC";
 		$query = $this->CI->db->query($sql_query, array($mixer_id));
 		return  $query->result();
 	}
+
+	public function getUsersApprovedCommunities($mixer_id) {
+		$sql_query = "SELECT *, mixer_users.name_token as adminName FROM `communities`
+		JOIN mixer_users ON mixer_users.mixer_id = communities.siteAdminApprover WHERE communities.status='approved' AND communities.founder=? ORDER BY communities.id DESC";
+		$query = $this->CI->db->query($sql_query, array($mixer_id));
+		return  $query->result();
+	}
+
+	public function getUsersAdminedOrModeratedCommunities($mixer_id) {
+		$sql_query = "SELECT communities.*
+FROM communities
+JOIN mixer_users ON FIND_IN_SET(communities.id, mixer_users.adminCommunities) OR FIND_IN_SET(communities.id, mixer_users.modCommunities)
+WHERE mixer_users.mixer_id = ? AND (communities.status='open' OR communities.status='closed')";	
+		$query = $this->CI->db->query($sql_query, array($mixer_id));
+		return  $query->result();
+	}
 }
 ?>

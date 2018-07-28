@@ -238,6 +238,10 @@ div.miniTypeInfo {
 	margin-bottom: 6px;
 }
 
+.miniTypeInfo a {
+	cursor: pointer;
+}
+
 .tooltip-inner {
     white-space:pre;
     max-width: none;
@@ -284,4 +288,9 @@ div.card-body {
 
 div.card-body > ul {
 	color: black;
+}
+
+.notices h5 {
+	margin-bottom: 6px;
+	border-bottom: 1px solid;
 }

@@ -35,6 +35,7 @@
 						echo "<p>Click icons to show news for that game.</p>";	
 						echo "<div class=\"icons row\">";
 							foreach ($followedTypes as $type) {
+								if (empty($type['coverUrl'])) { $type['coverUrl'] = 'https://mixer.com/_latest/assets/images/main/types/default.jpg'; }
 								echo "<div class=\"miniTypeInfo \"><a class=\"newsToggle\" data-newstype=\"typeNews\" data-typeid=\"".$type['id']."\"><img class=\"miniCover";
 
 								if ($type['online'] == 0) {
@@ -84,44 +85,84 @@
 						if (!empty($followedTypes)) {	
 
 
-							foreach ($followedTypes as $type) {
-								echo "<div class=\"newsFeed gamesFeed\" id=\"typeNews-".$type['id']."\" />";
-									echo "<h3><a href=\"/type/".$type['id']."/".$slugs[$type['id']]."\">".$type['name']."</a></h3>";
-
+							foreach ($followedTypes as $type) { ?>
 								
-									echo "<div class=\"topStreams\" id=\"type-".$type['id']."\">";
-										echo "<p class=\"typeSpinner\"><i class=\"fas fa-circle-notch fa-spin\"></i> Checking Mixer for top streams. One moment please.</p>";
-									echo "</div>";
+								<div class="newsFeed gamesFeed" id="typeNews-<?php echo $type['id']; ?>">
+									<h3><a href="/type/<?php echo $type['id']."/".$slugs[$type['id']]; ?>"><?php echo $type['name']; ?></a></h3>
+									<div class="topStreams" id="type-<?php echo $type['id']; ?>">
+										<div class="spinner type alert alert-warning">
+											<p><i class="fas fa-circle-notch fa-spin"></i> Checking Mixer for top streams. One moment please.</p>
+										</div>
+									</div>
+							
 
-								//$gameNewsFeed = $gameNews[$type['id']];
+									<h4>Recent Activity</h4>
+									<div class="typeNews" id="news-<?php echo $type['id']; ?>">
+										<div class="spinner news alert alert-warning">
+											<p><i class="fas fa-circle-notch fa-spin"></i> Checking MixMingler for recent news. One moment please.</p>
+										</div>
+									</div>
+								</div>
+							<?php }
 
-									echo "<h4>Recent Activity</h4>";
-									echo '<div class="typeNews" id="news-'.$type['id'].'">';
-										echo "<p class=\"newsSpinner\"><i class=\"fas fa-circle-notch fa-spin\"></i> Checking MixMingler for recent news. One moment please.</p>";
-								
-									echo "</div>";
-								echo "</div>";
-							}
-
-						} else {
-							echo "<p>You haven't followed any games yet!</p>";
-						}
-					?>
-
-					<p class="devNote" data-toggle="tooltip" title="Planned for v0.3" data-placement="left">The planned default view for this area will be an amalgamation of news based on games and communities you follow.</p>
-
-
+						} else { ?>
+							<div class="alert alert-warning"><p>You haven't followed any games yet!</p></div>
+						<?php }	?>
 				</div>
-
 			</div>
-			<p class="devNote" data-toggle="tooltip" title="Planned for v0.3" data-placement="left">[Planned] AJAX system for loading news feeds in order to improve performance and load time.</p>
+				<div class="infoBox">
+				<h4 class="infoHeader">Communities You Run</h4>
+				<div class="infoInterior">
+
+					<?php 
+						$noCommunities = true;
+						if ($modCommunities != null) { $noCommunities = false;?>
+						<h5>Admin/Moderator</h5>
+
+						<?php foreach ($modCommunities as $community) { ?>
+							<p><a href="/community/<?php echo $community->long_name; ?>"></a><?php echo $community->long_name; ?></p>
+						<?php } ?>
+
+					<?php } ?>
+				
+
+
+					<?php if ($approvedCommunities != null) { $noCommunities = false;?>
+						<h5>Approved Communities</h5>
+
+						<?php foreach ($approvedCommunities as $community) { ?>
+							<p><?php echo $community->long_name; ?> | Approved by: <?php echo $community->adminName; ?></p>
+						<?php } ?>
+
+					<?php } ?>
+
+
+					<?php if ($pendingCommunities != null) { $noCommunities = false;?>
+						<h5>Pending Approval</h5>
+
+						<?php foreach ($pendingCommunities as $community) { ?>
+							<p><?php echo $community->long_name; ?></p>
+						<?php } ?>
+
+					<?php } ?>
+
+					<?php if ($noCommunities) { ?>
+						<p>You don't run any communities.</p>
+					<?php } ?>
+					
+				</div>
+			</div>
 
 			<div class="infoBox">
 				<h4 class="infoHeader">MixMingler Notices</h4>
 				<div class="infoInterior">
-					<div class="userFeedItem">
+					<div class="userFeedItem notices alert alert-danger">
+						<h5 class="postTime">1 August 2018</h5>
+						<p class="post">v0.2.1 is released. This update has made substantial changes to the backend functionality for communities. As such, in preparation for this release, all data related to communities has been purged.</p>
+					</div>
+					<div class="userFeedItem notices alert alert-success">
+						<h5 class="postTime">24 July 2018</h5>
 						<p class="post">v0.2.0-Type Released!!!! (see <a href="/alpha/">Version History for notes</a>). We are officially moving into development on v0.3-Communities! Please visit the <a href="https://discord.gg/hcS64t9">MixMingler Discord</a> to provide any feedback.</p>
-						<p class="postHead"><span class="postTime">24 July 2018</span></p>
 					</div>
 				</div>
 			</div>

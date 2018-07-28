@@ -26,7 +26,6 @@ function getTopStreams(target) {
 
 					streamCount = json.streams.length;
 					$("div#type-"+json.typeID).empty();
-					$("div#type-"+json.typeID).append("<h4>Current Top Streams</h4>");
 
 					if (streamCount > 0) {
 						$("div#type-"+json.typeID).append("<div class='streamerList row'></div>");
@@ -43,13 +42,14 @@ function getTopStreams(target) {
 							$("div#type-"+json.typeID+" > .row").append(insertElement);
 						}
 					} else {
-						$("div#type-"+json.typeID).append("<p>No one is streaming this game right now.</p>");
+						$("div#type-"+json.typeID).append("<div class=\"alert alert-dark\"><p>No one is streaming this game right now.</p></div>");
 					}
 
 				}) 
 
 				.fail(function (json){
 					console.log('getTopStreams - AJAX failed');
+					$("div#type-"+json.typeID).append("<div class=\"alert alert-danger\"><p>There was an issue when attempting to contact the server. Please pick a different game and try again.</p></div>");
 				})
 
 				.always(function (json){
@@ -83,31 +83,15 @@ function getTypeNewsFeed(target) {
 						}
 
 					} else {
-						newsDiv.prepend("<p>There was an problem with collecting the news:<br>"+json.message+"</p>");
+						newsDiv.prepend("<div class=\"alert alert-danger\"><p>There was an problem with collecting the news:<br>"+json.message+"</p></div>");
 					}
-
-					/*if (streamCount > 0) {
-						$("div#type-"+json.typeID).append("<div class='streamerList row'></div>");
-
-						
-						for (i=0; i<streamCount; i++) {
-							insertElement = "<div class=\"streamerListing mini\">";
-							//echo "<img src=\"".$stream['user']['avatarUrl']."\" width=\"100\" class=\"avatar\" />";
-							insertElement +=  "<a href=\"/user/"+json.streams[i].token+"\"><img class=\"live-thumb list\" src=\"https://thumbs.mixer.com/channel/"+json.streams[i].id+".small.jpg\" onerror=\"this.src='/assets/graphics/blankThumb.jpg'\" width=\"175\"/></a>";
-							insertElement += "<p class=\"streamerName\"><a href=\"/user/"+json.streams[i].token+"\">"+json.streams[i].token+"</a></p>";
-							insertElement += "<p class=\"streamerStats\"><span class=\"onlineStat\" data-placement=\"bottom\"data-toggle=\"tooltip\" title=\"Current Views\"><i class=\"fas fa-eye\"></i> "+json.streams[i].viewersCurrent+"</span> | <span class=\"onlineStat\" data-placement=\"bottom\"data-toggle=\"tooltip\" title=\"Current Followers\"><i class=\"fas fa-user-circle\"></i> "+json.streams[i].numFollowers+"</p>";
-							insertElement += "</span></div>";
-
-							$("div#type-"+json.typeID+" > .row").append(insertElement);
-						}
-					} else {
-						$("div#type-"+json.typeID).append("<p>No one is streaming this game right now.</p>");
-					}*/
 
 				}) 
 
 				.fail(function (json){
 					console.log('getNewsFeed - AJAX failed');
+					newsDiv = $("div#news-"+json.typeID);
+					newsDiv.prepend("<div class=\"alert alert-danger\"><p>There was a problem in contacting the server. Pick another game and try again.</p></div>");
 				})
 
 				.always(function (json){

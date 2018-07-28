@@ -53,44 +53,15 @@ class Welcome extends CI_Controller {
 
 		foreach ($followedTypes as $type) {
 			$slugs[$type['id']] = $this->types->createSlug($type['name']);
-			//$followedGameNews = $this->news->getTypeNewsFeed($type['id']);
-			
-			//$gameNewsDisplayItems = array();
-
-			//foreach($followedGameNews as $event) {
-			//	$gameNewsDisplayItems[] = $this->news->getNewsDisplay($event, "", "condensed");
-			//}
-
-			//$gameNews[$type['id']] = $gameNewsDisplayItems;
 		}
-		
-
-
-		$feedData = null;
-		$newsDisplayItems = null;
-		//$sql_query = "SELECT *, (SELECT name_token FROM mixer_users WHERE mixer_id=?) as username FROM `timeline_events` WHERE mixer_id=? ORDER BY id DESC, eventTime DESC";
-
-
-		
-		if (!empty($user->followedCommunities)) {
-			$sql_query = "SELECT *, (SELECT name_token AS username FROM mixer_users WHERE mixer_users.mixer_id=timeline_events.mixer_id) AS username, (SELECT avatarURL AS username FROM mixer_users WHERE mixer_users.mixer_id=timeline_events.mixer_id) AS avatar FROM `timeline_events` WHERE eventType='community' AND extraVars IN ($user->followedCommunities) ORDER BY eventTime DESC LIMIT 0,50";
-			$query = $this->db->query($sql_query);
-			$feedData = $query->result();
-
-			// We need to get the HTML version of these events so we can display them in the view.
-			if ($feedData != null) {
-				$newsDisplayItems = array();
-				foreach($feedData as $event) {
-					$newsDisplayItems[] = $this->news->getNewsDisplay($event, $event->avatar, "mini");
-				}
-			}
-		}
-
-		
 		
 		$viewData->user = $user;
 		$viewData->communitiesData = $communitiesData;
-		$viewData->newsItems = $newsDisplayItems;
+		$viewData->modCommunities = $this->users->getUsersAdminedOrModeratedCommunities($_SESSION['mixer_id']);
+		$viewData->pendingCommunities = $this->users->getUsersPendingCommunities($_SESSION['mixer_id']);
+		$viewData->approvedCommunities = $this->users->getUsersApprovedCommunities($_SESSION['mixer_id']);
+
+
 		$viewData->gameNews = $gameNews;
 		$viewData->followedTypes = $followedTypes;
 		$viewData->slugs = $slugs;

@@ -56,12 +56,17 @@
             </li>
             <?php
               if (isset($_SESSION['mixer_user'])) {
+   
                 echo "<li class=\"navItem\"><a class=\"nav-link\" href=\"/account/\"><i class=\"fas fa-user-cog\"></i> Account</a></li>";
               }
+              ?>
 
-             if (isset($_SESSION['mingler_role'])) {
+            <li class="nav-item">
+              <a class="nav-link" href="#" style="color: #f59292;"><i class="fas fa-cog"></i> Admin</a>
+            </li>
+             <?php if (isset($_SESSION['mingler_role'])) {
                if (in_array($_SESSION['mingler_role'], array('owner','admin','dev'))) {
-                 echo "<li class=\"navItem\"><a class=\"nav-link\" href=\"/admin/\" style=\"color: #f59292;\"><i class=\"fas fa-cog\"></i> Admin</a></li>";
+                 echo "<li class=\"navItem\"><a class=\"nav-link\" href=\"/admin/\" style=\"color: #f59292;\"><i class=\"fas fa-cog\"></i> SiteAdmin</a></li>";
                }
              }
             ?>
