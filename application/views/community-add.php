@@ -23,6 +23,11 @@
 					echo "<div class=\"alert alert-danger\" role=\"alert\"><h4>You are not eligible for community creation!</h4><strong>Failed Criteria:</strong> You have a community awaiting approval.</div>";
 					$success = false;
 				} 
+
+				if ($creationCriteria['recentlyApproved'] == true) {
+					echo "<div class=\"alert alert-danger\" role=\"alert\"><h4>You are not eligible for community creation!</h4><strong>Failed Criteria:</strong> You have a community that was recently approved that you haven't finalized and opened.</div>";
+					$success = false;
+				} 
 			} else {
 				echo "<div class=\"alert alert-danger\" role=\"alert\"><h4>You are not eligible for community creation!</h4><strong>Failed Criteria:</strong> You are banned from making communities.</div>";
 				$success = false;
@@ -158,6 +163,7 @@
 						<li>Under 100 followers: 5 weeks</li>
 						<li>Under 200 followers: 4 weeks</li>
 						<li>200+ followers: 2 weeks</li>
+						<li>HOWEVER: during alpha testing, this is reduced to 2 days for all users.</li>
 					</ul></li>
 				<li>You are not banned from making communities.</li>
 			</ul>

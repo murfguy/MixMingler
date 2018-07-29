@@ -60,6 +60,7 @@ class Welcome extends CI_Controller {
 		$viewData->modCommunities = $this->users->getUsersAdminedOrModeratedCommunities($_SESSION['mixer_id']);
 		$viewData->pendingCommunities = $this->users->getUsersPendingCommunities($_SESSION['mixer_id']);
 		$viewData->approvedCommunities = $this->users->getUsersApprovedCommunities($_SESSION['mixer_id']);
+		$viewData->rejectedCommunities = $this->users->getUsersRejectedCommunities($_SESSION['mixer_id']);
 
 
 		$viewData->gameNews = $gameNews;

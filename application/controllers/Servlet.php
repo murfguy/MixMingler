@@ -431,6 +431,7 @@ class Servlet extends CI_Controller {
 			$query = $this->db->query($sql_query, $inputData);
 		}
 		
+		// ACTION NEEDED: INSERT INTO mixer_users (foundedCommunites, adminCommunites)
 
 		$this->returnData();
 	}

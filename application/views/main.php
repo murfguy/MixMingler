@@ -9,8 +9,7 @@
 	</div>
 
 	<div class="row">
-		<div class="col-3 userInfo">
-
+		<div class="col-3 userInfo" id="leftColumn">
 			<div class="infoBox">
 				<h4 class="infoHeader">Communities You Follow</h4>
 				<div class="infoInterior">
@@ -25,7 +24,7 @@
 					?>
 					<p class="devNote" data-toggle="tooltip" title="Planned for v0.3" data-placement="left">[Planned Feature] Toggleable views of "Community" based news.</p>
 				</div>
-			</div>
+			</div><!-- .infoBox -->
 
 			<div class="infoBox">
 				<h4 class="infoHeader">Games You Follow</h4>
@@ -49,33 +48,95 @@
 							echo "<p>You haven't followed any games yet!</p>";
 						}
 					?>
-				</div>
-			</div>
+				</div><!-- .infoInterior -->
+			</div><!-- .infoBox -->
 
 			<div class="infoBox">
 				<h4 class="infoHeader">Your Activity</h4>
 				<div class="infoInterior">
 					<p class="devNote" data-toggle="tooltip" title="Planned for v0.3" data-placement="left">Coming soon</p>
-				</div>
-			</div>
-			<!--<div class="infoBox">
-				<h6 class="infoHeader">Followed Communities</h4>
-				<div class="infoInterior">
-					<?php
-						if (!empty($communitiesData->followed)) {
-							foreach ($communitiesData->followed as $community) {
-								echo "<p><a href=\"/community/$community->slug\">$community->long_name</a></p>";
-							}
-						} else {
-							echo "<p>You haven't followed any communities.</p>";
-						}
-					?>
-				</div>
-			</div>-->
-		</div>
-		<div class="col-7 userFeed">
-			
-			
+				</div><!-- .infoInterior -->
+			</div><!-- .infoBox -->
+		</div> <!-- #leftColumn -->
+	
+		<div class="col-7 userFeed" id="centerColumn">
+			<?php 
+				$hasNotices = false;
+				if ($approvedCommunities != null) { $hasNotices = true; } 
+				if ($pendingCommunities != null) { $hasNotices = true; } 
+
+				if ($hasNotices) { ?>
+
+				<div class="infoBox">
+					<h4 class="infoHeader">Community Notices</h4>
+					<div class="infoInterior">
+
+					<?php if ($approvedCommunities != null) { ?>
+						<h4>Your community has been approved.</h4>
+
+						<?php foreach ($approvedCommunities as $community) { ?>
+							<table>
+								<tr>
+									<td><?php echo $community->long_name; ?></td>
+									<td>Approved by: <?php echo $community->adminName; ?></td>
+								</tr>
+
+								<?php if (!empty($community->siteAdminNote)) { ?>
+								<tr>
+									<td colspan="2">
+										<p>Admin Note: <?php echo $community->siteAdminNote; ?></p>
+									</td>
+								</tr>
+								<?php } ?>
+							</table>
+						<?php } ?>
+					<?php } // if (approvedCommunites) ?>
+
+					<?php if ($rejectedCommunities != null) { ?>
+						<h4>Your community has been rejected.</h4>
+
+						<?php foreach ($rejectedCommunities as $community) { ?>
+							<table>
+								<tr>
+									<td><?php echo $community->long_name; ?></td>
+									<td>Approved by: <?php echo $community->adminName; ?></td>
+								</tr>
+
+								<?php if (!empty($community->siteAdminNote)) { ?>
+								<tr>
+									<td colspan="2">
+										<p>Admin Note: <?php echo $community->siteAdminNote; ?></p>
+									</td>
+								</tr>
+								<?php } ?>
+								<tr>
+									<td colspan="2">
+										<button class="deleteCommunity btn btn-sm btn-danger" data-commId="<?php echo $community->id; ?>">Delete This Now (no warning)</button> You will be able to request again immediatly.
+									</td>
+								</tr>
+							</table>
+						<?php } ?>
+					<?php } // if (approvedCommunites) ?>
+
+					<?php if ($pendingCommunities != null) { ?>
+						<h4>Your new community pending approval.</h4>
+
+						<?php foreach ($pendingCommunities as $community) { ?>
+							<table>
+								<tr>
+									<td><?php echo $community->long_name; ?></td>
+									<td>Requested on: <?php echo date('F. d, Y', strtotime($community->requestTime)); ?></td>
+								</tr>
+							</table>
+						<?php } ?>
+
+					<?php } ?>
+
+
+					</div> <!-- .infoInterior -->
+				</div><!-- .infoBox/Community Notices -->
+
+			<?php } // if (hasNotices) ?>
 			
 			<div class="infoBox">
 				<h4 class="infoHeader">News Feed</h4>
@@ -83,8 +144,6 @@
 					<p>Select a <b>Game</b> to the left in order to see specific information.</p>
 					<?php 
 						if (!empty($followedTypes)) {	
-
-
 							foreach ($followedTypes as $type) { ?>
 								
 								<div class="newsFeed gamesFeed" id="typeNews-<?php echo $type['id']; ?>">
@@ -92,66 +151,25 @@
 									<div class="topStreams" id="type-<?php echo $type['id']; ?>">
 										<div class="spinner type alert alert-warning">
 											<p><i class="fas fa-circle-notch fa-spin"></i> Checking Mixer for top streams. One moment please.</p>
-										</div>
-									</div>
-							
+										</div><!-- alert -->
+									</div><!-- .topStreams -->
 
-									<h4>Recent Activity</h4>
+									<h3>Recent Activity</h3>
 									<div class="typeNews" id="news-<?php echo $type['id']; ?>">
 										<div class="spinner news alert alert-warning">
 											<p><i class="fas fa-circle-notch fa-spin"></i> Checking MixMingler for recent news. One moment please.</p>
-										</div>
-									</div>
-								</div>
-							<?php }
+										</div><!-- alert -->
+									</div><!-- .typeNews -->
+								</div><!-- .newsFeed -->
+
+							<?php } /* foreach */
 
 						} else { ?>
 							<div class="alert alert-warning"><p>You haven't followed any games yet!</p></div>
-						<?php }	?>
-				</div>
-			</div>
-				<div class="infoBox">
-				<h4 class="infoHeader">Communities You Run</h4>
-				<div class="infoInterior">
-
-					<?php 
-						$noCommunities = true;
-						if ($modCommunities != null) { $noCommunities = false;?>
-						<h5>Admin/Moderator</h5>
-
-						<?php foreach ($modCommunities as $community) { ?>
-							<p><a href="/community/<?php echo $community->long_name; ?>"></a><?php echo $community->long_name; ?></p>
-						<?php } ?>
-
-					<?php } ?>
-				
-
-
-					<?php if ($approvedCommunities != null) { $noCommunities = false;?>
-						<h5>Approved Communities</h5>
-
-						<?php foreach ($approvedCommunities as $community) { ?>
-							<p><?php echo $community->long_name; ?> | Approved by: <?php echo $community->adminName; ?></p>
-						<?php } ?>
-
-					<?php } ?>
-
-
-					<?php if ($pendingCommunities != null) { $noCommunities = false;?>
-						<h5>Pending Approval</h5>
-
-						<?php foreach ($pendingCommunities as $community) { ?>
-							<p><?php echo $community->long_name; ?></p>
-						<?php } ?>
-
-					<?php } ?>
-
-					<?php if ($noCommunities) { ?>
-						<p>You don't run any communities.</p>
-					<?php } ?>
-					
-				</div>
-			</div>
+					<?php }	?>
+				</div><!-- .infoInterior/News Feed -->
+			</div><!-- .infoBox/News Feed -->
+			
 
 			<div class="infoBox">
 				<h4 class="infoHeader">MixMingler Notices</h4>
@@ -164,17 +182,12 @@
 						<h5 class="postTime">24 July 2018</h5>
 						<p class="post">v0.2.0-Type Released!!!! (see <a href="/alpha/">Version History for notes</a>). We are officially moving into development on v0.3-Communities! Please visit the <a href="https://discord.gg/hcS64t9">MixMingler Discord</a> to provide any feedback.</p>
 					</div>
-				</div>
-			</div>
+				</div><!-- .infoInterior -->
+			</div><!-- .infoBox -->
+	
+		</div> <!-- #centerColumn -->
 
-			<!--<p>This page should make it easy to see at a glance the following bits of info:</p>
-			<ul>
-				<li>Your communities</li>
-				<li>activity feed for communities you follow</li>
-				<li>activity feed for games you follow</li>
-			</ul>-->
-		</div>
-		<div class="col-2">
+		<div class="col-2" id="rightColumn">
 
 
 			<div class="infoBox">
@@ -218,11 +231,10 @@
 						echo "<p>No new communities.</p>";
 					}
 					?>
-				</div>
-			</div>
-
+				</div> <!-- .infoInterior -->
+			</div><!-- .infoBox -->
 		</div>
-	</div>
+	</div><!-- .row -->
 
 	<!--<div class="plans">
 		<p><b>Plans/Ideas for this page:</b></p>

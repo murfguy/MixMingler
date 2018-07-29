@@ -11,7 +11,7 @@ class Community extends CI_Controller {
 		//$this->load->view('htmlFoot');
 	}
 
-	public function _remap($method) {
+	public function _remap($method, $params = array()) {
 		$this->load->view('htmlHead');
 		$this->load->database();
 		$this->load->library('communities');
@@ -20,7 +20,7 @@ class Community extends CI_Controller {
 
 		if ($method != "index") {
 			if ($method != 'create') {
-				$this->loadSingleCommunity($method);
+				$this->loadSingleCommunity($method, $params);
 			} else {
 				$this->loadCreateForm();
 			}
@@ -32,7 +32,7 @@ class Community extends CI_Controller {
 		$this->load->view('htmlFoot', $this->version->getVersion());
 	}
 
-	private function loadSingleCommunity($communitySlug) {
+	private function loadSingleCommunity($communitySlug, $params) {
 		$data = new stdClass();
 
 		$community_info = $this->communities->getCommunityBySlug($communitySlug);
@@ -46,6 +46,9 @@ class Community extends CI_Controller {
 			// Get all Community Members
 			$community_members = $this->communities->getCommunityMembers($communitySlug);
 
+			// Get admin and mods
+			$community_leads = $this->communities->getCommunityLeads($data->community_info->id);
+
 			// Check status of all members from Mixer API
 			// channel-search bucket limit is 20 queuries per 5 seconds. 
 			$online_members = $this->communities->getOnlineMembersFromMixer($community_members);
@@ -56,6 +59,21 @@ class Community extends CI_Controller {
 				$currentUser->token = $_SESSION['mixer_user'];
 				$currentUser->isMember = false;
 				$currentUser->isFollower = false;
+				$currentUser->isFounder = false;
+				$currentUser->isAdmin = false;
+				$currentUser->isMod = false;
+
+				if ($_SESSION['mixer_id'] == $community_info->founder) {
+					$currentUser->isFounder = true;
+				}
+
+				if ($_SESSION['mixer_id'] == $community_info->admin) {
+					$currentUser->isAdmin = true;
+				}
+
+				if (in_array($_SESSION['mixer_id'], explode(',', $community_info->moderators))) {
+					$currentUser->isMod = true;
+				}
 
 				$sql_query = "SELECT joinedCommunities,followedCommunities FROM mixer_users WHERE name_token=?";
 				$query = $this->db->query($sql_query, array($_SESSION['mixer_user']));
@@ -89,10 +107,24 @@ class Community extends CI_Controller {
 			$data->feedData = $feedData;
 			$data->newsDisplayItems = $newsDisplayItems;
 			$data->community_members = $community_members;
+			$data->community_leads = $community_leads;
 			$data->online_members = $online_members;
+			//$this->load->view('community-admin', $data);
 
-			// Load the community view
-			$this->load->view('community', $data);
+			if (empty($params[0]) || $data->currentUser == null) {
+				// If not trying to access mod page, OR user isn't logged in:
+				// Load the community view
+				$this->load->view('community', $data);
+			} else {
+				if (($currentUser->isAdmin || $currentUser->isMod) && $params[0]=='mod')  {
+					// If user is admin OR moderator, AND trying to load mod page,
+					// Load the community mod view
+					$this->load->view('community-admin', $data);
+				} else {
+					// Load the base community view
+					$this->load->view('community', $data);
+				}
+			}
 		} else {
 			//echo "<h2>Community does not exist!</h2>";
 		}
@@ -103,6 +135,7 @@ class Community extends CI_Controller {
 		$creationCriteria = array(
 			'agedEnough' => true,
 			'pendingApproval' => false,
+			'recentlyApproved' => false,
 			'recentlyFounded'=> false,
 			'bannedFromCreation' => false,
 			'isLoggedIn' => true
@@ -114,12 +147,17 @@ class Community extends CI_Controller {
 			$pending = null;
 			if ($user != null) {
 				$pending = $this->users->getUsersPendingCommunities($_SESSION['mixer_id']);
+				$approved = $this->users->getUsersApprovedCommunities($_SESSION['mixer_id']);
 			}
 
 			$timespan = 14; // Default, two weeks
 			if ($user->numFollowers < 200) { $timespan = 7*4; } // if < 200 followers, 4 weeks
 			if ($user->numFollowers < 100) { $timespan = 7*5; } // if < 100 followers, 5 weeks
 			if ($user->numFollowers < 50) { $timespan = 7*6; } // if < 50 followers, 6 weeks
+
+			// Debug/Alpha Value
+			$timespan = 2; // 2 days
+
 			if ($user->minglerRole != 'user') { $timespan = 0; } // site runners can make communities whenever
 
 			// If user is banned from making communities: fail, and no other criteria matter.
@@ -132,8 +170,11 @@ class Community extends CI_Controller {
 				// If user has a pending community approval: fails
 				if ($pending != null) { $creationCriteria['pendingApproval'] = true; }
 
+				// If user has a community approved but not finalized: fails
+				if ($pending != null) { $creationCriteria['recentlyApproved'] = true; }
+
 				// If user founded a community too recently: fail
-				if (strtotime($user->lastFoundation) > (time() - (60*60*24*$timespan))) { $creationCriteria['recentlyFounded'] = true; }
+				if (strtotime($user->lastFoundation) > (time() - ((60*60*24)*$timespan))) { $creationCriteria['recentlyFounded'] = true; }
 			}
 
 		} else {
@@ -148,7 +189,12 @@ class Community extends CI_Controller {
 	}
 
 	private function loadAllCommunities() {
-		$sql_query = "SELECT *, CEILING((members/3)+(followers/1.25)) AS popularity FROM `communities` ORDER BY popularity DESC, long_name ASC";
+		$sql_query = "SELECT communities.*, (CHAR_LENGTH(communities.members) - CHAR_LENGTH(REPLACE(communities.members, ',', '')) + 1) as memberCount,
+community_categories.name as category_name,
+community_categories.slug as category_slug
+FROM `communities`
+JOIN community_categories ON communities.category_id = community_categories.id
+WHERE communities.status='open' OR communities.status='closed'";
 		$query = $this->db->query($sql_query);
 		$displayData = new stdClass();
 		$displayData->communities = $query->result();

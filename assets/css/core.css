@@ -294,3 +294,8 @@ div.card-body > ul {
 	margin-bottom: 6px;
 	border-bottom: 1px solid;
 }
+
+a.nav-link:hover {
+	background-color: rgb(0,0,0);
+	color: #FFF;
+}

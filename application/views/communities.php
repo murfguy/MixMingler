@@ -23,13 +23,12 @@
 		<div class="row">
 			<?php
 				if (count($communities) > 0) {
-					foreach ($communities as $community) { 
-						echo "<div class=\"col-sm communityListing ".$community->category_slug."\">";
-						echo "<h3><a href=\"/community/".$community->slug."\">".$community->long_name."</a></h3>";
-						echo "<p>$community->description<br><span class=\"muted-text\">".$community->followers." followers, ";
-						echo $community->members." members (Popularity: $community->popularity)</span></p>";
-						echo "</div>";
-					}
+					foreach ($communities as $community) { ?>
+						<div class="col-sm communityListing <? echo $community->category_slug; ?>">
+						<h3><a href="/community/<? echo $community->slug; ?>"><? echo $community->long_name; ?></a></h3>
+						<p><? echo $community->summary; ?><br><span class="muted-text"><? echo $community->memberCount; ?> members</span></p>
+						</div>
+					<?php }
 				} else {
 					echo "<p>No communities. Odd.</p>";
 				}

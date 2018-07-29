@@ -263,6 +263,13 @@ ORDER BY stream_count DESC";
 		return  $query->result();
 	}
 
+
+	public function getUsersRejectedCommunities($mixer_id) {
+		$sql_query = "SELECT *, mixer_users.name_token as adminName FROM `communities`
+		JOIN mixer_users ON mixer_users.mixer_id = communities.siteAdminApprover WHERE communities.status='rejected' AND communities.founder=? ORDER BY communities.id DESC";
+		$query = $this->CI->db->query($sql_query, array($mixer_id));
+		return  $query->result();
+	}
 	public function getUsersAdminedOrModeratedCommunities($mixer_id) {
 		$sql_query = "SELECT communities.*
 FROM communities
