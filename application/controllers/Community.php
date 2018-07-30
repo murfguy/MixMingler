@@ -111,10 +111,33 @@ class Community extends CI_Controller {
 			$data->online_members = $online_members;
 			//$this->load->view('community-admin', $data);
 
+
 			if (empty($params[0]) || $data->currentUser == null) {
 				// If not trying to access mod page, OR user isn't logged in:
 				// Load the community view
-				$this->load->view('community', $data);
+				if ($community_info->status == 'open' || $community_info->status == 'closed' ) {
+					$this->load->view('community', $data);
+				} else {
+					?> 
+					<main role="main" class="container">
+						<div class="pageHeader">
+							<h1><?php echo $community_info->long_name; ?></h1>
+						</div>
+						<?php if ($community_info->status == 'pending')  { ?>
+							<div class="alert alert-warning"><h3>This community has been recently requested, and is pending approval.</h3></div>
+						<?php } ?>
+						<?php if ($community_info->status == 'approved')  { ?>
+							<div class="alert alert-success"><h3>This community has been approved by site mods, but is waiting for public release by the community owner.</h3></div>
+						<?php } ?>
+						<?php if ($community_info->status == 'rejected')  { ?>
+							<div class="alert alert-danger"><h3>This community was rejected by site administrators.</h3></div>
+						<?php } ?>
+						</main>
+
+
+						<?php
+				}
+				
 			} else {
 				if (($currentUser->isAdmin || $currentUser->isMod) && $params[0]=='mod')  {
 					// If user is admin OR moderator, AND trying to load mod page,
@@ -171,7 +194,7 @@ class Community extends CI_Controller {
 				if ($pending != null) { $creationCriteria['pendingApproval'] = true; }
 
 				// If user has a community approved but not finalized: fails
-				if ($pending != null) { $creationCriteria['recentlyApproved'] = true; }
+				if ($approved != null) { $creationCriteria['recentlyApproved'] = true; }
 
 				// If user founded a community too recently: fail
 				if (strtotime($user->lastFoundation) > (time() - ((60*60*24)*$timespan))) { $creationCriteria['recentlyFounded'] = true; }

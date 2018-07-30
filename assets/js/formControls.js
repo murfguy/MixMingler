@@ -14,6 +14,8 @@ function setFormListeners() {
 	setRequestCommunityValidationListeners();
 	$("form#requestCommunity").submit(function (event) { requestCommunity(event, $(this))} );
 	$("form.communityApproval").submit(function (event) { approveCommunity(event, $(this))} );
+
+	$("form#foundCommunity").submit(function (event) { foundCommunity(event, $(this))} );
 }
 
 function applyUserRole(e, form) {
@@ -179,23 +181,80 @@ function approveCommunity(e, form) {
 			});
 }
 
+function foundCommunity(e, form) {
+	e.preventDefault();
+	actionUrl = baseActionUrl+"foundCommunity/";
+
+	submitButton = form.children("button.foundButton" );
+	submitButton.attr('disabled', '');
+	submitButton.text("Founding Community!");
+	submitButton.prepend('<i class="fas fa-sync fa-spin"></i> ');
+
+	console.log("actionUrl: "+ actionUrl);
+		$.ajax({
+			url: actionUrl,
+			type: "POST",
+			dataType: "json",
+			data: form.serialize()
+		})
+			.done(function (json){
+				console.log('approveCommunity - AJAX done');
+
+				submitButton = form.children("button.foundButton" );
+				parent = form.closest("div#foundCommunityNotice");
+				submitButton.removeAttr('disabled');
+				submitButton.remove("i");
+
+				if (json.success) {
+					displayAlert(parent, json.message, 'success');
+					//$("form#requestCommunity").hide();
+					//submitButton.text("Apply Role");
+					//displayAlert($( "form#requestCommunity"), json.message, 'success');
+					parent.hide();
+				} else {
+					submitButton.text("Try Again");
+					displayAlert(form, json.message, 'danger');
+					
+				}
+
+			}) 
+
+			.fail(function (json){
+				console.log('approveCommunity - AJAX failed');
+				displayAlert(form, 'There was an issue communicating with the server.');
+
+				submitButton = form.children("button.foundButton" );
+					submitButton.removeAttr('disabled');
+					submitButton.remove("i");
+					submitButton.text("Submit Approval");
+					
+			})
+
+			.always(function (json){
+				console.log('approveCommunity - AJAX always');
+				console.log(json);
+				
+				//
+				//console.log(json.message);
+			});
+}
+
 function setRequestCommunityValidationListeners() {
 	console.log("setRequestCommunityValidationListeners()");
 
-	$("input#long_name").on("change paste keyup", function() {
- 		console.log( "Handler for .change() called." );
+	$("#requestCommunity input#long_name").on("change paste keyup", function() {
+ 		console.log( "#requestCommunity input#long_name on change paste keyup" );
 
  		slug = $(this).val().toLowerCase();
  		slug = slug.replace(/ /g, "-");
  		slug = slug.replace(/[^0-9a-z_-]/gi, '');
+ 		console.log('slug: '+slug)
 
- 		 $(this).siblings("input#slug").val(slug)
+ 		 $("#requestCommunity input#slug").val(slug)
 	});
 
 
 	$("input.long_name").on("change paste keyup", function() {
- 		console.log( "Handler for .change() called." );
-
  		target = "#slug-"+$(this).attr('id').replace('long_name-', '');
 
  		slug = $(this).val().toLowerCase();
@@ -208,7 +267,7 @@ function setRequestCommunityValidationListeners() {
  		 $(target).val(slug)
 	});
 
-	$("input[name=status]").click(function(){
+	$(".communityApproval input[name=status]").click(function(){
 		console.log("selected status:"+ $(this).val())
 
 	    $(this).parent().removeClass('alert alert-success alert-danger alert-warning');

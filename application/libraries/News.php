@@ -114,6 +114,10 @@ class News {
 				return "{username} started streaming {typeId:".$params[0]."}.";
 				break;
 
+			case "foundedCommunity":
+				return "{username} founded the {commId:".$params[0]."} community!";
+				break;
+
 			case "newCommRole":
 				return "{username} became a ".$params[0]." for the {commId:".$params[1]."} community.";
 				break;

@@ -116,7 +116,7 @@
 
 					<div class="form-group">
 						<?php 
-							echo form_label('Summary', 'summary');
+							echo form_label('Summary/Slogan', 'summary');
 
 							$attributes = array(
 								'id' => 'summary',

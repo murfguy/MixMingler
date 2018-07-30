@@ -77,8 +77,14 @@
 						<?php foreach ($approvedCommunities as $community) { ?>
 							<table>
 								<tr>
-									<td><?php echo $community->long_name; ?></td>
+									<td><a href="/community/<?php echo $community->slug; ?>"><?php echo $community->long_name; ?></td></td>
 									<td>Approved by: <?php echo $community->adminName; ?></td>
+								</tr>
+
+								<tr>
+									<td colspan="2">
+										<p>You may now visit your <a href="/community/<?php echo $community->slug; ?>/mod">Moderation Page</a> to finalize and publish your community!</p>
+									</td>
 								</tr>
 
 								<?php if (!empty($community->siteAdminNote)) { ?>

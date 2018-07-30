@@ -33,10 +33,9 @@ class Servlet extends CI_Controller {
 			$sql_query = "UPDATE mixer_users SET joinedCommunities = IF(joinedCommunities='', ?, concat(joinedCommunities, ',', ?)) WHERE name_token=?";
 			$query = $this->db->query($sql_query, array($communityID, $communityID, $_SESSION['mixer_user']));
 
-			// Increment member count by one in communities
-			$sql_query = "UPDATE communities SET members = members+1 WHERE id=?";
-			$query = $this->db->query($sql_query, array($communityID));
-
+			// Add member into list of joined members
+			$sql_query = "UPDATE communities SET members = IF(members='', ?, concat(members, ',', ?)) WHERE id=?";
+			$query = $this->db->query($sql_query, array($_SESSION['mixer_user'], $_SESSION['mixer_user'], $communityID));
 
 			$this->returnData->username = $_SESSION['mixer_user'];
 			$this->returnData->communityID = $communityID;
@@ -415,6 +414,8 @@ class Servlet extends CI_Controller {
 		
 
 		if ($this->returnData->success) {
+			// Add new community request into database
+			$sql_query = "INSERT INTO communities (long_name, slug, category_id, summary, description, founder, admin, members, followers) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
 			$inputData = array(
 				$_POST['long_name'], 
 				$_POST['slug'], 
@@ -425,13 +426,29 @@ class Servlet extends CI_Controller {
 				$_SESSION['mixer_id'],
 				$_SESSION['mixer_id'],
 				$_SESSION['mixer_id']
-			);			
+			);
+			
+			$query = $this->db->query($sql_query, $inputData);
 
-			$sql_query = "INSERT INTO communities (long_name, slug, category_id, summary, description, founder, admin, members, followers) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
+			// Update requesting user's data to become founder, admin, member and follower of their new community.
+			$newCommunityId = $this->db->insert_id();
+			$sql_query = "UPDATE mixer_users SET
+				foundedCommunities = IF(foundedCommunities='', ?, concat(foundedCommunities, ',', ?)), 
+				adminCommunities = IF(adminCommunities='', ?, concat(adminCommunities, ',', ?)),
+				joinedCommunities = IF(joinedCommunities='', ?, concat(joinedCommunities, ',', ?)),
+				followedCommunities = IF(followedCommunities='', ?, concat(followedCommunities, ',', ?)) 
+				WHERE name_token=?";
+
+			$inputData = array(
+				$newCommunityId, $newCommunityId,
+				$newCommunityId, $newCommunityId,
+				$newCommunityId, $newCommunityId,
+				$newCommunityId, $newCommunityId,
+				$_SESSION['mixer_user']
+			);
 			$query = $this->db->query($sql_query, $inputData);
 		}
 		
-		// ACTION NEEDED: INSERT INTO mixer_users (foundedCommunites, adminCommunites)
 
 		$this->returnData();
 	}
@@ -485,6 +502,36 @@ class Servlet extends CI_Controller {
 				break;
 		}
 		
+		$this->returnData();
+	}
+
+	public function foundCommunity() {
+		$this->returnData->success = true;
+		$this->returnData->message = "Community has been founded!";
+
+		$this->returnData->status = $_POST['status'];
+		$this->returnData->requireApproval = $_POST['requireApproval'];
+		$this->returnData->mixer_id = $_POST['mixerUser_id'];
+		$this->returnData->community_id = $_POST['commId'];
+
+		// Found community!
+		$sql_query = "UPDATE communities SET status=?, timeFounded=NOW(), approveMembers=? WHERE id=?";
+		$inputData = array(
+			$_POST['status'], 
+			$_POST['requireApproval'], 
+			$_POST['commId']
+		);
+		$query = $this->db->query($sql_query, $inputData);
+
+		// UPDATE mixer_users SET last_foundation WHERE mixer_id
+		$sql_query = "UPDATE mixer_users SET lastFoundation=NOW() WHERE mixer_id=?";
+		$inputData = array($_POST['mixerUser_id']);
+		$query = $this->db->query($sql_query, $inputData);
+
+		// Add news item 
+		$newsText = $this->news->getEventString("foundedCommunity", array($_POST['commId']));
+		$this->news->addNews($_POST['mixerUser_id'], $newsText, "community", $_POST['commId']);
+
 		$this->returnData();
 	}
 
