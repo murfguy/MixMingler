@@ -539,6 +539,28 @@ class Servlet extends CI_Controller {
 	// --- Community Moderation Functions ---------------------------- 
 	// ---------------------------------------------------------------
 
+	public function editCommunityDetails() {
+		// Only for admins
+	}
+
+	public function addCommunityModerator() {
+		// Only for admins
+	}
+
+	public function removeCommunityModerator() {
+		// Only for admins
+	}
+
+	public function transferCommunityOwnership() {
+		// Only for admins
+	}
+
+	public function changeMemberStatus() {
+		// For Moderators+
+	}
+
+
+
 	// --------------------------------------------------------------- 
 	// --- Active Stream Information Functions ----------------------- 
 	// ---------------------------------------------------------------
