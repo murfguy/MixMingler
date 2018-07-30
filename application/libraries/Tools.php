@@ -12,6 +12,17 @@ class Tools {
 		$this->CI->load->database();
 	}
 
+	public function removeValueFromList($value, $list) {
+		//Convert list list to PHP array
+		$array = explode(",", $list);
+		
+		// Remove the value from the array
+		if (($key = array_search($value, $array)) !== false) { unset($array[$key]); }
+		
+		// Restore to string.list and return
+		return implode(',', $array);
+	}
+
 	public function getElapsedTimeString($timestamp) {
 		$elapsedTime = time() - $timestamp;
 

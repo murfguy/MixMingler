@@ -34,3 +34,8 @@ sftp-config.josn
 application/config/config.php
 application/config/database.php
 sftp-config.json
+
+# exclude covers
+assets/graphics/covers/*
+# but keep the blank cover file
+!assets/graphics/covers/blankCover.png

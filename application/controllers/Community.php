@@ -57,6 +57,7 @@ class Community extends CI_Controller {
 			if (isset($_SESSION['mixer_user'])) {
 				$currentUser = new stdClass();
 				$currentUser->token = $_SESSION['mixer_user'];
+				$currentUser->mixer_id = $_SESSION['mixer_id'];
 				$currentUser->isMember = false;
 				$currentUser->isFollower = false;
 				$currentUser->isFounder = false;

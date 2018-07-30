@@ -1,20 +1,31 @@
 function setFormListeners() {
+
+	console.log("setFormListeners()");
+
+	// Set form validators
 	$.validate({
 		modules: 'security',
 		onModulesLoaded: function () {
 			console.log("Form Validation Modules loaded");
 		}
 	});
-
 	
-
-	console.log("setFormListeners()");
-	$("form#applyRole").submit(function (event) { applyUserRole(event, $(this))} );
-
+	// Set validation listeners to prevent forms from sending without valid data
 	setRequestCommunityValidationListeners();
+
+	// Set the listeners for the follow/leave buttons
+	setCommunityActionButtonListeners();
+
+	// set listeners for apply role form on admin panel
+	$("form#applyRole").submit(function (event) { applyUserRole(event, $(this))} );
+	
+	// set listeners for request community form
 	$("form#requestCommunity").submit(function (event) { requestCommunity(event, $(this))} );
+	
+	// set listeners for community approval form on admin panel
 	$("form.communityApproval").submit(function (event) { approveCommunity(event, $(this))} );
 
+	// set listeners for founding community from community moderation pages
 	$("form#foundCommunity").submit(function (event) { foundCommunity(event, $(this))} );
 }
 
@@ -238,6 +249,82 @@ function foundCommunity(e, form) {
 				//console.log(json.message);
 			});
 }
+
+
+function setCommunityActionButtonListeners() {
+	console.log("setCommunityActionButtonListeners()");
+	$("button.commAction").click(function () {
+		actionUrl = baseActionUrl;
+		switch($(this).attr('id')) {
+			case "join": 
+				actionUrl += "joinCommunity/";
+
+				$(this).removeClass('btn-primary');
+				$(this).addClass('btn-danger');
+				$(this).text('Leave');
+				$(this).attr('id','leave');
+				$(this).attr('title','Leave this community.');
+
+				break;
+			case "leave": 
+				actionUrl += "leaveCommunity/";
+
+				$(this).removeClass('btn-danger');
+				$(this).addClass('btn-primary');
+				$(this).text('Join');
+				$(this).attr('id','join');
+				$(this).attr('title','Become a member of this community so viewers can find you.');
+				break;
+			case "follow": 
+				actionUrl += "followCommunity/";
+
+				$(this).removeClass('btn-primary');
+				$(this).addClass('btn-danger');
+				$(this).text('Unfollow');
+				$(this).attr('id','unfollow');
+				$(this).attr('title','Stop getting updates from this community on your profile.');
+				break;
+			case "unfollow": 
+				actionUrl += "unfollowCommunity/";
+
+				$(this).removeClass('btn-danger');
+				$(this).addClass('btn-primary');
+				$(this).text('Follow');
+				$(this).attr('id','follow');
+				$(this).attr('title','Track streamers in this community from your profile page.');
+				break;
+		}
+		//console.log($(this).attr('commId'));
+		//actionUrl += $(this).attr('commId');
+
+		console.log(actionUrl);
+		$.ajax({
+			url: actionUrl,
+			type: "POST",
+			dataType: "json",
+			data: { 
+				communityId: $(this).attr('commId'),
+				mixer_id: $(this).attr('mixerId')
+			}
+		})
+			.done(function (json){
+				console.log('commAction - AJAX done');
+			}) 
+
+			.fail(function (json){
+				console.log('commAction - AJAX failed');
+			})
+
+			.always(function (json){
+				console.log('commAction - AJAX always');
+				console.log(json);
+				//console.log(json.message);
+			});
+
+
+	});
+}
+
 
 function setRequestCommunityValidationListeners() {
 	console.log("setRequestCommunityValidationListeners()");

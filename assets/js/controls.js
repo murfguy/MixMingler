@@ -20,72 +20,7 @@ var baseActionUrl = baseURL+"/servlet/";
 		}
 	})
 
-	$("button.commAction").click(function () {
-		actionUrl = baseActionUrl;
-		switch($(this).attr('id')) {
-			case "join": 
-				actionUrl += "joinCommunity/";
-
-				$(this).removeClass('btn-primary');
-				$(this).addClass('btn-danger');
-				$(this).text('Leave');
-				$(this).attr('id','leave');
-				$(this).attr('title','Leave this community.');
-
-				break;
-			case "leave": 
-				actionUrl += "leaveCommunity/";
-
-				$(this).removeClass('btn-danger');
-				$(this).addClass('btn-primary');
-				$(this).text('Join');
-				$(this).attr('id','join');
-				$(this).attr('title','Become a member of this community so viewers can find you.');
-				break;
-			case "follow": 
-				actionUrl += "followCommunity/";
-
-				$(this).removeClass('btn-primary');
-				$(this).addClass('btn-danger');
-				$(this).text('Unfollow');
-				$(this).attr('id','unfollow');
-				$(this).attr('title','Stop getting updates from this community on your profile.');
-				break;
-			case "unfollow": 
-				actionUrl += "unfollowCommunity/";
-
-				$(this).removeClass('btn-danger');
-				$(this).addClass('btn-primary');
-				$(this).text('Follow');
-				$(this).attr('id','follow');
-				$(this).attr('title','Track streamers in this community from your profile page.');
-				break;
-		}
-		console.log($(this).attr('commId'));
-		actionUrl += $(this).attr('commId');
-
-		console.log(actionUrl);
-		$.ajax({
-			url: actionUrl,
-			type: "POST",
-			dataType: "json"
-		})
-			.done(function (json){
-				console.log('commAction - AJAX done');
-			}) 
-
-			.fail(function (json){
-				console.log('commAction - AJAX failed');
-			})
-
-			.always(function (json){
-				console.log('commAction - AJAX always');
-				console.log(json);
-				//console.log(json.message);
-			});
-
-
-	});
+	
 
 	console.log("classes: " + $("div.actionButtons.types").attr("class"));
 	if ( $("div.actionButtons.types").hasClass("followed") ) {
