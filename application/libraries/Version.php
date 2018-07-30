@@ -66,12 +66,14 @@ class Version {
 		----- Template --------- */
 		$patch = new stdClass();
 		$patch->version = "0.2.1";
-		$patch->date = date($date_string, strtotime('2018-07-24'));
+		$patch->date = date($date_string, strtotime('2018-08-01'));
 		$patch->notes = array();
 		$patch->notes[] = "Admin Panel: user roles assignable";
-		$patch->notes[] = "Admin Panel: approve/reject community requests";
+		$patch->notes[] = "Home page: news feeds load asynchronously.";
 		$patch->notes[] = "New communities can be requested.";
-		$patch->notes[] = "Home page: news feed load asynchronously.";
+		$patch->notes[] = "Admin Panel: approve/reject community requests";
+		$patch->notes[] = "Communities can now be founded once approved.";
+		//$patch->notes[] = "Community moderation page for managing communities.";
 
 		$patchNotes[] = $patch;
 
