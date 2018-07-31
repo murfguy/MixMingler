@@ -173,8 +173,12 @@ class News {
 			$id = str_replace("commId:","", $id);
 
 			$community = $this->CI->communities->getCommunity($id);
-			$communityLink = "<a href=\"/community/$community->slug\">".$community->long_name."</a>";
 
+			if ($community != null) {
+				$communityLink = "<a href=\"/community/$community->slug\">".$community->long_name."</a>";
+			} else {
+				$communityLink = "<span style='color:red'>{UNKNOWN}</span>";
+			}
 			$eventText = str_replace("{commId:".$id."}", $communityLink, $eventText);
 		} 
 		

@@ -268,6 +268,10 @@ function setCommunityActionButtonListeners() {
 				$("button#follow").prepend('<i class="fas fa-sync fa-spin"></i> ');
 				break;
 
+			case "unpend": 
+				submitButton.text("Unpending");
+				break;
+
 			case "leave": 
 				submitButton.text("Leaving");
 				$("button#moderateLink").attr('disabled', '');
@@ -283,8 +287,6 @@ function setCommunityActionButtonListeners() {
 		}
 
 		submitButton.prepend('<i class="fas fa-sync fa-spin"></i> ');
-		//console.log($(this).attr('commId'));
-		//actionUrl += $(this).attr('commId');
 
 		submitCommunityAction(actionUrl, $(this).attr('commId'));
 	});
@@ -323,13 +325,59 @@ function submitCommunityAction(actionUrl, communityId) {
 						}
 						break;
 
+					case "addedToPending":
+						targetButton = $("button#join");
+						targetButton.removeAttr('disabled');
+						targetButton.removeClass('btn-primary');
+						targetButton.addClass('btn-info');
+						targetButton.text('Pending');
+						targetButton.attr('id','unpend');
+						targetButton.attr('title','Your membership is pending approval. Click to undo.');
+						targetButton.attr('data-original-title','Your membership is pending approval. Click to undo.');
+
+						if (!json.followsCommunity) {
+							submitCommunityAction(baseActionUrl+"followCommunity/", json.communityID);
+						}
+						break;
+
+					case "removedFromPending":
+						targetButton = $("button#unpend");
+						targetButton.removeAttr('disabled');
+						targetButton.removeClass('btn-info');
+
+						if (json.communityStatus == 'open') {
+							targetButton.addClass('btn-primary');
+							targetButton.text('Join');
+							targetButton.attr('id','join');
+							targetButton.attr('title','Become a member of this community so viewers can find you.');
+							targetButton.attr('data-original-title','Become a member of this community so viewers can find you.');
+						} else {
+							targetButton.addClass('btn-secondary');
+							targetButton.text('Closed');
+							targetButton.attr('disabled', '');
+							//targetButton.attr('id','join');
+							targetButton.attr('title','Community is closed to new members.');
+							targetButton.attr('data-original-title','Community is closed to new members.');
+						}
+						break;
+
 					case "leave": 
 						targetButton.removeClass('btn-danger');
-						targetButton.addClass('btn-primary');
-						targetButton.text('Join');
-						targetButton.attr('id','join');
-						targetButton.attr('title','Become a member of this community so viewers can find you.');
-						targetButton.attr('data-original-title','Become a member of this community so viewers can find you.');
+							
+						if (json.communityStatus == 'open') {
+							targetButton.addClass('btn-primary');
+							targetButton.text('Join');
+							targetButton.attr('id','join');
+							targetButton.attr('title','Become a member of this community so viewers can find you.');
+							targetButton.attr('data-original-title','Become a member of this community so viewers can find you.');
+						} else {
+							targetButton.addClass('btn-secondary');
+							targetButton.text('Closed');
+							targetButton.attr('disabled', '');
+							//targetButton.attr('id','join');
+							targetButton.attr('title','Community is closed to new members.');
+							targetButton.attr('data-original-title','Community is closed to new members.');
+						}
 						$("button#moderateLink").remove();
 						break;
 
@@ -359,12 +407,14 @@ function submitCommunityAction(actionUrl, communityId) {
 
 		.fail(function (json){
 			console.log('commAction - AJAX failed');
+			displayAlert($("#userHeader"), "There was an issue communicating with the server. Reload and try again.", "danger", 0)
 		})
 
 		.always(function (json){
 			console.log('commAction - AJAX always');
 			console.log(json);
 			//console.log(json.message);
+
 		});
 }
 
@@ -409,16 +459,20 @@ function setRequestCommunityValidationListeners() {
 	}); 
 }
 
-function displayAlert(target, message, level = "warning") {
+function displayAlert(target, message, level, timeOnScreen) {
+	if (level=='') { level = "warning"; }
+	if (timeOnScreen=='') { timeOnScreen = 3000; }
+
 	console.log("displayAlert("+target+", "+message+", "+level+")");
 	alert = '<div id="alertMessage" class="alert alert-'+level+'">';
 	alert += message;
 	alert += '</div>';
 
-
 	target.before(alert);
-	$("#alertMessage").hide();
-	$("#alertMessage").fadeIn(500).delay(3000).fadeOut("slow", function(){
-	  $(this).remove();
+	if (timeOnScreen == 0) {
+		$("#alertMessage").hide();
+		$("#alertMessage").fadeIn(500).delay(timeOnScreen).fadeOut("slow", function(){
+		  $(this).remove();
 	});
+	}
 }

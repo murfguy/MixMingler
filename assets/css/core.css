@@ -110,6 +110,10 @@ img.live-thumb {
 	margin-bottom: 6px
 }
 
+button {
+	cursor: pointer;
+}
+
 
 p.authenticateButton {
 	padding: 8px;

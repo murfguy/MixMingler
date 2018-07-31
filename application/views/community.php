@@ -66,18 +66,32 @@
 								<button type="button" data-toggle="tooltip" id="moderateLink" title="Moderate this community." onclick="window.location.href = '/community/<?php echo $community_info->slug; ?>/mod';" class="btn btn-sm btn-primary">Moderate Community</a>
 							<?php }
 
-							if ($currentUser->isMember) {
-								echo "<button type=\"button\" data-toggle=\"tooltip\" title=\"Leave this community.\" id=\"leave\" commId=\"".$community_info->id."\" class=\"commAction btn-sm btn-danger\">Leave</button>";
-							} else {
-								echo "<button type=\"button\" data-toggle=\"tooltip\" title=\"Become a member of this community so viewers can find you.\" id=\"join\" commId=\"".$community_info->id."\" class=\"commAction btn-sm btn-primary\">Join</button>";
-							}
+								if ($currentUser->isMember) {
+									echo "<button type=\"button\" data-toggle=\"tooltip\" title=\"Leave this community.\" id=\"leave\" commId=\"".$community_info->id."\" class=\"commAction btn-sm btn-danger\">Leave</button>";
+								} else {
 
+									echo "<button type=\"button\" data-toggle=\"tooltip\" title=\"Become a member of this community so viewers can find you.\" commId=\"".$community_info->id."\" class=\"commAction btn-sm btn-";
+
+									if ($community_info->status == 'closed') {
+										echo "secondary\" disabled>Closed</button>";
+									} else {
+										if ($currentUser->isPending) {
+											echo "info\" id=\"unpend\">Pending</button>";
+										} else {
+											echo "primary\" id=\"join\" >Join</button>";
+										}
+									}
+
+								}
+							 
 
 							if ($currentUser->isFollower) {
 								echo "<button type=\"button\" data-toggle=\"tooltip\" title=\"Stop getting updates from this community on your profile.\" id=\"unfollow\" commId=\"".$community_info->id."\" class=\"commAction btn-sm btn-danger\">Unfollow</button>";
 							} else {
 								echo "<button type=\"button\" data-toggle=\"tooltip\" title=\"Track streamers in this community from your profile page.\" id=\"follow\" commId=\"".$community_info->id."\" class=\"commAction btn-sm btn-primary\">Follow</button>";
 							}
+
+							
 						} else { ?>
 							<button type="button" data-toggle="tooltip" id="moderateLink" title="Moderate this community." onclick="window.location.href = '/community/<?php echo $community_info->slug; ?>/mod';" class="btn btn-sm btn-primary">Moderate Community</button>
 						<?php }
@@ -109,18 +123,5 @@
 			</div>
 		</div>
 
-	</div>
-
-	
-
-		
-
-	<div class="plans">
-		<p><b>Plans/Ideas for this page:</b></p>
-		<ul>
-			<li>More/better community details</li>
-			<li>Implement community graphics (avatar &amp; banner)</li>
-			<li>Activity feed for members?</li>
-		</ul>
 	</div>
 </main>

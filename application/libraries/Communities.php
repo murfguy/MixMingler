@@ -16,7 +16,13 @@ class Communities {
 	public function getCommunity($communityID) {
 		$sql_query = "SELECT * FROM communities WHERE id=$communityID";
 		$query = $this->CI->db->query($sql_query, array($communityID));
-		return $query->result()[0];
+
+		if (!empty($query->result())) {
+			return $query->result()[0];
+		} else {
+			return null;
+		}
+		
 	}
 
 	public function getCommunityBySlug($communitySlug) {
@@ -27,6 +33,8 @@ class Communities {
 		}
 		return null;
 	}
+
+
 
 	public function getOnlineMembersFromMixer($members) {
 		// Check status of all members from Mixer API
@@ -65,6 +73,12 @@ class Communities {
 	public function getCommunityMembers($communitySlug) {
 		$sql_query = "SELECT *  FROM `mixer_users` WHERE FIND_IN_SET((SELECT id FROM communities WHERE slug=?), `joinedCommunities`) > 0 ORDER BY name_token ASC";
 		$query = $this->CI->db->query($sql_query, array($communitySlug));
+		return $query->result();
+	}
+
+	public function getCommunityMembersFromList($communityId, $list) {
+		$sql_query = "SELECT * FROM mixer_users WHERE mixer_id IN (?)";
+		$query = $this->CI->db->query($sql_query, array($list));
 		return $query->result();
 	}
 

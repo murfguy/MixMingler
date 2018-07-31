@@ -32,30 +32,115 @@ class Servlet extends CI_Controller {
 
 		// If user is logged in
 		if (isset($_SESSION['mixer_user'])) {
+			$sql_query = "SELECT approveMembers FROM communities WHERE id=?";
+			$query = $this->db->query($sql_query, array($communityID));
+			$approveMembers = $query->result()[0]->approveMembers;
+
 			$mixer_id = $_SESSION['mixer_id'];
-			// Add community ID to end of "joinedCommunities" in mixer_user
-			$sql_query = "UPDATE mixer_users SET joinedCommunities = IF(joinedCommunities='', ?, concat(joinedCommunities, ',', ?)) WHERE name_token=?";
-			$query = $this->db->query($sql_query, array($communityID, $communityID, $_SESSION['mixer_user']));
-
-			// Add member into list of joined members
-			$sql_query = "UPDATE communities SET members = IF(members='', ?, concat(members, ',', ?)) WHERE id=?";
-			$query = $this->db->query($sql_query, array($mixer_id, $mixer_id, $communityID));
-
+			$this->returnData->username = $_SESSION['mixer_user'];
+			$this->returnData->mixer_id = $mixer_id;
+			$this->returnData->communityID = $communityID;
+		
+			// Let's see if the current user follows this community
 			$sql_query = "SELECT followedCommunities FROM mixer_users WHERE mixer_id=?";
 			$query = $this->db->query($sql_query, array($mixer_id));
+
 			$this->returnData->followsCommunity = false;
 			if ($this->tools->valueIsInList($communityID, $query->result()[0]->followedCommunities)) {
 				$this->returnData->followsCommunity = true;
 			}
 
-			$this->returnData->username = $_SESSION['mixer_user'];
-			$this->returnData->mixer_id = $mixer_id;
-			$this->returnData->communityID = $communityID;
-			$this->returnData->success = true;
-			$this->returnData->message = "Joined Community";
-			$this->returnData->completedAction = "join";
 
-			$this->news->addNews($_SESSION['mixer_id'], "{username} joined the {commId:$communityID} community.", "community", $communityID);
+
+			// If community requires members to be approved:
+			if ($approveMembers) {
+				// Add community ID to end of "joinedCommunities" in mixer_user
+				$sql_query = "UPDATE mixer_users SET pendingCommunities = IF(pendingCommunities='', ?, concat(pendingCommunities, ',', ?)) WHERE name_token=?";
+				$query = $this->db->query($sql_query, array($communityID, $communityID, $_SESSION['mixer_user']));
+
+				// Add member into list of joined members
+				$sql_query = "UPDATE communities SET pendingMembers = IF(pendingMembers='', ?, concat(pendingMembers, ',', ?)) WHERE id=?";
+				$query = $this->db->query($sql_query, array($mixer_id, $mixer_id, $communityID));
+
+				// And now we return all the important data
+				$this->returnData->success = true;
+				$this->returnData->message = "Added to pending";
+				$this->returnData->completedAction = "addedToPending";
+			} else {
+				// Add community ID to end of "joinedCommunities" in mixer_user
+				$sql_query = "UPDATE mixer_users SET joinedCommunities = IF(joinedCommunities='', ?, concat(joinedCommunities, ',', ?)) WHERE name_token=?";
+				$query = $this->db->query($sql_query, array($communityID, $communityID, $_SESSION['mixer_user']));
+
+				// Add member into list of joined members
+				$sql_query = "UPDATE communities SET members = IF(members='', ?, concat(members, ',', ?)) WHERE id=?";
+				$query = $this->db->query($sql_query, array($mixer_id, $mixer_id, $communityID));
+
+				// And now we return all the important data
+				$this->returnData->success = true;
+				$this->returnData->message = "Joined Community";
+				$this->returnData->completedAction = "join";
+
+				$this->news->addNews($_SESSION['mixer_id'], "{username} joined the {commId:$communityID} community.", "community", $communityID);
+			}
+
+
+			
+		}
+		$this->returnData();
+	}
+
+	public function unpendCommunity() {
+		$communityID = $_POST['communityId'];
+		if (isset($_SESSION['mixer_user'])) {
+			// Is user the admin?
+			$sql_query = "SELECT admin FROM communities WHERE id=?";
+			$query = $this->db->query($sql_query, array($communityID));
+
+			$mixer_id = $_SESSION['mixer_id'];
+			$this->returnData->communityAdmin = $query->result()[0]->admin;
+			$this->returnData->currentUserId = $mixer_id;
+
+			// If user is not admin, they may do this action
+			if ($query->result()[0]->admin != $mixer_id) {
+				// First, let's check the pending communities for the logged in user.
+				$sql_query = "SELECT pendingCommunities FROM mixer_users WHERE mixer_id=?";
+				$query = $this->db->query($sql_query, array($mixer_id));
+
+				// Then we remove the left community from list any pertinent communiuty lists.
+				$pendingCommunities = $this->tools->removeValueFromList($communityID, $query->result()[0]->pendingCommunities);
+
+				// UPDATE Database with updated list of communities
+				$sql_query = "UPDATE mixer_users SET pendingCommunities=? WHERE mixer_id=?";
+				$query = $this->db->query($sql_query, array($pendingCommunities, $mixer_id));
+				
+				// Now we need to remove the user from the list of members in the community database
+				// So first we get the data from the community
+				$sql_query = "SELECT status, pendingMembers FROM communities WHERE id=?";
+				$query = $this->db->query($sql_query, array($communityID));
+				$status = $query->result()[0]->status;
+
+				// Remove member id from all lists
+				$pendingMembers = $this->tools->removeValueFromList($mixer_id, $query->result()[0]->pendingMembers);
+
+				// Update community data to remove member
+				$sql_query = "UPDATE communities SET pendingMembers=? WHERE id=?";
+				$query = $this->db->query($sql_query, array($pendingMembers, $communityID));
+
+				$this->returnData->username = $_SESSION['mixer_user'];
+				$this->returnData->mixer_id = $mixer_id;
+				$this->returnData->communityID = $communityID;
+				$this->returnData->communityStatus = $status;
+				$this->returnData->success = true;
+				$this->returnData->message = "User removed themselves from pending list.";
+				$this->returnData->completedAction = "removedFromPending";
+			} else {
+				// User is the commmunity admin, and cannot leave.
+				$this->returnData->username = $_SESSION['mixer_user'];
+				$this->returnData->mixer_id = $mixer_id;
+				$this->returnData->communityID = $communityID;
+				$this->returnData->success = false;
+				$this->returnData->message = "User is admin and cannot leave community.";
+			}
 		}
 		$this->returnData();
 	}
@@ -83,6 +168,7 @@ class Servlet extends CI_Controller {
 				// Then we remove the left community from list any pertinent communiuty lists.
 				$modCommunities = $this->tools->removeValueFromList($communityID, $query->result()[0]->modCommunities);
 				$joinedCommunities = $this->tools->removeValueFromList($communityID, $query->result()[0]->joinedCommunities);
+			
 				
 				// UPDATE Database with updated list of communities
 				$sql_query = "UPDATE mixer_users SET modCommunities=?, joinedCommunities = ? WHERE mixer_id=?";
@@ -90,8 +176,9 @@ class Servlet extends CI_Controller {
 
 				// Now we need to remove the user from the list of members in the community database
 				// So first we get the data from the community
-				$sql_query = "SELECT moderators, members, coreMembers, pendingMembers FROM communities WHERE id=?";
+				$sql_query = "SELECT status, moderators, members, coreMembers, pendingMembers FROM communities WHERE id=?";
 				$query = $this->db->query($sql_query, array($communityID));
+				$status = $query->result()[0]->status;
 
 				// Remove member id from all lists
 				$moderators = $this->tools->removeValueFromList($mixer_id, $query->result()[0]->moderators);
@@ -103,10 +190,14 @@ class Servlet extends CI_Controller {
 				$sql_query = "UPDATE communities SET moderators=?, members=?, coreMembers=?, pendingMembers=? WHERE id=?";
 				$query = $this->db->query($sql_query, array($moderators, $members, $coreMembers, $pendingMembers, $communityID));
 
+				$sql_query = "DELETE FROM timeline_events WHERE mixer_id=? AND eventType='community' AND extraVars=?";
+				$query = $this->db->query($sql_query, array($mixer_id, $communityID));
+
 
 				$this->returnData->username = $_SESSION['mixer_user'];
 				$this->returnData->mixer_id = $mixer_id;
 				$this->returnData->communityID = $communityID;
+				$this->returnData->communityStatus = $status;
 				$this->returnData->success = true;
 				$this->returnData->message = "Left Community";
 				$this->returnData->completedAction = "leave";

@@ -44,14 +44,18 @@ class Community extends CI_Controller {
 			$data->community_info = $community_info;
 
 			// Get all Community Members
-			$community_members = $this->communities->getCommunityMembers($communitySlug);
+			$members = $this->communities->getCommunityMembersFromList($community_info->id, $community_info->members);
+			//$community_coreMembers = $this->communities->getCommunityMembersFromList($community_info->id, $community_info->coreMembers);
+			$moderators = $this->communities->getCommunityMembersFromList($community_info->id, $community_info->moderators);
+			$pendingMembers = $this->communities->getCommunityMembersFromList($community_info->id, $community_info->pendingMembers);
+			//$bannedMembers = $this->communities->getCommunityMembersFromList($community_info->id, $community_info->bannedMembers);
 
 			// Get admin and mods
 			$community_leads = $this->communities->getCommunityLeads($data->community_info->id);
 
 			// Check status of all members from Mixer API
 			// channel-search bucket limit is 20 queuries per 5 seconds. 
-			$online_members = $this->communities->getOnlineMembersFromMixer($community_members);
+			$online_members = $this->communities->getOnlineMembersFromMixer($members);
 
 			// if user is logged in
 			if (isset($_SESSION['mixer_user'])) {
@@ -59,6 +63,7 @@ class Community extends CI_Controller {
 				$currentUser->token = $_SESSION['mixer_user'];
 				$currentUser->mixer_id = $_SESSION['mixer_id'];
 				$currentUser->isMember = false;
+				$currentUser->isPending = false;
 				$currentUser->isFollower = false;
 				$currentUser->isFounder = false;
 				$currentUser->isAdmin = false;
@@ -76,7 +81,7 @@ class Community extends CI_Controller {
 					$currentUser->isMod = true;
 				}
 
-				$sql_query = "SELECT joinedCommunities,followedCommunities FROM mixer_users WHERE name_token=?";
+				$sql_query = "SELECT joinedCommunities,followedCommunities, pendingCommunities FROM mixer_users WHERE name_token=?";
 				$query = $this->db->query($sql_query, array($_SESSION['mixer_user']));
 
 				$joinedCommunities = explode(",", $query->result()[0]->joinedCommunities);
@@ -84,6 +89,9 @@ class Community extends CI_Controller {
 
 				$followedCommunities = explode(",", $query->result()[0]->followedCommunities);
 				if (array_search($community_info->id, $followedCommunities) > - 1) { $currentUser->isFollower = true; }
+
+				$pendingCommunities = explode(",", $query->result()[0]->pendingCommunities);
+				if (array_search($community_info->id, $pendingCommunities) > - 1) { $currentUser->isPending = true; }
 
 				$data->currentUser = $currentUser;
 			} else {
@@ -107,7 +115,11 @@ class Community extends CI_Controller {
 
 			$data->feedData = $feedData;
 			$data->newsDisplayItems = $newsDisplayItems;
-			$data->community_members = $community_members;
+			$data->members = $members;
+			$data->moderators = $moderators;
+			//$data->coreMembers = $members;
+			$data->pendingMembers = $pendingMembers;
+			//$data->bannedMembers = $members;
 			$data->community_leads = $community_leads;
 			$data->online_members = $online_members;
 			//$this->load->view('community-admin', $data);
