@@ -111,12 +111,11 @@
 
 				?>
 			</div>
-			
+
 			<div class="infoBox">
 				<h4 class="infoHeader">Community Info</h4>
 				<div class="infoInterior">
-					<p>Members: <?php echo count($members); ?></p>
-					<p>Followers: <?php echo count($followers); ?></p>
+					<p><span data-toggle="tooltip" title="Members"><i class="fas fa-users"></i> <?php echo count($members); ?></span> &nbsp;&nbsp;|&nbsp;&nbsp; <span data-toggle="tooltip" title="Followers"><i class="fas fa-heart"></i> <?php echo count($followers); ?></span></p>
 					<p>Founded By: <a href="/user/<?php echo $admin->name_token; ?>" data-toggle="tooltip" title="Founder"><i class="fas fa-star" style="color: gold"></i> <?php echo $admin->name_token; ?></a></p>
 					<hr style="background-color: white">
 					<p>Moderated By:</p>
