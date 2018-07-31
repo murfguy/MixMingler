@@ -32,17 +32,27 @@
 				echo "<h2 class=\"noStream\">No one is currently streaming.</h2>";
 			}
 
-
-
-
 			echo "<h1>Community Members</h1>";
 			//echo "<table class=\"membersList\">";
-			if (!empty($community_members)) {
-
+			if (!empty($members)) {
+				$moderatorIds = explode(",", $community_info->moderators);
 			echo "<div class=\"row\" id=\"memberListing\">";
-				foreach ($community_members as $member) {
+
+				foreach ($members as $member) {
 					echo "<div class=\"\">";
 					echo "<a href=\"/user/".$member->name_token."\" data-toggle=\"tooltip\" title=\"Followers: ".number_format($member->numFollowers)."\"><img class=\"avatar thin-border\" src=\"".$member->avatarURL."\" width=\"25px\">".$member->name_token."</a>";
+					
+					if ($member->mixer_id == $community_info->founder) {
+						echo ' <i class="fas fa-star" style="color: gold"></i>';
+					}
+					if ($member->mixer_id == $community_info->admin) {
+						echo ' <i class="fas fa-crown" style="color: gold"></i>';
+					}
+
+					if ($member->mixer_id == in_array($member->mixer_id, $moderatorIds)){
+						echo ' <i class="fas fa-chess-knight" style="color: silver"></i>';
+					}
+
 					echo "</div>";
 				}
 			echo "</div>";
@@ -101,6 +111,23 @@
 
 				?>
 			</div>
+			
+			<div class="infoBox">
+				<h4 class="infoHeader">Community Info</h4>
+				<div class="infoInterior">
+					<p>Members: <?php echo count($members); ?></p>
+					<p>Followers: <?php echo count($followers); ?></p>
+					<p>Founded By: <a href="/user/<?php echo $admin->name_token; ?>" data-toggle="tooltip" title="Founder"><i class="fas fa-star" style="color: gold"></i> <?php echo $admin->name_token; ?></a></p>
+					<hr style="background-color: white">
+					<p>Moderated By:</p>
+					<p><a href="/user/<?php echo $admin->name_token; ?>" data-toggle="tooltip" title="Admin"><i class="fas fa-crown" style="color: gold"></i> <?php echo $admin->name_token; ?></a> 
+
+					<?php if (!empty($moderators)) { foreach ($moderators as $moderator) { ?>
+						, <a href="/user/<?php echo $moderator->name_token; ?>" data-toggle="tooltip" title="Moderator"><i class="fas fa-chess-knight" style="color: silver"></i> <?php echo $moderator->name_token; ?> </a>
+					<?php } } ?> 
+				</p>
+				</div>
+			</div>
 
 			<h3>News Feed</h3>
 			<?php
@@ -112,15 +139,6 @@
 					echo "<p>No members yet!</p>";
 				}
 			?>
-			<div class="infoBox">
-				<h4 class="infoHeader">Leads</h4>
-				<div class="infoInterior">
-					<?php foreach ($community_leads as $lead) { ?>
-						<p><?php echo $lead->name_token; ?></p>
-					<?php } ?> 
-
-				</div>
-			</div>
 		</div>
 
 	</div>

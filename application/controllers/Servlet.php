@@ -50,8 +50,6 @@ class Servlet extends CI_Controller {
 				$this->returnData->followsCommunity = true;
 			}
 
-
-
 			// If community requires members to be approved:
 			if ($approveMembers) {
 				// Add community ID to end of "joinedCommunities" in mixer_user
@@ -716,7 +714,13 @@ class Servlet extends CI_Controller {
 	}
 
 	public function changeMemberStatus() {
-		// For Moderators+
+		// confirm as community admin/moderator
+
+			// get target user
+			// get new status (approved, deny, ban)
+
+			// if approved, remove from pending, add to members
+			// if banned, remove from pending/members/coreMembers/moderators, add to banned
 	}
 
 

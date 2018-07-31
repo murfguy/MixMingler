@@ -76,10 +76,17 @@ class Communities {
 		return $query->result();
 	}
 
-	public function getCommunityMembersFromList($communityId, $list) {
-		$sql_query = "SELECT * FROM mixer_users WHERE mixer_id IN (?)";
-		$query = $this->CI->db->query($sql_query, array($list));
-		return $query->result();
+	public function getCommunityMembersFromList($list, $sortOn = 'lastSeenOnline', $direction = 'DESC') {
+		if (!empty($list)) {
+			$sql_query = "SELECT mixer_id, name_token, numFollowers, avatarURL FROM mixer_users WHERE mixer_id IN ? ORDER BY $sortOn $direction";
+			//echo "<p>".str_replace('?', $list, $sql_query)."</p>";
+			$query = $this->CI->db->query($sql_query, array(explode(',', $list)));
+			//echo "<p>$list</p>";
+			//print_r($query->result());
+			return $query->result();
+		} else {
+			return null;
+		}
 	}
 
 

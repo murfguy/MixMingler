@@ -44,10 +44,13 @@ class Community extends CI_Controller {
 			$data->community_info = $community_info;
 
 			// Get all Community Members
-			$members = $this->communities->getCommunityMembersFromList($community_info->id, $community_info->members);
-			//$community_coreMembers = $this->communities->getCommunityMembersFromList($community_info->id, $community_info->coreMembers);
-			$moderators = $this->communities->getCommunityMembersFromList($community_info->id, $community_info->moderators);
-			$pendingMembers = $this->communities->getCommunityMembersFromList($community_info->id, $community_info->pendingMembers);
+			$members = $this->communities->getCommunityMembersFromList($community_info->members);
+			$followers = $this->communities->getCommunityMembersFromList($community_info->followers);
+			//$coreMembers = $this->communities->getCommunityMembersFromList($community_info->id, $community_info->coreMembers);
+			$admin = $this->communities->getCommunityMembersFromList($community_info->admin)[0];
+			$founder = $this->communities->getCommunityMembersFromList($community_info->founder)[0];
+			$moderators = $this->communities->getCommunityMembersFromList($community_info->moderators, 'name_token', 'ASC');
+			$pendingMembers = $this->communities->getCommunityMembersFromList($community_info->pendingMembers);
 			//$bannedMembers = $this->communities->getCommunityMembersFromList($community_info->id, $community_info->bannedMembers);
 
 			// Get admin and mods
@@ -116,6 +119,8 @@ class Community extends CI_Controller {
 			$data->feedData = $feedData;
 			$data->newsDisplayItems = $newsDisplayItems;
 			$data->members = $members;
+			$data->followers = $followers;
+			$data->admin = $admin;
 			$data->moderators = $moderators;
 			//$data->coreMembers = $members;
 			$data->pendingMembers = $pendingMembers;
