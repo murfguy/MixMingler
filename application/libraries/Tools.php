@@ -23,6 +23,14 @@ class Tools {
 		return implode(',', $array);
 	}
 
+	public function valueIsInList($value, $list) {
+		$array = explode(",", $list);
+		if (($key = array_search($value, $array)) !== false) { 
+			return true;
+		}
+		return false;
+	}
+
 	public function getElapsedTimeString($timestamp) {
 		$elapsedTime = time() - $timestamp;
 

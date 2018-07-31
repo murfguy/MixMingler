@@ -32,18 +32,28 @@ class Servlet extends CI_Controller {
 
 		// If user is logged in
 		if (isset($_SESSION['mixer_user'])) {
+			$mixer_id = $_SESSION['mixer_id'];
 			// Add community ID to end of "joinedCommunities" in mixer_user
 			$sql_query = "UPDATE mixer_users SET joinedCommunities = IF(joinedCommunities='', ?, concat(joinedCommunities, ',', ?)) WHERE name_token=?";
 			$query = $this->db->query($sql_query, array($communityID, $communityID, $_SESSION['mixer_user']));
 
 			// Add member into list of joined members
 			$sql_query = "UPDATE communities SET members = IF(members='', ?, concat(members, ',', ?)) WHERE id=?";
-			$query = $this->db->query($sql_query, array($_SESSION['mixer_user'], $_SESSION['mixer_user'], $communityID));
+			$query = $this->db->query($sql_query, array($mixer_id, $mixer_id, $communityID));
+
+			$sql_query = "SELECT followedCommunities FROM mixer_users WHERE mixer_id=?";
+			$query = $this->db->query($sql_query, array($mixer_id));
+			$this->returnData->followsCommunity = false;
+			if ($this->tools->valueIsInList($communityID, $query->result()[0]->followedCommunities)) {
+				$this->returnData->followsCommunity = true;
+			}
 
 			$this->returnData->username = $_SESSION['mixer_user'];
+			$this->returnData->mixer_id = $mixer_id;
 			$this->returnData->communityID = $communityID;
 			$this->returnData->success = true;
 			$this->returnData->message = "Joined Community";
+			$this->returnData->completedAction = "join";
 
 			$this->news->addNews($_SESSION['mixer_id'], "{username} joined the {commId:$communityID} community.", "community", $communityID);
 		}
@@ -53,7 +63,6 @@ class Servlet extends CI_Controller {
 	public function leaveCommunity() {
 		$communityID = $_POST['communityId'];
 		// Remove community ID from "joinedCommunities" in mixer_user
-
 
 		if (isset($_SESSION['mixer_user'])) {
 			$mixer_id = $_SESSION['mixer_id'];
@@ -100,13 +109,15 @@ class Servlet extends CI_Controller {
 				$this->returnData->communityID = $communityID;
 				$this->returnData->success = true;
 				$this->returnData->message = "Left Community";
+				$this->returnData->completedAction = "leave";
 			} else {
+				// User is the commmunity admin, and cannot leave.
 				$this->returnData->username = $_SESSION['mixer_user'];
+				$this->returnData->mixer_id = $mixer_id;
 				$this->returnData->communityID = $communityID;
 				$this->returnData->success = false;
 				$this->returnData->message = "User is admin and cannot leave community.";
 			}
-			//$this->news->addNews($_SESSION['mixer_id'], "{username} left the {commId:$communityID} community.", "mingler");
 		}
 		$this->returnData();
 	}
@@ -122,51 +133,77 @@ class Servlet extends CI_Controller {
 			$sql_query = "UPDATE mixer_users SET followedCommunities = IF(followedCommunities='', ?, concat(followedCommunities, ',', ?)) WHERE name_token=?";
 			$query = $this->db->query($sql_query, array($communityID, $communityID, $_SESSION['mixer_user']));
 
-			// Increment member count by one in communities
-			$sql_query = "UPDATE communities SET followers = followers+1 WHERE id=?";
-			$query = $this->db->query($sql_query, array($communityID));
+			// Add member into list of joined members
+			$sql_query = "UPDATE communities SET followers = IF(followers='', ?, concat(followers, ',', ?)) WHERE id=?";
+			$query = $this->db->query($sql_query, array($_SESSION['mixer_id'], $_SESSION['mixer_id'], $communityID));
 
 			$this->returnData->username = $_SESSION['mixer_user'];
+			$this->returnData->mixer_id = $_SESSION['mixer_id'];
 			$this->returnData->communityID = $communityID;
 			$this->returnData->success = true;
 			$this->returnData->message = "Followed Community";
-
-
-			//$this->news->addNews($_SESSION['mixer_id'], "{username} followed the {commId:$communityID} community.", "mingler");
+			$this->returnData->completedAction = "follow";
 		}
 		$this->returnData();
 	}
 
 	public function unfollowCommunity() {
 		$communityID = $_POST['communityId'];
+
 		// Remove community ID from "followedCommunities" in mixer_user
 		// Decrease follow count by one in communities
 		// Remove community ID from "joinedCommunities" in mixer_user
 		// Decrease follow count by one in communities
 
 		if (isset($_SESSION['mixer_user'])) {
-			// First, let's check the communities for the logged in user.
-			$sql_query = "SELECT followedCommunities FROM mixer_users WHERE name_token=?";
-			$query = $this->db->query($sql_query, array($_SESSION['mixer_user']));
-			//Convert communities listto PHP array
-			$communities = explode(",", $query->result()[0]->followedCommunities);
-			// Remove the left community from the array
-			if (($key = array_search($communityID, $communities)) !== false) { unset($communities[$key]); }
-			// Restore to string.
-			$communities = implode(',', $communities);
-			
-			// UPDATE Database with updated list of communities
-			$sql_query = "UPDATE mixer_users SET followedCommunities = ? WHERE name_token=?";
-			$query = $this->db->query($sql_query, array($communities, $_SESSION['mixer_user']));
+			$mixer_id = $_SESSION['mixer_id'];
 
-			// Decrease follow count by one in communities
-			$sql_query = "UPDATE communities SET followers = followers-1 WHERE id=?";
+			// Is user the admin?
+			$sql_query = "SELECT admin FROM communities WHERE id=?";
 			$query = $this->db->query($sql_query, array($communityID));
 
-			$this->returnData->username = $_SESSION['mixer_user'];
-			$this->returnData->communityID = $communityID;
-			$this->returnData->success = true;
-			$this->returnData->message = "Unfollowed Community";
+			$this->returnData->communityAdmin = $query->result()[0]->admin;
+			$this->returnData->currentUserId = $mixer_id;
+
+			// If user is not admin, they may leave the community.
+			if ($query->result()[0]->admin != $mixer_id) {
+				// First, let's check the communities for the logged in user.
+				$sql_query = "SELECT followedCommunities FROM mixer_users WHERE name_token=?";
+				$query = $this->db->query($sql_query, array($_SESSION['mixer_user']));
+
+				$followedCommunities = $this->tools->removeValueFromList($communityID, $query->result()[0]->followedCommunities);
+
+				// UPDATE Database with updated list of communities
+				$sql_query = "UPDATE mixer_users SET followedCommunities = ? WHERE mixer_id=?";
+				$query = $this->db->query($sql_query, array($followedCommunities, $mixer_id));
+
+				// Now we need to remove the user from the list of members in the community database
+				// So first we get the data from the community
+				$sql_query = "SELECT followers FROM communities WHERE id=?";
+				$query = $this->db->query($sql_query, array($communityID));
+
+				// Remove member id from all lists
+				$followers = $this->tools->removeValueFromList($mixer_id, $query->result()[0]->followers);
+
+				// Update community data to remove member
+				$sql_query = "UPDATE communities SET followers=? WHERE id=?";
+				$query = $this->db->query($sql_query, array($followers, $communityID));
+
+				$this->returnData->username = $_SESSION['mixer_user'];
+				$this->returnData->communityID = $communityID;
+				$this->returnData->success = true;
+				$this->returnData->message = "Unfollowed Community";
+				$this->returnData->completedAction = "unfollow";
+			} else {
+				$this->returnData->username = $_SESSION['mixer_user'];
+				$this->returnData->mixer_id = $mixer_id;
+				$this->returnData->communityID = $communityID;
+				$this->returnData->success = false;
+				$this->returnData->message = "User is admin and cannot unfollow community.";
+			}
+
+
+			
 
 
 			//$this->news->addNews($_SESSION['mixer_id'], "{username} unfollowed the {commId:$communityID} community.", "mingler");

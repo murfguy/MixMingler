@@ -270,6 +270,7 @@ ORDER BY stream_count DESC";
 		$query = $this->CI->db->query($sql_query, array($mixer_id));
 		return  $query->result();
 	}
+	
 	public function getUsersAdminedOrModeratedCommunities($mixer_id) {
 		$sql_query = "SELECT communities.*
 FROM communities

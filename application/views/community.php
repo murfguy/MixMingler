@@ -63,7 +63,7 @@
 
 						if ($community_info->admin != $_SESSION['mixer_id']) {
 							if ($currentUser->isMod) { ?>
-								<button type="button" data-toggle="tooltip" title="Moderate this community." onclick="window.location.href = '/community/<?php echo $community_info->slug; ?>/mod';" class="btn btn-sm btn-primary">Moderate Community</a>
+								<button type="button" data-toggle="tooltip" id="moderateLink" title="Moderate this community." onclick="window.location.href = '/community/<?php echo $community_info->slug; ?>/mod';" class="btn btn-sm btn-primary">Moderate Community</a>
 							<?php }
 
 							if ($currentUser->isMember) {
@@ -79,7 +79,7 @@
 								echo "<button type=\"button\" data-toggle=\"tooltip\" title=\"Track streamers in this community from your profile page.\" id=\"follow\" commId=\"".$community_info->id."\" class=\"commAction btn-sm btn-primary\">Follow</button>";
 							}
 						} else { ?>
-							<button type="button" data-toggle="tooltip" title="Moderate this community." onclick="window.location.href = '/community/<?php echo $community_info->slug; ?>/mod';" class="btn btn-sm btn-primary">Moderate Community</a>
+							<button type="button" data-toggle="tooltip" id="moderateLink" title="Moderate this community." onclick="window.location.href = '/community/<?php echo $community_info->slug; ?>/mod';" class="btn btn-sm btn-primary">Moderate Community</button>
 						<?php }
 
 						

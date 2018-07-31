@@ -9,7 +9,7 @@
 		if ($creationCriteria['isLoggedIn']) {
 			if ($creationCriteria['bannedFromCreation'] == false) {
 				if ($creationCriteria['agedEnough'] == false) {
-					echo "<div class=\"alert alert-danger\" role=\"alert\"><h4>You are not eligible for community creation!</h4><strong>Failed Criteria:</strong> Your mixer account is too young.</div>";
+					echo "<div class=\"alert alert-danger\" role=\"alert\"><h4>You are not eligible for community creation!</h4><strong>Failed Criteria:</strong> Your Mixer account is too young.</div>";
 					$success = false;
 				} 
 
@@ -18,14 +18,18 @@
 					$success = false;
 				} 
 
-
 				if ($creationCriteria['pendingApproval'] == true) {
 					echo "<div class=\"alert alert-danger\" role=\"alert\"><h4>You are not eligible for community creation!</h4><strong>Failed Criteria:</strong> You have a community awaiting approval.</div>";
 					$success = false;
 				} 
 
+				if ($creationCriteria['rejected'] == true) {
+					echo "<div class=\"alert alert-danger\" role=\"alert\"><h4>You are not eligible for community creation!</h4><strong>Failed Criteria:</strong> A community you requested was denied. Please visit your home page in order to delete the community before trying again.</div>";
+					$success = false;
+				} 
+
 				if ($creationCriteria['recentlyApproved'] == true) {
-					echo "<div class=\"alert alert-danger\" role=\"alert\"><h4>You are not eligible for community creation!</h4><strong>Failed Criteria:</strong> You have a community that was recently approved that you haven't finalized and opened.</div>";
+					echo "<div class=\"alert alert-danger\" role=\"alert\"><h4>You are not eligible for community creation!</h4><strong>Failed Criteria:</strong> You have a community that was recently approved that you haven't finalized and founded it yet.</div>";
 					$success = false;
 				} 
 			} else {
@@ -153,10 +157,12 @@
 		} else {
 			?><p>Unfortunatly, you are not authorized to make a new community at this time for the reasons outlined above. Please rectify the above issues and then try again.</p>
 
-			<p>All Criteria:</p>
+			<p>In order to request a community, you must meet all of the following criteria:</p>
 			<ul>
-				<li>Mixer Account is 90+ days old</li>
+				<li>Your Mixer account must be 90+ days old</li>
 				<li>You do not have have a requested community pending approval</li>
+				<li>You do not have have a requested community that has been approved, but isn't founded.</li>
+				<li>You do not have have a requested community that has been denied.</li>
 				<li>You have not made a community in one of the following time scales:
 					<ul>
 						<li>Under 50 followers: 6 weeks</li>

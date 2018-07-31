@@ -131,7 +131,7 @@ class Community extends CI_Controller {
 							<div class="alert alert-success"><h3>This community has been approved by site mods, but is waiting for public release by the community owner.</h3></div>
 						<?php } ?>
 						<?php if ($community_info->status == 'rejected')  { ?>
-							<div class="alert alert-danger"><h3>This community was rejected by site administrators.</h3></div>
+							<div class="alert alert-danger"><h3>This community was denied approval by site administrators and is awaiting deletion.</h3></div>
 						<?php } ?>
 						</main>
 
@@ -159,6 +159,7 @@ class Community extends CI_Controller {
 		$creationCriteria = array(
 			'agedEnough' => true,
 			'pendingApproval' => false,
+			'rejected' => false,
 			'recentlyApproved' => false,
 			'recentlyFounded'=> false,
 			'bannedFromCreation' => false,
@@ -172,6 +173,7 @@ class Community extends CI_Controller {
 			if ($user != null) {
 				$pending = $this->users->getUsersPendingCommunities($_SESSION['mixer_id']);
 				$approved = $this->users->getUsersApprovedCommunities($_SESSION['mixer_id']);
+				$rejected = $this->users->getUsersRejectedCommunities($_SESSION['mixer_id']);
 			}
 
 			$timespan = 14; // Default, two weeks
@@ -196,6 +198,9 @@ class Community extends CI_Controller {
 
 				// If user has a community approved but not finalized: fails
 				if ($approved != null) { $creationCriteria['recentlyApproved'] = true; }
+
+				// If user has a community that was rejected: fails
+				if ($rejected != null) { $creationCriteria['rejected'] = true; }
 
 				// If user founded a community too recently: fail
 				if (strtotime($user->lastFoundation) > (time() - ((60*60*24)*$timespan))) { $creationCriteria['recentlyFounded'] = true; }

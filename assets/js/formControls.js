@@ -254,75 +254,118 @@ function foundCommunity(e, form) {
 function setCommunityActionButtonListeners() {
 	console.log("setCommunityActionButtonListeners()");
 	$("button.commAction").click(function () {
-		actionUrl = baseActionUrl;
+		actionUrl = baseActionUrl + $(this).attr('id') +"Community/";
+
+
+		submitButton = $(this);
+		submitButton.attr('disabled', '');
+
 		switch($(this).attr('id')) {
 			case "join": 
-				actionUrl += "joinCommunity/";
-
-				$(this).removeClass('btn-primary');
-				$(this).addClass('btn-danger');
-				$(this).text('Leave');
-				$(this).attr('id','leave');
-				$(this).attr('title','Leave this community.');
-
+				submitButton.text("Joining");
+				$("button#follow").attr('disabled', '');
+				$("button#follow").text("Following");
+				$("button#follow").prepend('<i class="fas fa-sync fa-spin"></i> ');
 				break;
+
 			case "leave": 
-				actionUrl += "leaveCommunity/";
-
-				$(this).removeClass('btn-danger');
-				$(this).addClass('btn-primary');
-				$(this).text('Join');
-				$(this).attr('id','join');
-				$(this).attr('title','Become a member of this community so viewers can find you.');
+				submitButton.text("Leaving");
+				$("button#moderateLink").attr('disabled', '');
 				break;
+
 			case "follow": 
-				actionUrl += "followCommunity/";
-
-				$(this).removeClass('btn-primary');
-				$(this).addClass('btn-danger');
-				$(this).text('Unfollow');
-				$(this).attr('id','unfollow');
-				$(this).attr('title','Stop getting updates from this community on your profile.');
+				submitButton.text("Following");
 				break;
-			case "unfollow": 
-				actionUrl += "unfollowCommunity/";
 
-				$(this).removeClass('btn-danger');
-				$(this).addClass('btn-primary');
-				$(this).text('Follow');
-				$(this).attr('id','follow');
-				$(this).attr('title','Track streamers in this community from your profile page.');
+			case "unfollow": 
+				submitButton.text("Unfollowing");
 				break;
 		}
+
+		submitButton.prepend('<i class="fas fa-sync fa-spin"></i> ');
 		//console.log($(this).attr('commId'));
 		//actionUrl += $(this).attr('commId');
 
-		console.log(actionUrl);
-		$.ajax({
-			url: actionUrl,
-			type: "POST",
-			dataType: "json",
-			data: { 
-				communityId: $(this).attr('commId'),
-				mixer_id: $(this).attr('mixerId')
-			}
-		})
-			.done(function (json){
-				console.log('commAction - AJAX done');
-			}) 
-
-			.fail(function (json){
-				console.log('commAction - AJAX failed');
-			})
-
-			.always(function (json){
-				console.log('commAction - AJAX always');
-				console.log(json);
-				//console.log(json.message);
-			});
-
-
+		submitCommunityAction(actionUrl, $(this).attr('commId'));
 	});
+}
+
+function submitCommunityAction(actionUrl, communityId) {
+	console.log("submitCommunityAction("+actionUrl+","+communityId+")");
+
+	$.ajax({
+		url: actionUrl,
+		type: "POST",
+		dataType: "json",
+		data: { 
+			communityId: communityId
+		}
+	})
+		.done(function (json){
+			console.log('commAction - AJAX done');
+
+			if (json.success) {
+				targetButton = $("button#"+json.completedAction)
+				targetButton.removeAttr('disabled');
+				targetButton.remove("i");
+
+				switch(json.completedAction) {
+					case "join": 						
+						targetButton.removeClass('btn-primary');
+						targetButton.addClass('btn-danger');
+						targetButton.text('Leave');
+						targetButton.attr('id','leave');
+						targetButton.attr('title','Leave this community.');
+						targetButton.attr('data-original-title','Leave this community.');
+
+						if (!json.followsCommunity) {
+							submitCommunityAction(baseActionUrl+"followCommunity/", json.communityID);
+						}
+						break;
+
+					case "leave": 
+						targetButton.removeClass('btn-danger');
+						targetButton.addClass('btn-primary');
+						targetButton.text('Join');
+						targetButton.attr('id','join');
+						targetButton.attr('title','Become a member of this community so viewers can find you.');
+						targetButton.attr('data-original-title','Become a member of this community so viewers can find you.');
+						$("button#moderateLink").remove();
+						break;
+
+					case "follow": 						
+						targetButton.removeClass('btn-primary');
+						targetButton.addClass('btn-danger');
+						targetButton.text('Unfollow');
+						targetButton.attr('id','unfollow');
+						targetButton.attr('title','Stop getting updates from this community on your profile.');
+						targetButton.attr('data-original-title','Stop getting updates from this community on your profile.');
+						break;
+					case "unfollow": 
+						targetButton.removeClass('btn-danger');
+						targetButton.addClass('btn-primary');
+						targetButton.text('Follow');
+						targetButton.attr('id','follow');
+						targetButton.attr('title','Track streamers in this community from your profile page.');
+						targetButton.attr('data-original-title','Track streamers in this community from your profile page.');
+						break;
+				}
+			}
+
+			
+
+
+		}) 
+
+		.fail(function (json){
+			console.log('commAction - AJAX failed');
+		})
+
+		.always(function (json){
+			console.log('commAction - AJAX always');
+			console.log(json);
+			//console.log(json.message);
+		});
 }
 
 

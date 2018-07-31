@@ -64,6 +64,7 @@
 				$hasNotices = false;
 				if ($approvedCommunities != null) { $hasNotices = true; } 
 				if ($pendingCommunities != null) { $hasNotices = true; } 
+				if ($rejectedCommunities != null) { $hasNotices = true; } 
 
 				if ($hasNotices) { ?>
 
@@ -99,13 +100,13 @@
 					<?php } // if (approvedCommunites) ?>
 
 					<?php if ($rejectedCommunities != null) { ?>
-						<h4>Your community has been rejected.</h4>
+						<h4>Your community has been denied approval.</h4>
 
 						<?php foreach ($rejectedCommunities as $community) { ?>
 							<table>
 								<tr>
 									<td><?php echo $community->long_name; ?></td>
-									<td>Approved by: <?php echo $community->adminName; ?></td>
+									<td>Admin: <?php echo $community->adminName; ?></td>
 								</tr>
 
 								<?php if (!empty($community->siteAdminNote)) { ?>
