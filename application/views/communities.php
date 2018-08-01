@@ -20,15 +20,25 @@
 	<div id="communitiesList" class="communityCategory">
 		<button class="btn btn-lg btn-primary" onclick="window.location.href = '/community/create/';">Make Your Own Community!</button>
 		<h2><span class="mixBlue">All</span> Communities</h2>
-		<p id="communityDescription">Well, here's all the communities, ranked by popularity. If you want to drill down further, just check the categories above.</p>
-		<div class="row">
+		<p id="communityDescription">Well, here's all the communities, ranked by number of members. If you want to drill down further, just check the categories above.</p>
+		<div class="streamerList row">
 			<?php
 				if (count($communities) > 0) {
 					foreach ($communities as $community) { ?>
-						<div class="col-sm communityListing <? echo $community->category_slug; ?>">
+
+						<div class="typeInfo med">
+							<a href="/community/<? echo $community->slug; ?>"><img src="/assets/graphics/covers/<? echo $community->slug; ?>.jpg" onerror="this.src='/assets/graphics/covers/blankCover.png';" class="coverArt"></a>
+							<p class="typeName"><a href="/community/<? echo $community->slug; ?>"><? echo $community->long_name; ?></a></p>
+							<p class="stats">
+								<span class="onlineStat" data-toggle="tooltip" data-placement="bottom" title="Members"><i class="fas fa-users"></i>  <? echo $community->memberCount; ?></span>
+							</p>
+						</div>
+
+
+						<!--<div class="col-sm communityListing <? echo $community->category_slug; ?>">
 						<h3><a href="/community/<? echo $community->slug; ?>"><? echo $community->long_name; ?></a></h3>
 						<p><? echo $community->summary; ?><br><span class="muted-text"><? echo $community->memberCount; ?> members</span></p>
-						</div>
+						</div>-->
 					<?php }
 				} else {
 					echo "<p>No communities. Odd.</p>";

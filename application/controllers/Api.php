@@ -1,80 +1,64 @@
 <?php
 class Api extends CI_Controller {
+	public function __construct() {
+		parent::__construct();
+		// Your own constructor code
+		$this->load->database();
+		$this->load->library('news');
+		$this->load->library('users');
+		$this->load->library('types');
+		$this->load->library('communities');
+		$this->load->library('tools');
+
+		$this->data = new stdClass();
+	}
+	private function returnData() {
+		echo json_encode($this->data);
+	}
 
 	public function index()
 	{
-		$data = $this->getBaseData();
-		$data->error = "Not found";
-		$data->message = "Invalid endpoint";
-		echo json_encode($data);
+		//$data = $this->getBaseData();
+		$this->data->error = "Not found";
+		$this->data->message = "Invalid endpoint";
+		
+		$this->returnData();
 	}
 
 	public function user($param = null) {
-		$data = $this->getBaseData();
+		// param accepts either mixer_id OR name_token
+
 		if ($param != null) {
-			$data->requestedUser = $param;
-			$data->message = "looking for user";
-			$data->error = "function incomplete";
-		} else {
-			$data->requestedUser = $param;
-			$data->message = "no user provided";
-			$data->error = "failure";
-		}
 
-		echo json_encode($data);
-	}
+			$this->data->requestedUser = $param;
+			if (is_numeric($param)) {
+				$searchParam = "mixer_id";
+				$sql_query = "SELECT * FROM mixer_users WHERE mixer_id=?";
+			} else {
+				$searchParam = "name_token";
+				$sql_query = "SELECT * FROM mixer_users WHERE name_token=?";
+			}			
 
-	public function alter($param = null) {
-		$data = $this->getBaseData();
-		if ($param != null) {
-			$data->requestedAction = $param;
-			$data->message = "looking for user";
-			$data->error = "function incomplete";
 
-			switch ($param) {
-				case "followCommunity":
-					break;
+			$this->data->message = "looking for user";
+			$this->data->error = "function incomplete";
 
-				case "unfollowCommunity":
-					break;
+			$criteria = array($param);
+			$query = $this->db->query($sql_query, $criteria);
+			$this->data->user = $query->result()[0];
 
-				case "joinCommunity":
-					break;
-					
-				case "leaveCommunity":
-					break;
-			}
+			$this->data->message = "collected user";
+			$this->data->error = "no error";
 
 
 
 		} else {
-			$data->requestedAction = $param;
-			$data->message = "no action provided";
-			$data->error = "failure";
+			$this->data->requestedUser = $param;
+			$this->data->message = "no user provided";
+			$this->data->error = "failure";
 		}
 
-		echo json_encode($data);
+		$this->returnData();
 	}
-
-
-	public function follows($userID) {
-		$this->load->library('users');
-		//308014
-		$follows =  $this->users->getFollowedChannelsFromMixer($userID);
-		echo json_encode($follows);
-	}
-
-	private function getBaseData() {
-		$return = new stdClass();
-		$return->error = "";
-		$return->message = "";
-		return $return;
-	}
-
-	private function getUserDetails() {
-		$this->load->database();
-		//$sql_query = "SELECT * FROM mixer_users WHERE name_token=?";
-	}
-
 }
 ?>

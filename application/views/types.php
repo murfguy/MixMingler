@@ -15,9 +15,13 @@
 				echo "<a class=\"typeToggle\" category=\"followed\">Followed Types</a> | <a class=\"typeToggle\" category=\"active\">Active Types</a>";
 			echo "</nav>";
 
-
+			$followingGames = !empty($currentUser->followedTypeList);
+	
 			// followed games
-			echo "<div id=\"followed\" class=\"typeView activeView\">";
+			if ($followingGames) {
+				echo "<div id=\"followed\" class=\"typeView activeView\">";
+			} else { echo "<div id=\"followed\" class=\"typeView inactiveView\">"; }
+			
 
 				echo "<h2>Followed Games</h2>";
 				if (!empty($currentUser->followedTypeList)) {
@@ -62,7 +66,7 @@
 		}
 	?>
 
-	<div id="allActive" class="typeView<?php if ($currentUser!=null) { echo " inactiveView"; } else {
+	<div id="allActive" class="typeView<?php if ($followingGames) { echo " inactiveView"; } else {
 		echo " activeView"; }; ?>">
 	
 		<h2>Active Types</h2>
@@ -70,7 +74,6 @@
 				<?php
 					
 					foreach ($allTypes as $type) {
-
 						if (empty($type['coverUrl'])) {
 							$type['coverUrl'] = "https://mixer.com/_latest/assets/images/main/types/default.jpg";
 						}

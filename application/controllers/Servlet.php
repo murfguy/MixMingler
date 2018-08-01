@@ -668,8 +668,13 @@ class Servlet extends CI_Controller {
 		$this->returnData->success = true;
 		$this->returnData->message = "Community has been founded!";
 
+		$requireApproval = 0;
+		if ($_POST['requireApproval'] == "yes") {
+			$requireApproval = 1;
+		}
+
 		$this->returnData->status = $_POST['status'];
-		$this->returnData->requireApproval = $_POST['requireApproval'];
+		$this->returnData->requireApproval = $requireApproval;
 		$this->returnData->mixer_id = $_POST['mixerUser_id'];
 		$this->returnData->community_id = $_POST['commId'];
 
@@ -677,7 +682,7 @@ class Servlet extends CI_Controller {
 		$sql_query = "UPDATE communities SET status=?, timeFounded=NOW(), approveMembers=? WHERE id=?";
 		$inputData = array(
 			$_POST['status'], 
-			$_POST['requireApproval'], 
+			$requireApproval, 
 			$_POST['commId']
 		);
 		$query = $this->db->query($sql_query, $inputData);
