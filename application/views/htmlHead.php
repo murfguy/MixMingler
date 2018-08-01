@@ -74,7 +74,6 @@
 							</a>
 							<div class="dropdown-menu  bg-dark" aria-labelledby="navbarDropdownMenuLink">
 								<a class="nav-link" href="/account/">Account Settings</a>
-								<a class="nav-link" href="/community/admin/" style="color: red;">Community Admin Panel</a>
 								<?php if (isset($_SESSION['mingler_role'])) {
 							if (in_array($_SESSION['mingler_role'], array('owner','admin','dev'))) { ?>
 								<a class="nav-link" href="/admin/" style="color: red;">Site Admin Panel</a>

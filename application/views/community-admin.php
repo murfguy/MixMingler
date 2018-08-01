@@ -4,7 +4,8 @@
 	</div>
 	<div class="container">
 		<?php 
-			if ($community_info->status == 'approved') { ?>
+			$hasAccess = true;
+			if ($community_info->status == 'approved') { $hasAccess = false; ?>
 			<div id="foundCommunityNotice" class="alert alert-success">
 				<h4>Congrats! Your community was approved!</h4>
 				<p>You're just a few short steps away from making this a full-fledged MixMingler community! Simply finalize your details and then hit the "Found Community" button. Once founded, you'll need to wait a bit before you can make another community. Until then, let's work towards making this the best community you can make it!</p>
@@ -61,7 +62,7 @@
 			</div>
 		<?php } ?>
 
-		<?php if ($community_info->status == 'rejected') { ?>
+		<?php if ($community_info->status == 'rejected') { $hasAccess = false; ?>
 			<div class="alert alert-danger">
 				<h4>Sorry! Your community was rejected!</h4>
 				<p>Alas, there was something that made us decide that this community doesn't quite work right now.</p>
@@ -72,25 +73,16 @@
 			</div>
 		<?php } ?>
 
-		<?php if ($community_info->status == 'pending') { ?>
+		<?php if ($community_info->status == 'pending') { $hasAccess = false; ?>
 			<div class="alert alert-warning">
 				<h4>Your community is pending approval!</h4>
 				<p>WOAH!!!! Slow your held horse roll there! Your community is still awaiting admin approval. Once it's ready though, we'll let you know!</p>
 			</div>
 		<?php } ?>
 
-		<div class="row">
-			<div class="col-2">
-				<ul>
-					<li><button class="btn btn-sm btn-secondary">At a Glance</button></li>
-					<li><button class="btn btn-sm btn-secondary">Settings</button></li>
-					<li><button class="btn btn-sm btn-secondary">Members</button></li>
-				</ul>
-			</div>
-
-
-		</div>
-		
+		<?php 
+			if ($hasAccess) {
+		?>
 		<p>Welcome, <?php echo $currentUser->token; ?>.<?php 
 			if ($currentUser->isAdmin) {
 				echo "You are the admin.";
@@ -100,35 +92,141 @@
 				echo "You are a moderator.";
 			}
 		?></p>
+
+		<div class="row">
+			<div class="col-2">
+				<p class="devNote">View toggle coming soon.</p>
+				<ul>
+					<li><button class="btn btn-sm btn-secondary">At a Glance</button></li>
+					<li><button class="btn btn-sm btn-secondary">Settings</button></li>
+					<li><button class="btn btn-sm btn-secondary">Members</button></li>
+				</ul>
+			</div>
+
+			<div class="col-md-8">
+				<div class="pageHeader">
+					<h2>Member Management</h2>
+				</div>
+				<?php
+					if (!empty($pendingMembers)) { ?>
+						<h4>Pending Members</h4>
+						<p class="devNote">Only "approve"  and "deny" work right now.</p>
+						<table>
+							<tr>
+								<td>User</td>
+								<td>Approve</td>
+								<td>Deny</td>
+								<td>Ban</td>
+							</tr>
+						<?php foreach ($pendingMembers as $member) { ?>
+							<tr>
+								<td><?php echo $member->name_token ?></td>
+								<td id="approveUser-<?php echo $member->mixer_id ?>"><button class="modAction btn btn-success" btnAction="approve" memberId="<?php echo $member->mixer_id ?>" commId="<?php echo $community_info->id; ?>" memberName="<?php echo $member->name_token ?>" data-toggle="tooltip" title="Approve Member"><i class="fas fa-check-circle"></i></button></td>
+								<td id="denyUser-<?php echo $member->mixer_id ?>"><button  class="modAction btn btn-warning" btnAction="deny" memberId="<?php echo $member->mixer_id ?>" commId="<?php echo $community_info->id; ?>"  memberName="<?php echo $member->name_token ?>" data-toggle="tooltip" title="Deny Member"><i class="fas fa-times-circle"></i></button></td>
+								<td><button class="btn btn-danger" data-toggle="tooltip" title="Ban Member"><i class="fas fa-ban"></i></td>
+							</tr>
+						<?php } ?>
+
+						</table>
+				<?php }	?>
+
+				<?php
+					if (!empty($members)) { ?>
+						<h4>All Members</h4>
+						<p class="devNote">No actions work at present.</p>
+						<table>
+							<tr>
+								<td>User</td>
+								<td>Assign Role</td>
+								<td>Remove</td>
+								<td>Ban</td>
+							</tr>
+						<?php 
+							$moderatorIds = explode(",", $community_info->moderators);
+
+							foreach ($members as $member) { 
+
+								$memberIs = "user";
+								if (in_array($member->mixer_id, $moderatorIds)) { $memberIs = "mod"; }
+								if ($member->mixer_id == $community_info->admin) { $memberIs = "admin"; }
+
+							?>
+							<tr>
+								<td><?php echo $member->name_token; ?>
+									
+								
+
+								<?php 
+									switch ($memberIs) {
+										case "admin":
+											?> <i class="fas fa-crown" style="color:gold"></i></td><td><i class="fas fa-crown" style="color:gold"></i> Admin<?php
+											break;
+
+										case "mod":
+											?> <i class="fas fa-chess-knight" style="color: silver"></i></td><td><button class="btn btn-secondary" data-toggle="tooltip" title="Demote to Member"><i class="fas fa-user"></i></button><?php
+											break;
+
+										case "user":
+										default:
+											?></td><td><button class="btn btn-success" data-toggle="tooltip" title="Promote to Moderator"><i class="fas fa-chess-knight"></i></button><?php
+											break;
+									}?>
+								</td>
+								
+								<?php if ($memberIs == "user") { ?>
+									<td><button class="btn btn-warning" data-toggle="tooltip" title="Deny Member"><i class="fas fa-times-circle"></i></button></td>
+									<td><button class="btn btn-danger modAction" data-member="<?php echo $member->mixer_id; ?>" data-toggle="tooltip" title="Ban Member"><i class="fas fa-ban"></i></td>
+								<?php } else { ?>
+									<td colspan="2">Cannot remove or ban.</td>
+								<?php } ?>
+								
+							</tr>
+						<?php }  ?>
+
+						</table>
+				<?php }	?>
+
+				<!--<?php if ($currentUser->isAdmin) { ?> 
+				<h3>Admin Only Features</h3>
+				<ul>
+					<li>Found/Open/Close Community</li>
+					<li>Edit Details:
+						<ul>
+							<li>Change Cover Art</li>
+							<li>Update summary/slogan</li>
+							<li>update description</li>
+							<li>Set Membership Approval</li>
+						</ul></li>
+					<li>Transfer Ownership</li>
+				</ul>
+				<?php } ?>
+
+				<h3>Moderator Features</h3>
+				<ul>
+					<li>Member Management:
+						<ul>
+							<li>Approve/Remove/Ban Members</li>
+							<li>Assign Community Roles</li>
+						</ul>
+					</li>
+					
+					<li>See Analytics
+						<ul>
+							<li>New Members + total member count</li>
+							<li>Core Members + total core member count</li>
+							<li>Recent Followers + total follow count</li>
+						</ul>
+					</li>
+				</ul>-->
+			</div>
+
+
+		</div>
+		
+		<?php } ?>
+		
 	
-		<h3>Admin Only Features</h3>
-		<ul>
-			<li>Found/Open/Close Community</li>
-			<li>Edit Details:
-				<ul>
-					<li>Change Cover Art</li>
-					<li>Update summary/slogan</li>
-					<li>update description</li>
-					<li>Set Membership Approval</li>
-				</ul></li>
-			<li>Transfer Ownership</li>
-		</ul>
-		<h3>Admin + Moderator Features</h3>
-		<ul>
-			<li>Member Management:
-				<ul>
-					<li>Approve/Remove/Ban Members</li>
-					<li>Assign Community Roles</li>
-				</ul>
-			</li>
-			
-			<li>See Analytics
-				<ul>
-					<li>New Members + total member count</li>
-					<li>Core Members + total core member count</li>
-					<li>Recent Followers + total follow count</li>
-				</ul>
-			</li>
-		</ul>
+		
+		
 	</div>
 </main>

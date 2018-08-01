@@ -68,12 +68,15 @@ class Version {
 		$patch->version = "0.2.1";
 		$patch->date = date($date_string, strtotime('2018-08-01'));
 		$patch->notes = array();
-		$patch->notes[] = "Admin Panel: user roles assignable";
+		$patch->notes[] = "Admin Panel: user site roles assignable";
 		$patch->notes[] = "Home page: news feeds load asynchronously.";
 		$patch->notes[] = "New communities can be requested.";
 		$patch->notes[] = "Admin Panel: approve/reject community requests";
 		$patch->notes[] = "Communities can now be founded once approved.";
-		//$patch->notes[] = "Community moderation page for managing communities.";
+		$patch->notes[] = "Community moderation page with limited functions added.";
+		$patch->notes[] = "Can approve or deny pending member requests for communities.";
+		$patch->notes[] = "Controls for join/leave/follow/unfollow fine-tuned and now also handled 'closed' and 'approval required' communities.";
+
 
 		$patchNotes[] = $patch;
 

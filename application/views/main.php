@@ -195,7 +195,24 @@
 		</div> <!-- #centerColumn -->
 
 		<div class="col-2" id="rightColumn">
-
+			
+			<?php
+			//$modCommunities = null;
+			if (!empty($modCommunities)) { ?>
+			<div class="infoBox">
+				<h6 class="infoHeader">Communities You Mod</h4>
+				<div class="infoInterior">
+						<?php	foreach ($modCommunities as $community) {
+								echo "<p><a href=\"/community/$community->slug/mod\">$community->long_name</a> ";
+								if ($community->admin == $_SESSION['mixer_id']) { ?>
+									<i class="fas fa-crown" style="color: gold; font-size: 70%"></i>
+								<?php }
+								echo "</p>";
+							}
+					?>
+				</div>
+			</div>
+			<?php } ?>
 
 			<div class="infoBox">
 				<h6 class="infoHeader">Core Communities</h4>

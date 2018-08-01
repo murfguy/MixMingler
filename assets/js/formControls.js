@@ -16,6 +16,9 @@ function setFormListeners() {
 	// Set the listeners for the follow/leave buttons
 	setCommunityActionButtonListeners();
 
+	// Set the listeners for the moderation buttons
+	setCommunityModerationButtonListeners();
+
 	// set listeners for apply role form on admin panel
 	$("form#applyRole").submit(function (event) { applyUserRole(event, $(this))} );
 	
@@ -418,6 +421,72 @@ function submitCommunityAction(actionUrl, communityId) {
 		});
 }
 
+function setCommunityModerationButtonListeners() {
+	console.log("setCommunityModerationButtonListeners()");
+	$("button.modAction").click(function () {
+		actionUrl = baseActionUrl + "changeMemberStatus/";
+		
+		submitButton = $(this);
+		submitButton.attr('disabled', '');
+
+
+		submitButton.removeClass('btn-success');
+		submitButton.addClass('btn-dark');
+		submitButton.html('<i class="fas fa-sync fa-spin"></i>');
+
+		submitModerationAction(actionUrl,
+			 $(this).attr('commId'), 
+			 $(this).attr('memberId'), 
+			 $(this).attr('memberName'), 
+			 $(this).attr('btnAction')
+			);
+	});
+}
+
+function submitModerationAction(actionUrl, communityId, mixer_id, name_token, action) {
+	console.log("submitModerationAction("+actionUrl+", "+communityId+", "+mixer_id+", "+action+")");
+
+	$.ajax({
+		url: actionUrl,
+		type: "POST",
+		dataType: "json",
+		data: { 
+			communityId: communityId,
+			memberId: mixer_id,
+			memberName: name_token,
+			status: action
+		}
+	})
+		.done(function (json){
+			console.log('modAction - AJAX done');
+
+			tgtRow = $("#"+json.memberStatus+"User-"+json.memberId).closest("tr");
+			if (json.success) {
+				console.log("remove row: " + "#"+json.memberStatus+"User-"+json.memberId);
+				switch (json.memberStatus) {
+					case "approve":
+						tgtRow.html('<td colspan="4">'+json.memberName+' was approved.</td>');
+						break;
+					case "deny":
+						tgtRow.html('<td colspan="4">'+json.memberName+' was denied.</td>');
+						break;
+				}
+			}
+			
+		})
+
+		.fail(function (json){
+			console.log('modAction - AJAX failed');
+			//displayAlert($("#userHeader"), "There was an issue communicating with the server. Reload and try again.", "danger", 0)
+		})
+
+		.always(function (json){
+			console.log('modAction - AJAX always');
+			console.log(json);
+			//console.log(json.message);
+
+		});
+}
 
 function setRequestCommunityValidationListeners() {
 	console.log("setRequestCommunityValidationListeners()");

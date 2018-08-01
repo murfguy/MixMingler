@@ -171,6 +171,7 @@ class Servlet extends CI_Controller {
 				// UPDATE Database with updated list of communities
 				$sql_query = "UPDATE mixer_users SET modCommunities=?, joinedCommunities = ? WHERE mixer_id=?";
 				$query = $this->db->query($sql_query, array($modCommunities, $joinedCommunities, $mixer_id));
+				
 
 				// Now we need to remove the user from the list of members in the community database
 				// So first we get the data from the community
@@ -715,6 +716,83 @@ class Servlet extends CI_Controller {
 
 	public function changeMemberStatus() {
 		// confirm as community admin/moderator
+		$communityID = $_POST['communityId'];
+
+		$this->returnData->success = false;
+		if (isset($_SESSION['mixer_user'])) {
+			$mixer_id = $_SESSION['mixer_id'];
+			$memberStatus = $_POST['status'];
+			$memberName = $_POST['memberName'];
+			$memberId = (int)$_POST['memberId'];
+
+			$this->returnData->currentUserId = $mixer_id;
+			$this->returnData->memberId = $memberId;
+			$this->returnData->memberName = $memberName;
+			$this->returnData->memberStatus = $memberStatus;
+
+			$sql_query = "SELECT admin, moderators, pendingMembers FROM communities WHERE id=?";
+			$query = $this->db->query($sql_query, array($communityID));
+			$community_info = $query->result()[0];
+
+			$isMod = false;
+			if (!empty($community_info->moderators)) {
+				$isMod = in_array($mixer_id, explode(",", $community_info->moderators));
+			}
+
+			$isAdmin = ($community_info->admin == $mixer_id);
+
+			// This is either an admin OR a moderator, so we can execute the requested action.
+			if ($isMod || $isAdmin) {
+				$this->returnData->success = true;
+				$this->returnData->message = "User is an admin or moderator, and can execute this action.";
+
+				$sql_query = "SELECT pendingCommunities FROM mixer_users WHERE mixer_id=?";
+				$query = $this->db->query($sql_query, array($memberId));
+				$pendingCommunities = $query->result()[0]->pendingCommunities;
+
+				// Remove from 'pending lists'
+				$pendingMemberList = $this->tools->removeValueFromList($memberId, $community_info->pendingMembers);
+				$pendingCommunityList = $this->tools->removeValueFromList($communityID, $pendingCommunities);
+
+				$this->returnData->oldPendingMemberList = $community_info->pendingMembers;
+				$this->returnData->pendingMemberList = $pendingMemberList;
+
+				$this->returnData->oldPendingCommunityList = $pendingCommunities;
+				$this->returnData->pendingCommunityList = $pendingCommunityList;
+
+				switch ($memberStatus) {
+					case "approve":
+						// Update user data with removed pending list, and added into joined list
+						$sql_query = "UPDATE mixer_users SET pendingCommunities=?, joinedCommunities = IF(joinedCommunities='', ?, concat(joinedCommunities, ',', ?)) WHERE mixer_id=?";
+						$query = $this->db->query($sql_query, array($pendingCommunityList, $communityID, $communityID, $memberId));
+
+						// Update community data with new pending list, and new member added into joined list
+						$sql_query = "UPDATE communities SET pendingMembers=?, members = IF(members='', ?, concat(members, ',', ?)) WHERE id=?";
+						$query = $this->db->query($sql_query, array($pendingMemberList, $memberId, $memberId, $communityID));
+
+						$this->news->addNews($memberId, "{username} joined the {commId:$communityID} community.", "community", $communityID);
+						break;
+
+					case "deny":
+						// Update user data with removed pending list, and added into joined list
+						$sql_query = "UPDATE mixer_users SET pendingCommunities=? WHERE mixer_id=?";
+						$query = $this->db->query($sql_query, array($pendingCommunityList, $memberId));
+
+						// Update community data with new pending list, and new member added into joined list
+						$sql_query = "UPDATE communities SET pendingMembers=? WHERE id=?";
+						$query = $this->db->query($sql_query, array($pendingMemberList, $communityID));
+						break;
+				}
+				
+
+			} else {
+				$this->returnData->message = "User is not an admin or moderator of this community and cannot execute this action.";
+			}
+		} else {
+			$this->returnData->message = "User is not logged in.";
+		}
+
+		$this->returnData();
 
 			// get target user
 			// get new status (approved, deny, ban)

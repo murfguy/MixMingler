@@ -3,7 +3,7 @@
 	<div class="pageHeader">
 		<h1><span class="mixBlue">Mix</span>Mingler Communities</h1>
 	</div>
-		<p class="devNote"  data-toggle="tooltip" title="Planned for v0.3" data-placement="left">General updates and full fledged community features are planned for development during v0.3 (Communities). See the <a href="/alpha/">Alpha Information Page</a> for more info. Bugs or incomplete implementations are expected in this area.</p>
+		<p class="devNote"  data-toggle="tooltip" title="Planned for v0.3" data-placement="left">General updates and full fledged community features are currently under development. See the <a href="/alpha/">Alpha Information Page</a> for more info. Bugs or incomplete implementations are expected in this area.</p>
 
 
 	<nav id="categoryNav">
@@ -18,6 +18,7 @@
 	</nav>
 
 	<div id="communitiesList" class="communityCategory">
+		<button class="btn btn-lg btn-primary" onclick="window.location.href = '/community/create/';">Make Your Own Community!</button>
 		<h2><span class="mixBlue">All</span> Communities</h2>
 		<p id="communityDescription">Well, here's all the communities, ranked by popularity. If you want to drill down further, just check the categories above.</p>
 		<div class="row">
