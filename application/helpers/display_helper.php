@@ -27,11 +27,21 @@ if ( ! function_exists('card')) {
 	
 
 			
+		//if (empty($params['size'])) { $params['size'] = ""; }
 
-		$str = '<div class="typeInfo '.$params['size'].'">';
+			
+
 			if (empty($params)) {
+				$str = '<div class="typeInfo sml">';
 				$str .= "<p>Bad card data.</p>";
 			} else {
+				if (empty($params['size'])) { 
+					$str = '<div class="typeInfo">';
+				} else {
+					$str = '<div class="typeInfo '.$params['size'].'">';
+				}
+
+
 				if (empty($params['cover'])) {
 					switch ($params['kind']) {
 						case "type":

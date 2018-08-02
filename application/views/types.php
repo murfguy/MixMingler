@@ -29,7 +29,21 @@
 					echo "<div class=\"typeList large row\">"; 
 						echo "<div class=\"streamerList row\">";
 						foreach ($currentUser->followedTypeList as $type) {
-							if (empty($type['coverUrl'])) {
+
+							echo card(array(
+								'id' => $type['id'],
+								'name' => $type['name'],
+								'kind' => 'type',
+								'url' => "/type/".$type['id']."/".$type['slug'],
+								'stats' => array(
+									'online' => $type['online'],
+									'viewers' => $type['viewersCurrent']
+								),
+								'cover' => $type['coverUrl']));
+						
+
+
+							/*if (empty($type['coverUrl'])) {
 								$type['coverUrl'] = "https://mixer.com/_latest/assets/images/main/types/default.jpg";
 							}
 							echo "<div class=\"typeInfo\">";
@@ -37,14 +51,27 @@
 
 								echo "<p class=\"typeName\"><a href=\"/type/".$type['id']."/".$type['slug']."\">".$type['name']."</a></p>";
 								echo "<p class=\"stats\"><span class=\"onlineStat\" data-toggle=\"tooltip\" data-placement=\"bottom\" title=\"Current Streams\"><i class=\"fas fa-play-circle\"></i>  ".$type['online']."</span>&nbsp;&nbsp;&nbsp;&nbsp;<span class=\"onlineStat\" data-placement=\"bottom\"data-toggle=\"tooltip\" title=\"Current Viewers\"><i class=\"fas fa-eye\"></i> ".$type['viewersCurrent']."</span></p>";
-							echo "</div>";
+							echo "</div>";*/
 						}
 						echo "</div>";
 
 						echo "<h2>Followed Games with no online streams</h2>";
 						echo "<div class=\"streamerList row\">";
 							foreach ($currentUser->offlineFollowedTypeList as $type) {
-								if (empty($type['coverUrl'])) {
+								echo card(array(
+									'id' => $type['id'],
+									'name' => $type['name'],
+									'size' => 'sml',
+									'kind' => 'type',
+									'url' => "/type/".$type['id']."/".$type['slug'],
+									'stats' => array(
+										'online' => $type['online'],
+										'viewers' => $type['viewersCurrent']
+									),
+									'cover' => $type['coverUrl']));
+
+
+								/*if (empty($type['coverUrl'])) {
 									$type['coverUrl'] = "https://mixer.com/_latest/assets/images/main/types/default.jpg";
 								}
 								echo "<div class=\"typeInfo sml offline\">";
@@ -52,7 +79,7 @@
 
 									echo "<p class=\"typeName\"><a href=\"/type/".$type['id']."/".$type['slug']."\">".$type['name']."</a></p>";
 									//echo "<p class=\"stats\"><span class=\"onlineStat\" data-toggle=\"tooltip\" data-placement=\"bottom\" title=\"Current Streams\"><i class=\"fas fa-play-circle\"></i>  ".$type['online']."</span>&nbsp;&nbsp;&nbsp;&nbsp;<span class=\"onlineStat\" data-placement=\"bottom\"data-toggle=\"tooltip\" title=\"Current Viewers\"><i class=\"fas fa-eye\"></i> ".$type['viewersCurrent']."</span></p>";
-								echo "</div>";
+								echo "</div>";*/
 							}
 						echo "</div>";
 					} else {
@@ -87,9 +114,6 @@
 							),
 							'cover' => $type['coverUrl']));
 					}
-
-
-						
 				?>
 		</div>
 	</div>
