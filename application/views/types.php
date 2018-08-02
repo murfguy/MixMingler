@@ -10,6 +10,7 @@
 	<!---->
 
 	<?php
+		$followingGames = false;
 		if ($currentUser != null) {
 			echo "<nav id=\"categoryNav\">";
 				echo "<a class=\"typeToggle\" category=\"followed\">Followed Types</a> | <a class=\"typeToggle\" category=\"active\">Active Types</a>";
@@ -74,16 +75,17 @@
 				<?php
 					
 					foreach ($allTypes as $type) {
-						if (empty($type['coverUrl'])) {
-							$type['coverUrl'] = "https://mixer.com/_latest/assets/images/main/types/default.jpg";
-						}
-
-						echo "<div class=\"typeInfo med\">";
-						echo "<a href=\"/type/".$type['id']."/".$type['slug']."\"><img src=\"".$type['coverUrl']."\" class=\"coverArt\" /></a>";
-
-							echo "<p class=\"typeName\"><a href=\"/type/".$type['id']."/".$type['slug']."\">".$type['name']."</a></p>";
-							echo "<p class=\"stats\"><span class=\"onlineStat\" data-toggle=\"tooltip\" data-placement=\"bottom\" title=\"Current Streams\"><i class=\"fas fa-play-circle\"></i>  ".$type['online']."</span>&nbsp;&nbsp;&nbsp;&nbsp;<span class=\"onlineStat\" data-placement=\"bottom\"data-toggle=\"tooltip\" title=\"Current Viewers\"><i class=\"fas fa-eye\"></i> ".$type['viewersCurrent']."</span></p>";
-						echo "</div>";
+						echo card(array(
+							'id' => $type['id'],
+							'name' => $type['name'],
+							'size' => 'med',
+							'kind' => 'type',
+							'url' => "/type/".$type['id']."/".$type['slug'],
+							'stats' => array(
+								'online' => $type['online'],
+								'viewers' => $type['viewersCurrent']
+							),
+							'cover' => $type['coverUrl']));
 					}
 
 
