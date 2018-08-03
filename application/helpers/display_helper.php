@@ -1,36 +1,7 @@
 <?php if ( ! defined('BASEPATH')) exit('No direct script access allowed');
 
-if ( ! function_exists('test_method')) {
-    function test_method($var = '') {
-        return $var;
-    }   
-}
-
 if ( ! function_exists('card')) {
 	function card($params = array()) {
-		// This is a test placeholder
-		/*$params = array(
-			'id' => '70323',
-			'name' => 'Fortnite',
-			'size' => 'lrg',
-			'kind' => 'type',
-			'url' => '/type/70323/fortnite',
-			'stats' => array(
-				'viewers' => '3456',
-				'online' => '4567',
-				'members' => '12',
-				'views' => '12346',
-				'followers' => '762',
-			),
-			'cover' => 'https://gameart.mixer.com/art/70323/cover.jpg?locked'
-		);*/
-	
-
-			
-		//if (empty($params['size'])) { $params['size'] = ""; }
-
-			
-
 			if (empty($params)) {
 				$str = '<div class="typeInfo sml">';
 				$str .= "<p>Bad card data.</p>";
@@ -41,16 +12,20 @@ if ( ! function_exists('card')) {
 					$str = '<div class="typeInfo '.$params['size'].'">';
 				}
 
+				$backupCovers = array(
+					'type' => "https://mixer.com/_latest/assets/images/main/types/default.jpg",
+					'stream' => "https://mixer.com/_latest/assets/images/browse/thumbnail.jpg?f877a91",
+					'streamer' => "https://mixer.com/_latest/assets/images/main/avatars/default.png",
+					'community' => "/assets/graphics/covers/blankCover.png",
+					//'stream' => "/assets/graphics/blankThumb.jpg",
+					//'streamer' => "/assets/graphics/blankAvatar.png",
+				);
 
-				if (empty($params['cover'])) {
-					switch ($params['kind']) {
-						case "type":
-							$params['cover'] = "https://mixer.com/_latest/assets/images/main/types/default.jpg";
-							break;
-					}
-				}	
+				//if (empty($params['cover'])) {
+					//$params['cover'] = $backupCovers[$params['kind']];
+				//}
 
-				$str .= '<a href="'.$params['url'].'"><img src="'.$params['cover'].'" class="coverArt" /></a>';
+				$str .= '<a href="'.$params['url'].'"><img src="'.$params['cover'].'" onerror="this.onerror=null;this.src=\''.$backupCovers[$params['kind']].'\';" class="coverArt" /></a>';
 				$str .= '<p class="typeName"><a href="'.$params['url'].'">'.$params['name'].'</a></p>';
 			
 
@@ -92,9 +67,18 @@ if ( ! function_exists('card')) {
 
 			} // if (empty($params))
 
-			
 		$str .= '</div>';
 
 		return $str;
+	}
+}
+
+if ( ! function_exists('newsDisplay')) {
+	function newsDisplay($params = array()) {
+		if (!empty($params)) {
+
+		} else {
+			return '<p class="display-error">Bad news data.</p>';
+		}
 	}
 }

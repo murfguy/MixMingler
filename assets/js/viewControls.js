@@ -14,4 +14,27 @@ function setViewToggleListeners() {
 		$('div#'+category).addClass("activeView");
 		$('div#'+category).show();
 	});
+
+
+	$("button.displayToggle").click(function () {
+		console.log("Display Toggle");
+
+		// Target is the element we are going to display
+		target = $('div#'+$(this).attr('target'));
+		console.log(" -- "+$(this).attr('target'));
+
+		// Level : where we are focusing the toggle so we don't impact all buttons
+			// Panel: A top level display
+			// Window: A sub-level display
+	
+		$(this).siblings().removeAttr('disabled');
+		$(this).attr('disabled', '');
+
+		target.siblings().hide();
+		target.show();
+
+
+	});
+
+
 }

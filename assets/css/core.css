@@ -6,6 +6,10 @@ This file should house CSS relevent to:
 	common design elements
 ----------------- */
 
+/* ---------------------------------------
+-- General/Layout Settings ---------------
+--------------------------------------- */
+
 @import url('https://fonts.googleapis.com/css?family=Josefin+Sans|Roboto+Condensed');
 
 body {
@@ -22,6 +26,50 @@ a:visited { color: rgb(37,188,235); }
 a:hover { color: rgb(197, 236, 249); }
 a:active { color: rgb(37,188,235);} 
 
+h1,h2,h3,h4,h5,h6, button, header {
+	font-family: 'Josefin Sans', sans-serif;
+}
+
+footer.footer {
+	background-color: rgb(73, 103, 150);
+	padding: 20px 0 ;
+}
+
+.inactiveView {
+	display: none;
+}
+
+.row {
+	margin-left: 6px;
+}
+
+/* ---------------------------------------
+-- Navigation ----------------------------
+--------------------------------------- */
+
+header > nav.navbar {
+	background-color: rgb(73, 103, 150);
+}
+
+/* ---------------------------------------
+-- Buttons -------------------------------
+--------------------------------------- */
+
+button, .btn, .btn-group, .btn-group-vertical {
+	cursor: pointer;
+}
+
+div.btn-group, div.btn-group-vertical {
+	margin-bottom: 10px;
+	border: 1px ;
+}
+
+
+
+/* ---------------------------------------
+-- OLDER STYLES - Refactor These ---------
+--------------------------------------- */
+
 div.pageHeader {
 	border-bottom: 1px solid rgb(110, 131, 140);
 	padding: 0px 0px;
@@ -29,13 +77,6 @@ div.pageHeader {
 	margin-bottom: 15px;
 }
 
-h1,h2,h3,h4,h5,h6, button, header {
-	font-family: 'Josefin Sans', sans-serif;
-}
-
-header > nav.navbar {
-	background-color: rgb(73, 103, 150);
-}
 
 main {
 	padding-top: 80px;
@@ -53,13 +94,6 @@ img.avatar.list {
 img.avatar.thin-border {
 	border: 2px solid #5774a2;
 }
-
-footer.footer {
-	background-color: rgb(73, 103, 150);
-	padding: 20px 0 ;
-}
-
-
 
 
 div.userInfo {
@@ -161,20 +195,6 @@ div.authBtn > button {
 	cursor: pointer;
 }
 
-
-table {
-	border: 1px solid white;
-	width: 95%;
-}
-
-table td {
-	padding:4px;
-	border: 1px solid white;
-}
-
-table table td img {
-	margin-right: 10px;
-}
 
 .devNote {
 	font-size: 14px;
