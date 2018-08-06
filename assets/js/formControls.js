@@ -79,6 +79,10 @@ function applyUserRole(e, form) {
 			});
 }
 
+// ----------------------------------------------------------
+// -- Community Request/Confirm/Foundation Form Controls ----
+// ----------------------------------------------------------
+
 function requestCommunity(e, form) {
 	e.preventDefault();
 	actionUrl = baseActionUrl+"requestCommunity/";
@@ -255,298 +259,9 @@ function foundCommunity(e, form) {
 			});
 }
 
-
-function setCommunityActionButtonListeners() {
-	console.log("setCommunityActionButtonListeners()");
-	$("button.commAction").click(function () {
-		actionUrl = baseActionUrl + $(this).attr('id') +"Community/";
-
-
-		submitButton = $(this);
-		submitButton.attr('disabled', '');
-
-		switch($(this).attr('id')) {
-			case "join": 
-				submitButton.text("Joining");
-				$("button#follow").attr('disabled', '');
-				$("button#follow").text("Following");
-				$("button#follow").prepend('<i class="fas fa-sync fa-spin"></i> ');
-				break;
-
-			case "unpend": 
-				submitButton.text("Unpending");
-				break;
-
-			case "leave": 
-				submitButton.text("Leaving");
-				$("button#moderateLink").attr('disabled', '');
-				break;
-
-			case "follow": 
-				submitButton.text("Following");
-				break;
-
-			case "unfollow": 
-				submitButton.text("Unfollowing");
-				break;
-		}
-
-		submitButton.prepend('<i class="fas fa-sync fa-spin"></i> ');
-
-		submitCommunityAction(actionUrl, $(this).attr('commId'));
-	});
-}
-
-function submitCommunityAction(actionUrl, communityId) {
-	console.log("submitCommunityAction("+actionUrl+","+communityId+")");
-
-	$.ajax({
-		url: actionUrl,
-		type: "POST",
-		dataType: "json",
-		data: { 
-			communityId: communityId
-		}
-	})
-		.done(function (json){
-			console.log('commAction - AJAX done');
-
-			if (json.success) {
-				targetButton = $("button#"+json.completedAction)
-				targetButton.removeAttr('disabled');
-				targetButton.remove("i");
-
-				switch(json.completedAction) {
-					case "join": 						
-						targetButton.removeClass('btn-primary');
-						targetButton.addClass('btn-danger');
-						targetButton.text('Leave');
-						targetButton.attr('id','leave');
-						targetButton.attr('title','Leave this community.');
-						targetButton.attr('data-original-title','Leave this community.');
-
-						if (!json.followsCommunity) {
-							submitCommunityAction(baseActionUrl+"followCommunity/", json.communityID);
-						}
-						break;
-
-					case "addedToPending":
-						targetButton = $("button#join");
-						targetButton.removeAttr('disabled');
-						targetButton.removeClass('btn-primary');
-						targetButton.addClass('btn-info');
-						targetButton.text('Pending');
-						targetButton.attr('id','unpend');
-						targetButton.attr('title','Your membership is pending approval. Click to undo.');
-						targetButton.attr('data-original-title','Your membership is pending approval. Click to undo.');
-
-						if (!json.followsCommunity) {
-							submitCommunityAction(baseActionUrl+"followCommunity/", json.communityID);
-						}
-						break;
-
-					case "removedFromPending":
-						targetButton = $("button#unpend");
-						targetButton.removeAttr('disabled');
-						targetButton.removeClass('btn-info');
-
-						if (json.communityStatus == 'open') {
-							targetButton.addClass('btn-primary');
-							targetButton.text('Join');
-							targetButton.attr('id','join');
-							targetButton.attr('title','Become a member of this community so viewers can find you.');
-							targetButton.attr('data-original-title','Become a member of this community so viewers can find you.');
-						} else {
-							targetButton.addClass('btn-secondary');
-							targetButton.text('Closed');
-							targetButton.attr('disabled', '');
-							//targetButton.attr('id','join');
-							targetButton.attr('title','Community is closed to new members.');
-							targetButton.attr('data-original-title','Community is closed to new members.');
-						}
-						break;
-
-					case "leave": 
-						targetButton.removeClass('btn-danger');
-							
-						if (json.communityStatus == 'open') {
-							targetButton.addClass('btn-primary');
-							targetButton.text('Join');
-							targetButton.attr('id','join');
-							targetButton.attr('title','Become a member of this community so viewers can find you.');
-							targetButton.attr('data-original-title','Become a member of this community so viewers can find you.');
-						} else {
-							targetButton.addClass('btn-secondary');
-							targetButton.text('Closed');
-							targetButton.attr('disabled', '');
-							//targetButton.attr('id','join');
-							targetButton.attr('title','Community is closed to new members.');
-							targetButton.attr('data-original-title','Community is closed to new members.');
-						}
-						$("button#moderateLink").remove();
-						break;
-
-					case "follow": 						
-						targetButton.removeClass('btn-primary');
-						targetButton.addClass('btn-danger');
-						targetButton.text('Unfollow');
-						targetButton.attr('id','unfollow');
-						targetButton.attr('title','Stop getting updates from this community on your profile.');
-						targetButton.attr('data-original-title','Stop getting updates from this community on your profile.');
-						break;
-					case "unfollow": 
-						targetButton.removeClass('btn-danger');
-						targetButton.addClass('btn-primary');
-						targetButton.text('Follow');
-						targetButton.attr('id','follow');
-						targetButton.attr('title','Track streamers in this community from your profile page.');
-						targetButton.attr('data-original-title','Track streamers in this community from your profile page.');
-						break;
-				}
-			}
-
-			
-
-
-		}) 
-
-		.fail(function (json){
-			console.log('commAction - AJAX failed');
-			displayAlert($("#userHeader"), "There was an issue communicating with the server. Reload and try again.", "danger", 0)
-		})
-
-		.always(function (json){
-			console.log('commAction - AJAX always');
-			console.log(json);
-			//console.log(json.message);
-
-		});
-}
-
-function setCommunityModerationButtonListeners() {
-	console.log("setCommunityModerationButtonListeners()");
-	$("button.modAction").click(function () {
-		actionUrl = baseActionUrl + "changeMemberStatus/";
-		
-		submitButton = $(this);
-		submitButton.attr('disabled', '');
-
-
-		submitButton.removeClass('btn-success');
-		submitButton.addClass('btn-dark');
-		submitButton.html('<i class="fas fa-sync fa-spin"></i>');
-
-		submitModerationAction(actionUrl,
-			 $(this).attr('commId'), 
-			 $(this).attr('memberId'), 
-			 $(this).attr('memberName'), 
-			 $(this).attr('btnAction')
-			);
-	});
-}
-
-function submitModerationAction(actionUrl, communityId, mixer_id, name_token, action) {
-	console.log("submitModerationAction("+actionUrl+", "+communityId+", "+mixer_id+", "+action+")");
-
-	$.ajax({
-		url: actionUrl,
-		type: "POST",
-		dataType: "json",
-		data: { 
-			communityId: communityId,
-			memberId: mixer_id,
-			memberName: name_token,
-			status: action
-		}
-	})
-		.done(function (json){
-			console.log('modAction - AJAX done');
-
-			tgtRow = $("#"+json.memberStatus+"User-"+json.memberId).closest("tr");
-			if (json.success) {
-				console.log("remove row: " + "#"+json.memberStatus+"User-"+json.memberId);
-				switch (json.memberStatus) {
-					case "approve":
-						tgtRow.html('<td colspan="4">'+json.memberName+' was approved.</td>');
-						break;
-					case "deny":
-						tgtRow.html('<td colspan="4">'+json.memberName+' was denied.</td>');
-						break;
-				}
-			}
-			
-		})
-
-		.fail(function (json){
-			console.log('modAction - AJAX failed');
-			//displayAlert($("#userHeader"), "There was an issue communicating with the server. Reload and try again.", "danger", 0)
-		})
-
-		.always(function (json){
-			console.log('modAction - AJAX always');
-			console.log(json);
-			//console.log(json.message);
-
-		});
-}
-
-function setRequestCommunityValidationListeners() {
-	console.log("setRequestCommunityValidationListeners()");
-
-	$("#requestCommunity input#long_name").on("change paste keyup", function() {
-		console.log( "#requestCommunity input#long_name on change paste keyup" );
-
-		slug = $(this).val().toLowerCase();
-		slug = slug.replace(/ /g, "-");
-		slug = slug.replace(/[^0-9a-z_-]/gi, '');
-		console.log('slug: '+slug)
-
-		 $("#requestCommunity input#slug").val(slug)
-	});
-
-
-	$("input.long_name").on("change paste keyup", function() {
-		target = "#slug-"+$(this).attr('id').replace('long_name-', '');
-
-		slug = $(this).val().toLowerCase();
-		slug = slug.replace(/ /g, "-");
-		slug = slug.replace(/[^0-9a-z_-]/gi, '');
-		console.log( "slug: "+slug );
-		console.log( "target: "+target );
-		console.log( "sibling: "+$(this).siblings("input.slug") );
-
-		 $(target).val(slug)
-	});
-
-	$(".communityApproval input[name=status]").click(function(){
-		console.log("selected status:"+ $(this).val())
-
-		$(this).parent().removeClass('alert alert-success alert-danger alert-warning');
-		if ($(this).val() == 'approved') {
-			$(this).parent().addClass('alert alert-success');
-		} else {
-			$(this).parent().addClass('alert alert-danger');
-		}
-	}); 
-}
-
-function displayAlert(target, message, level, timeOnScreen) {
-	if (level=='') { level = "warning"; }
-	if (timeOnScreen=='') { timeOnScreen = 3000; }
-
-	console.log("displayAlert("+target+", "+message+", "+level+")");
-	alert = '<div id="alertMessage" class="alert alert-'+level+'">';
-	alert += message;
-	alert += '</div>';
-
-	target.before(alert);
-	if (timeOnScreen == 0) {
-		$("#alertMessage").hide();
-		$("#alertMessage").fadeIn(500).delay(timeOnScreen).fadeOut("slow", function(){
-		  $(this).remove();
-	});
-	}
-}
+// ----------------------------------------------------------
+// -- Server Query Form Confirmation.Controls ---------------
+// ----------------------------------------------------------
 
 function setConfirmationActions () {
 	console.log("setConfirmationActions()");
@@ -572,7 +287,6 @@ function setConfirmationActions () {
 					userId: $(this).attr('userId')
 				}
 				break;
-
 
 			case "leaveCommunity":
 				message = "You will no longer be a member of this community!";
@@ -609,6 +323,25 @@ function setConfirmationActions () {
 				confirmText = "Unfollow";
 				cancelText = "Keep Following";
 				alertTitle = "Unfollowing Community..."; 				
+				actionData = {
+					communityId: $(this).attr('communityId'),
+					userId: $(this).attr('userId')
+				}
+				break;
+
+			case "setAsCore":
+				alertTitle = "Setting as a Core Community..."; 				
+				actionData = {
+					communityId: $(this).attr('communityId'),
+					userId: $(this).attr('userId')
+				}
+				break;
+
+			case "removeAsCore":
+				message = "This will no longer be one of your core communities!";
+				confirmText = "Do it!";
+				cancelText = "Keep as Core";
+				alertTitle = "Removing as a Core Community..."; 				
 				actionData = {
 					communityId: $(this).attr('communityId'),
 					userId: $(this).attr('userId')
@@ -735,10 +468,6 @@ function setConfirmationActions () {
 	})
 }
 
-function ajaxAlert(action, titleText, actionData, targetButton) {
-	
-}
-
 function updateButtonView(tgt, serverData) {
 	switch (serverData.completedAction) {
 		case "join":
@@ -823,5 +552,319 @@ function updateButtonView(tgt, serverData) {
 				tgt.html('Follow');
 			}
 			break;
+
+		case "setAsCore":
+			tgt.removeClass('btn-primary');
+			tgt.attr('action', 'removeAsCore');
+			tgt.addClass('btn-success confirm');
+			tgt.html('<i class="fas fa-check"></i>');
+			break;
+
+		case "removeAsCore":
+			tgt.removeClass('confirm btn-success');
+			tgt.attr('action', 'setAsCore');
+			tgt.addClass('btn-primary');
+			tgt.html('<i class="fas fa-thumbs-up"></i>');
+			break;
 	}
 }
+
+
+// ----------------------------------------------------------
+// -- Possible Refactor/Deletion candidates - ---------------
+// ----------------------------------------------------------
+
+
+function setCommunityModerationButtonListeners() {
+	console.log("setCommunityModerationButtonListeners()");
+	$("button.modAction").click(function () {
+		actionUrl = baseActionUrl + "changeMemberStatus/";
+		
+		submitButton = $(this);
+		submitButton.attr('disabled', '');
+
+
+		submitButton.removeClass('btn-success');
+		submitButton.addClass('btn-dark');
+		submitButton.html('<i class="fas fa-sync fa-spin"></i>');
+
+		submitModerationAction(actionUrl,
+			 $(this).attr('commId'), 
+			 $(this).attr('memberId'), 
+			 $(this).attr('memberName'), 
+			 $(this).attr('btnAction')
+			);
+	});
+}
+
+function submitModerationAction(actionUrl, communityId, mixer_id, name_token, action) {
+	console.log("submitModerationAction("+actionUrl+", "+communityId+", "+mixer_id+", "+action+")");
+
+	$.ajax({
+		url: actionUrl,
+		type: "POST",
+		dataType: "json",
+		data: { 
+			communityId: communityId,
+			memberId: mixer_id,
+			memberName: name_token,
+			status: action
+		}
+	})
+		.done(function (json){
+			console.log('modAction - AJAX done');
+
+			tgtRow = $("#"+json.memberStatus+"User-"+json.memberId).closest("tr");
+			if (json.success) {
+				console.log("remove row: " + "#"+json.memberStatus+"User-"+json.memberId);
+				switch (json.memberStatus) {
+					case "approve":
+						tgtRow.html('<td colspan="4">'+json.memberName+' was approved.</td>');
+						break;
+					case "deny":
+						tgtRow.html('<td colspan="4">'+json.memberName+' was denied.</td>');
+						break;
+				}
+			}
+			
+		})
+
+		.fail(function (json){
+			console.log('modAction - AJAX failed');
+			//displayAlert($("#userHeader"), "There was an issue communicating with the server. Reload and try again.", "danger", 0)
+		})
+
+		.always(function (json){
+			console.log('modAction - AJAX always');
+			console.log(json);
+			//console.log(json.message);
+
+		});
+}
+
+function setRequestCommunityValidationListeners() {
+	console.log("setRequestCommunityValidationListeners()");
+
+	$("#requestCommunity input#long_name").on("change paste keyup", function() {
+		console.log( "#requestCommunity input#long_name on change paste keyup" );
+
+		slug = $(this).val().toLowerCase();
+		slug = slug.replace(/ /g, "-");
+		slug = slug.replace(/[^0-9a-z_-]/gi, '');
+		console.log('slug: '+slug)
+
+		 $("#requestCommunity input#slug").val(slug)
+	});
+
+
+	$("input.long_name").on("change paste keyup", function() {
+		target = "#slug-"+$(this).attr('id').replace('long_name-', '');
+
+		slug = $(this).val().toLowerCase();
+		slug = slug.replace(/ /g, "-");
+		slug = slug.replace(/[^0-9a-z_-]/gi, '');
+		console.log( "slug: "+slug );
+		console.log( "target: "+target );
+		console.log( "sibling: "+$(this).siblings("input.slug") );
+
+		 $(target).val(slug)
+	});
+
+	$(".communityApproval input[name=status]").click(function(){
+		console.log("selected status:"+ $(this).val())
+
+		$(this).parent().removeClass('alert alert-success alert-danger alert-warning');
+		if ($(this).val() == 'approved') {
+			$(this).parent().addClass('alert alert-success');
+		} else {
+			$(this).parent().addClass('alert alert-danger');
+		}
+	}); 
+}
+
+function displayAlert(target, message, level, timeOnScreen) {
+	if (level=='') { level = "warning"; }
+	if (timeOnScreen=='') { timeOnScreen = 3000; }
+
+	console.log("displayAlert("+target+", "+message+", "+level+")");
+	alert = '<div id="alertMessage" class="alert alert-'+level+'">';
+	alert += message;
+	alert += '</div>';
+
+	target.before(alert);
+	if (timeOnScreen == 0) {
+		$("#alertMessage").hide();
+		$("#alertMessage").fadeIn(500).delay(timeOnScreen).fadeOut("slow", function(){
+		  $(this).remove();
+	});
+	}
+}
+
+
+
+function setCommunityActionButtonListeners() {
+	console.log("setCommunityActionButtonListeners()");
+	$("button.commAction").click(function () {
+		actionUrl = baseActionUrl + $(this).attr('id') +"Community/";
+
+
+		submitButton = $(this);
+		submitButton.attr('disabled', '');
+
+		switch($(this).attr('id')) {
+			case "join": 
+				submitButton.text("Joining");
+				$("button#follow").attr('disabled', '');
+				$("button#follow").text("Following");
+				$("button#follow").prepend('<i class="fas fa-sync fa-spin"></i> ');
+				break;
+
+			case "unpend": 
+				submitButton.text("Unpending");
+				break;
+
+			case "leave": 
+				submitButton.text("Leaving");
+				$("button#moderateLink").attr('disabled', '');
+				break;
+
+			case "follow": 
+				submitButton.text("Following");
+				break;
+
+			case "unfollow": 
+				submitButton.text("Unfollowing");
+				break;
+		}
+
+		submitButton.prepend('<i class="fas fa-sync fa-spin"></i> ');
+
+		submitCommunityAction(actionUrl, $(this).attr('commId'));
+	});
+}
+/*
+function submitCommunityAction(actionUrl, communityId) {
+	console.log("submitCommunityAction("+actionUrl+","+communityId+")");
+
+	$.ajax({
+		url: actionUrl,
+		type: "POST",
+		dataType: "json",
+		data: { 
+			communityId: communityId
+		}
+	})
+		.done(function (json){
+			console.log('commAction - AJAX done');
+
+			if (json.success) {
+				targetButton = $("button#"+json.completedAction)
+				targetButton.removeAttr('disabled');
+				targetButton.remove("i");
+
+				switch(json.completedAction) {
+					case "join": 						
+						targetButton.removeClass('btn-primary');
+						targetButton.addClass('btn-danger');
+						targetButton.text('Leave');
+						targetButton.attr('id','leave');
+						targetButton.attr('title','Leave this community.');
+						targetButton.attr('data-original-title','Leave this community.');
+
+						if (!json.followsCommunity) {
+							submitCommunityAction(baseActionUrl+"followCommunity/", json.communityID);
+						}
+						break;
+
+					case "addedToPending":
+						targetButton = $("button#join");
+						targetButton.removeAttr('disabled');
+						targetButton.removeClass('btn-primary');
+						targetButton.addClass('btn-info');
+						targetButton.text('Pending');
+						targetButton.attr('id','unpend');
+						targetButton.attr('title','Your membership is pending approval. Click to undo.');
+						targetButton.attr('data-original-title','Your membership is pending approval. Click to undo.');
+
+						if (!json.followsCommunity) {
+							submitCommunityAction(baseActionUrl+"followCommunity/", json.communityID);
+						}
+						break;
+
+					case "removedFromPending":
+						targetButton = $("button#unpend");
+						targetButton.removeAttr('disabled');
+						targetButton.removeClass('btn-info');
+
+						if (json.communityStatus == 'open') {
+							targetButton.addClass('btn-primary');
+							targetButton.text('Join');
+							targetButton.attr('id','join');
+							targetButton.attr('title','Become a member of this community so viewers can find you.');
+							targetButton.attr('data-original-title','Become a member of this community so viewers can find you.');
+						} else {
+							targetButton.addClass('btn-secondary');
+							targetButton.text('Closed');
+							targetButton.attr('disabled', '');
+							//targetButton.attr('id','join');
+							targetButton.attr('title','Community is closed to new members.');
+							targetButton.attr('data-original-title','Community is closed to new members.');
+						}
+						break;
+
+					case "leave": 
+						targetButton.removeClass('btn-danger');
+							
+						if (json.communityStatus == 'open') {
+							targetButton.addClass('btn-primary');
+							targetButton.text('Join');
+							targetButton.attr('id','join');
+							targetButton.attr('title','Become a member of this community so viewers can find you.');
+							targetButton.attr('data-original-title','Become a member of this community so viewers can find you.');
+						} else {
+							targetButton.addClass('btn-secondary');
+							targetButton.text('Closed');
+							targetButton.attr('disabled', '');
+							//targetButton.attr('id','join');
+							targetButton.attr('title','Community is closed to new members.');
+							targetButton.attr('data-original-title','Community is closed to new members.');
+						}
+						$("button#moderateLink").remove();
+						break;
+
+					case "follow": 						
+						targetButton.removeClass('btn-primary');
+						targetButton.addClass('btn-danger');
+						targetButton.text('Unfollow');
+						targetButton.attr('id','unfollow');
+						targetButton.attr('title','Stop getting updates from this community on your profile.');
+						targetButton.attr('data-original-title','Stop getting updates from this community on your profile.');
+						break;
+					case "unfollow": 
+						targetButton.removeClass('btn-danger');
+						targetButton.addClass('btn-primary');
+						targetButton.text('Follow');
+						targetButton.attr('id','follow');
+						targetButton.attr('title','Track streamers in this community from your profile page.');
+						targetButton.attr('data-original-title','Track streamers in this community from your profile page.');
+						break;
+				}
+			}
+
+			
+
+
+		}) 
+
+		.fail(function (json){
+			console.log('commAction - AJAX failed');
+			displayAlert($("#userHeader"), "There was an issue communicating with the server. Reload and try again.", "danger", 0)
+		})
+
+		.always(function (json){
+			console.log('commAction - AJAX always');
+			console.log(json);
+			//console.log(json.message);
+
+		});
+}*/

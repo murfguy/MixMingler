@@ -170,9 +170,9 @@
 									// Core Community Button
 									if ($community->joined) {
 										if ($community->core) {
-											?><td><button class="btn btn-success"><i class="fas fa-check"></i></button></td><?php
+											?><td><button class="action confirm btn btn-success" action="removeAsCore" communityId="<?php echo $community->id; ?>" userId="<?php echo $_SESSION['mixer_id']; ?>"><i class="fas fa-check"></i></button></td><?php
 										} else {
-											?><td><button class="btn btn-primary"><i class="fas fa-thumbs-up"></i></i></button></td><?php
+											?><td><button class="action btn btn-primary" action="setAsCore" communityId="<?php echo $community->id; ?>" userId="<?php echo $_SESSION['mixer_id']; ?>"><i class="fas fa-thumbs-up"></i></button></td><?php
 										}
 									} else {
 										?><td><button class="btn btn-danger" disabled><i class="fas fa-minus-circle"></i></button></td><?php

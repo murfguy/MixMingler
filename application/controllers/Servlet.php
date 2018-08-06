@@ -68,7 +68,7 @@ class Servlet extends CI_Controller {
 
 					// And now we return all the important data
 					$this->returnData->success = true;
-					$this->returnData->message = $member->name_token." is now awaiting approval to join the \"".$community->long_name."\" community.";
+					$this->returnData->message = $member->name_token." is now awaiting approval to join the <i>".$community->long_name."</i> community.";
 					$this->returnData->completedAction = "addedToPending";
 				} else {
 					// Add community ID to end of "joinedCommunities" in mixer_user
@@ -81,7 +81,7 @@ class Servlet extends CI_Controller {
 
 					// And now we return all the important data
 					$this->returnData->success = true;
-					$this->returnData->message = $member->name_token." joined the \"".$community->long_name."\" community.";
+					$this->returnData->message = $member->name_token." joined the <i>".$community->long_name."</i> community.";
 					$this->returnData->completedAction = "join";
 
 					$this->news->addNews($_SESSION['mixer_id'], "{username} joined the {commId:$communityID} community.", "community", $communityID);
@@ -139,7 +139,7 @@ class Servlet extends CI_Controller {
 
 					
 					$this->returnData->success = true;
-					$this->returnData->message = $member->name_token." has been removed from the list of pending members for \"".$community->long_name."\".";
+					$this->returnData->message = $member->name_token." has been removed from the list of pending members for <i>".$community->long_name."</i>.";
 					$this->returnData->completedAction = "removedFromPending";
 
 				} else {
@@ -209,7 +209,7 @@ class Servlet extends CI_Controller {
 					$query = $this->db->query($sql_query, array($mixer_id, $communityID));
 
 					$this->returnData->success = true;
-					$this->returnData->message = $member->name_token." has been removed from the \"".$community->long_name."\" community.";
+					$this->returnData->message = $member->name_token." has been removed from the <i>".$community->long_name."</i> community.";
 					$this->returnData->completedAction = "leave";
 				} else {
 					// User is the commmunity admin, and cannot leave.
@@ -258,7 +258,7 @@ class Servlet extends CI_Controller {
 				$this->returnData->communityID = $communityID;
 				$this->returnData->communityName = $community->long_name;
 				$this->returnData->success = true;
-				$this->returnData->message = $member->name_token." followed the \"".$community->long_name."\" community";
+				$this->returnData->message = $member->name_token." followed the <i>".$community->long_name."</i> community";
 				$this->returnData->completedAction = "follow";
 			} else {
 				$this->returnData->message = "";
@@ -312,7 +312,7 @@ class Servlet extends CI_Controller {
 
 
 					$this->returnData->success = true;
-					$this->returnData->message = $member->name_token." has unfollowed the \"".$community->long_name."\" community";
+					$this->returnData->message = $member->name_token." has unfollowed the <i>".$community->long_name."</i> community";
 					$this->returnData->completedAction = "unfollow";
 
 				} else {
@@ -333,58 +333,108 @@ class Servlet extends CI_Controller {
 	// --- Core Community Functions ---------------------------------- 
 	// ---------------------------------------------------------------
 
-	public function setCoreCommunity($communityID) {
-		// Add community ID to end of "followedCommunities" in mixer_user
-		// Increment follow count by one in communities
+	public function setAsCore() {
+		$this->returnData->requestedAction = "setAsCore";
 
-		// If user is logged in
+ 		// If user is logged in
 		if (isset($_SESSION['mixer_id'])) {
-			// Get current set of Core communities
+			if (!empty($_POST['userId']) && !empty($_POST['communityId'])) {
+				$communityID = $_POST['communityId'];
+				$mixer_id = $_POST['userId'];
+				$this->returnData->communityID = $communityID;
+				$this->returnData->mixer_id = $mixer_id;
 
+				// Let's select the data we need from the community.
+				$sql_query = "SELECT long_name, admin, coreMembers FROM communities WHERE id=?";
+				$query = $this->db->query($sql_query, array($communityID));
+				$community = null; if (!empty($query->result())) { $community = $query->result()[0]; };
 
-			// Add community ID to end of "joinedCommunities" in mixer_user
-			$sql_query = "UPDATE mixer_users SET coreCommunities = IF(coreCommunities='', ?, concat(coreCommunities, ',', ?)) WHERE mixer_id=?";
-			$query = $this->db->query($sql_query, array($communityID, $communityID, $_SESSION['mixer_id']));
+				// And now we collect relevant data to our target user.
+				$sql_query = "SELECT name_token, coreCommunities FROM mixer_users WHERE mixer_id=?";
+				$query = $this->db->query($sql_query, array($mixer_id));
+				$member = null; if (!empty($query->result())) { $member = $query->result()[0]; };
 
-			$this->returnData->username = $_SESSION['mixer_user'];
-			$this->returnData->communityID = $communityID;
-			$this->returnData->success = true;
-			$this->returnData->message = "Set Core Community";
-			//$this->returnData->coreCommunities = $communities;
+				if (!empty($community) && !empty($member)) {
+					$this->returnData->userName = $member->name_token;
+					$this->returnData->communityName = $community->long_name;
+
+					if (count(explode(",", $member->coreCommunities)) >= 4) {
+						$this->returnData->message = "You are already at the maximum number of core communities. You cannot mark more until you unmark another.";
+					} else {
+						// Add community ID to end of "joinedCommunities" in mixer_user
+						$sql_query = "UPDATE mixer_users SET coreCommunities = IF(coreCommunities='', ?, concat(coreCommunities, ',', ?)) WHERE mixer_id=?";
+						$query = $this->db->query($sql_query, array($communityID, $communityID, $_SESSION['mixer_id']));
+
+						$this->returnData->success = true;
+						$this->returnData->message = $community->long_name." is now one of your Core Communities.";
+						$this->returnData->completedAction = "setAsCore";
+					}
+				} else {
+					$this->returnData->message = "";
+					if (empty($community)) { $this->returnData->message .= "The community you were trying to access was not found in the database. "; }
+					if (empty($member)) { $this->returnData->message .= "The mixer user you were trying to access was not found in the database. "; }
+				}
+			}  else {
+				$this->returnData->message = "No user or community id was provided.";
+			}
+		} else {
+			$this->returnData->message = "User must be logged in.";
 		}
 		$this->returnData();
 	}
 
-	public function unsetCoreCommunity($communityID) {
+	public function removeAsCore() {
 		// Add community ID to end of "followedCommunities" in mixer_user
 		// Increment follow count by one in communities
 
 		// If user is logged in
 		if (isset($_SESSION['mixer_id'])) {
+			if (!empty($_POST['userId']) && !empty($_POST['communityId'])) {
+				$communityID = $_POST['communityId'];
+				$mixer_id = $_POST['userId'];
+				$this->returnData->communityID = $communityID;
+				$this->returnData->mixer_id = $mixer_id;
+				// Let's select the data we need from the community.
+				$sql_query = "SELECT long_name, admin, coreMembers FROM communities WHERE id=?";
+				$query = $this->db->query($sql_query, array($communityID));
+				$community = null; if (!empty($query->result())) { $community = $query->result()[0]; };
 
-			// First, let's check the communities for the logged in user.
-			$sql_query = "SELECT coreCommunities FROM mixer_users WHERE mixer_id=?";
-			$query = $this->db->query($sql_query, array($_SESSION['mixer_id']));
-			//Convert communities list to PHP array
-			$communities = explode(",", $query->result()[0]->coreCommunities);
-			// Remove the left community from the array
-			if (($key = array_search($communityID, $communities)) !== false) { unset($communities[$key]); }
-			$this->returnData->coreCommunities = $communities;
-			// Restore to string.
-			$communities = implode(',', $communities);
+				// And now we collect relevant data to our target user.
+				$sql_query = "SELECT name_token, coreCommunities FROM mixer_users WHERE mixer_id=?";
+				$query = $this->db->query($sql_query, array($mixer_id));
+				$member = null; if (!empty($query->result())) { $member = $query->result()[0]; };
 
-			// UPDATE Database with updated list of communities
-			$sql_query = "UPDATE mixer_users SET coreCommunities = ? WHERE mixer_id=?";
-			$query = $this->db->query($sql_query, array($communities, $_SESSION['mixer_id']));
+				if (!empty($community) && !empty($member)) {
+					$this->returnData->userName = $member->name_token;
+					$this->returnData->communityName = $community->long_name;
 
-			// Increment member count by one in communities
-			//$sql_query = "UPDATE communities SET followers = followers+1 WHERE id=?";
-			//$query = $this->db->query($sql_query, array($communityID));
+					// Remove community id from member's followed list
+					$coreCommunities = $this->tools->removeValueFromList($communityID, $member->coreCommunities);
+					// Remove member id from following list
+					$coreMembers = $this->tools->removeValueFromList($mixer_id, $community->coreMembers);
 
-			$this->returnData->username = $_SESSION['mixer_user'];
-			$this->returnData->communityID = $communityID;
-			$this->returnData->success = true;
-			$this->returnData->message = "Unset Core Community";
+					// UPDATE Database with updated list of communities
+					$sql_query = "UPDATE mixer_users SET coreCommunities = ? WHERE mixer_id=?";
+					$query = $this->db->query($sql_query, array($coreCommunities, $mixer_id));
+
+					// Update community data to remove member
+					$sql_query = "UPDATE communities SET coreMembers=? WHERE id=?";
+					$query = $this->db->query($sql_query, array($coreMembers, $communityID));
+
+
+					$this->returnData->success = true;
+					$this->returnData->message = "<i>".$community->long_name."</i> is no longer one of your core communities.";
+					$this->returnData->completedAction = "removeAsCore";					
+				} else {
+					$this->returnData->message = "";
+					if (empty($community)) { $this->returnData->message .= "The community you were trying to access was not found in the database. "; }
+					if (empty($member)) { $this->returnData->message .= "The mixer user you were trying to access was not found in the database. "; }
+				}
+			} else {
+				$this->returnData->message = "No user or community id was provided.";
+			}
+		} else {
+			$this->returnData->message = "User must be logged in.";
 		}
 		$this->returnData();
 	}
