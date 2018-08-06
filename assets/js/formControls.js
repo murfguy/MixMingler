@@ -10,6 +10,8 @@ function setFormListeners() {
 		}
 	});
 	
+	setConfirmations();
+
 	// Set validation listeners to prevent forms from sending without valid data
 	setRequestCommunityValidationListeners();
 
@@ -492,39 +494,39 @@ function setRequestCommunityValidationListeners() {
 	console.log("setRequestCommunityValidationListeners()");
 
 	$("#requestCommunity input#long_name").on("change paste keyup", function() {
- 		console.log( "#requestCommunity input#long_name on change paste keyup" );
+		console.log( "#requestCommunity input#long_name on change paste keyup" );
 
- 		slug = $(this).val().toLowerCase();
- 		slug = slug.replace(/ /g, "-");
- 		slug = slug.replace(/[^0-9a-z_-]/gi, '');
- 		console.log('slug: '+slug)
+		slug = $(this).val().toLowerCase();
+		slug = slug.replace(/ /g, "-");
+		slug = slug.replace(/[^0-9a-z_-]/gi, '');
+		console.log('slug: '+slug)
 
- 		 $("#requestCommunity input#slug").val(slug)
+		 $("#requestCommunity input#slug").val(slug)
 	});
 
 
 	$("input.long_name").on("change paste keyup", function() {
- 		target = "#slug-"+$(this).attr('id').replace('long_name-', '');
+		target = "#slug-"+$(this).attr('id').replace('long_name-', '');
 
- 		slug = $(this).val().toLowerCase();
- 		slug = slug.replace(/ /g, "-");
- 		slug = slug.replace(/[^0-9a-z_-]/gi, '');
- 		console.log( "slug: "+slug );
- 		console.log( "target: "+target );
- 		console.log( "sibling: "+$(this).siblings("input.slug") );
+		slug = $(this).val().toLowerCase();
+		slug = slug.replace(/ /g, "-");
+		slug = slug.replace(/[^0-9a-z_-]/gi, '');
+		console.log( "slug: "+slug );
+		console.log( "target: "+target );
+		console.log( "sibling: "+$(this).siblings("input.slug") );
 
- 		 $(target).val(slug)
+		 $(target).val(slug)
 	});
 
 	$(".communityApproval input[name=status]").click(function(){
 		console.log("selected status:"+ $(this).val())
 
-	    $(this).parent().removeClass('alert alert-success alert-danger alert-warning');
-	    if ($(this).val() == 'approved') {
-	    	$(this).parent().addClass('alert alert-success');
-	    } else {
-	    	$(this).parent().addClass('alert alert-danger');
-	    }
+		$(this).parent().removeClass('alert alert-success alert-danger alert-warning');
+		if ($(this).val() == 'approved') {
+			$(this).parent().addClass('alert alert-success');
+		} else {
+			$(this).parent().addClass('alert alert-danger');
+		}
 	}); 
 }
 
@@ -544,4 +546,130 @@ function displayAlert(target, message, level, timeOnScreen) {
 		  $(this).remove();
 	});
 	}
+}
+
+function setConfirmations () {
+	$(".confirm").on('click', function () {
+		console.log('confirm');
+
+		action = 'testServlet/';
+
+		switch ($(this).attr('action')) {
+			case "leaveCommunity":
+				message = "You will no longer be a member of this community!";
+				confirmText = "Leave";
+				cancelText = "Stay";
+				ajaxAlert = "Leaving Community..."; 
+				successAlert = "You succesfully left {commmunityName}."; 
+				break;
+
+			case "unfollowCommunity":
+				message = "You won't see this community in your preferred listings!";
+				confirmText = "Unfollow";
+				cancelText = "Keep Following";
+				ajaxAlert = "Unfollowing Community..."; 
+				successAlert = "You succesfully unfollowed {commmunityName}."; 
+				break;
+
+			case "unfollowType":
+				message = "You won't see this stream type in your preferred listings!";
+				confirmText = "Unfollow";
+				cancelText = "Keep Following";
+				ajaxAlert = "Unfollowing Stream Type..."; 
+				successAlert = "You succesfully unfollowed {typeName}."; 
+				break;
+
+			case "ignoreType":
+				message = "This will be hidden from the types listing page.";
+				confirmText = "Ignore";
+				cancelText = "Nevermind";
+				ajaxAlert = "Ignoring Stream Type..."; 
+				successAlert = "You succesfully ignored {typeName}."; 
+				break;
+
+			case "unpendCommunity":
+				message = "You're request to join this community will be deleted.";
+				confirmText = "Cancel Join";
+				cancelText = "Keep Waiting";
+				ajaxAlert = "Removing Join Request..."; 
+				successAlert = "You succesfully removed your join request."; 
+				break;
+
+			case "promoteMember":
+				message = "This will make the target member a moderator of this community.";
+				confirmText = "Make Mod";
+				cancelText = "Keep as User";
+				ajaxAlert = "Making a Moderator..."; 
+				successAlert = "{username} was made a moderator for {communityName}.";
+				break;
+
+			case "demoteMember":
+				message = "This will make the target member a standard member of this community.";
+				confirmText = "Remove as Mod";
+				cancelText = "Keep as Mod";
+				ajaxAlert = "Removing a Moderator..."; 
+				successAlert = "{username} is no longer a moderator of {communityName}.";
+				break;
+
+			default:
+				message = "This action will change something.";
+				confirmText = "Perform Action";
+				cancelText = "Cancel";
+				ajaxAlert = "Performing Action..."; 
+				successAlert = "You succesfully completed the action."; 
+				break;
+
+		}
+
+		$.confirm({
+			title: 'Are you sure?',
+			content: message,
+			theme: 'dark',
+			buttons: {
+				yes: {
+					text: confirmText,
+					btnClass: 'btn-danger',
+					action: function () {
+						
+						$.alert({
+							title: ajaxAlert,
+							theme: 'dark',
+							autoClose: 'ok|8000',
+							content: function(){
+								var self = this;
+								
+								return $.ajax({
+									url: baseActionUrl + action,
+									dataType: 'json',
+									method: 'post',
+									data: {
+										variable: 'hi'
+									}
+								}).done(function (response) {
+									if (response.success) {
+										self.setContentAppend('<div>'+successAlert+'</div>');
+									} else {
+										self.setContentAppend('<div>There was an issue with completing your requested action! <br><b>Server Message:</b> '+response.message+'</div>');
+									}
+								}).fail(function(){
+									self.setContentAppend('<div>There was a problem with communicating with the server.</div>');
+								}).always(function(response){
+									//self.setContentAppend('<div>Always!</div>');
+									console.log(response)
+								});
+							}
+						})
+						
+					},
+				},
+				no: {
+					text: cancelText,
+					action: function () {
+					
+					
+					}
+				}
+			}
+		});
+	})
 }

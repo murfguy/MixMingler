@@ -91,7 +91,7 @@ class Account extends CI_Controller {
 			$this->load->view('account', $viewData);
 			$this->load->library('version');
 			$this->load->view('htmlFoot', $this->version->getVersion());
-			echo "Account page coming soon.";
+			
 		} else {
 			header('Location: /');
 		}

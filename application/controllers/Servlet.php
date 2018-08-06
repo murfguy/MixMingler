@@ -858,6 +858,23 @@ class Servlet extends CI_Controller {
 	// ---------------------------------------------------------------
 
 
+	// --------------------------------------------------------------- 
+	// --- Debug/Text Functions -------------------------------------- 
+	// ---------------------------------------------------------------
+
+	public function testServlet() {
+		$this->returnData->success = false;
+		$this->returnData->message = "Servlet was succesfully pinged, put a variable wasn't provided.";
+
+		if (!empty($_POST['variable'])) {
+			$this->returnData->success = true;
+			$this->returnData->message = "Servlet was succesfully pinged.";
+			$this->returnData->variable = $_POST['variable'];
+		}
+
+		$this->returnData();
+	}
+
 	public function apiTest() {
 		$startTime = time();
 		$url = "https://mixer.com/api/v1/channels";

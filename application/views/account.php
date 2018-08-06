@@ -3,19 +3,26 @@
 		<h1>Account Management</h1>
 	</div>
 
+			<div class="btn-group d-flex" role="group">
+				<button type="button" class="btn btn-info displayToggle" target="summaryView">Summary</button>
+				<button type="button" class="btn btn-info displayToggle" target="settingsManager">Settings</button>
+				<button type="button" class="btn btn-info displayToggle" target="typeManager">Games/Types</button>
+				<button type="button" class="btn btn-info displayToggle" target="commManager" disabled>Communities</button>
+			</div>
+
 	<p class="devNote">Account Management features are planned to added/implemented alongside appropriate features. See the <a href="/alpha/">Alpha Information Page</a> for more info. Bugs or incomplete implementations are expected in this area if dev notes are present for associated tasks.</p>
 
 	<div class="row">
-		<div class="col-2">
+		<!--<div class="col-2">
 
-			<div class="btn-group-vertical" role="group" style="width: 100%;">
+			<div class="btn-group-vertical visible-xs" role="group" style="width: 100%;">
 				<button type="button" class="btn btn-info displayToggle" target="summaryView">Summary</button>
-				<button type="button" class="btn btn-info displayToggle" target="typeManager">Games</button>
-				<button type="button" class="btn btn-info displayToggle" target="commManager" disabled>Communities</button>
 				<button type="button" class="btn btn-info displayToggle" target="settingsManager">Settings</button>
+				<button type="button" class="btn btn-info displayToggle" target="typeManager">Games/Types</button>
+				<button type="button" class="btn btn-info displayToggle" target="commManager" disabled>Communities</button>
 			</div>
-		</div>
-		<div class="col-10">
+		</div>-->
+		<div class="col-11">
 
 			<div id="summaryView" class="inactiveView">
 				<h2>Account Summary</h2>
@@ -28,6 +35,7 @@
 			</div>
 
 			<div id="typeManager" class="inactiveView">
+					
 				<h2>Manage Games/Types</h2>
 
 				<div class="btn-group btn-group-justified" style="width:50%" role="group">
@@ -53,7 +61,7 @@
 										echo "<tr>";
 										echo "<td><img src=\"$type->coverUrl\" width=\"40\"></td>";
 										echo "<td><a href=\"/type/$type->typeId/$type->slug\">$type->typeName</a></td>";
-										echo "<td><button type=\"button\" data-toggle=\"tooltip\" title=\"Stop getting updates about this game.\" id=\"unfollow\" typeId=\"".$type->typeId."\" class=\"typeAction btn-sm btn-danger\">Unfollow</button></td>";
+										echo "<td><button type=\"button\" data-toggle=\"tooltip\" title=\"Stop getting updates about this game.\" id=\"unfollow\" typeId=\"".$type->typeId."\" class=\"typeAction btn btn-sm btn-danger\">Unfollow</button></td>";
 										echo "</tr>";
 									}
 								} else {
@@ -84,7 +92,7 @@
 										echo "<tr>";
 										echo "<td><img src=\"$type->coverUrl\" width=\"40\"></td>";
 										echo "<td><a href=\"/type/$type->typeId/$type->slug\">$type->typeName</a></td>";
-										echo "<td><button type=\"button\" data-toggle=\"tooltip\" title=\"Have this game show up in lists again.\" id=\"unignore\" typeId=\"".$type->typeId."\" class=\"typeAction btn-sm btn-danger\">Unignore</button></td>";
+										echo "<td><button type=\"button\" data-toggle=\"tooltip\" title=\"Have this game show up in lists again.\" id=\"unignore\" typeId=\"".$type->typeId."\" class=\"typeAction btn btn-sm btn-danger\">Unignore</button></td>";
 										echo "</tr>";
 									}
 								} else {
@@ -128,13 +136,17 @@
 								<?php 
 
 									if ($community->joined) {
-										?><td><button class="btn btn-success"><i class="fas fa-check"></i></button></td><?php
+										if ($community->admin == $_SESSION['mixer_id']) {
+												?><td><button class="btn btn-success" disabled><i class="fas fa-crown" style="color: gold"></i></button></td><?php
+										} else {
+											?><td><button class="confirm btn btn-success" action="leaveCommunity" target="<?php echo $community->id; ?>"><i class="fas fa-check"></i></button></td><?php
+										}
 									} else{ 
 										if ($community->status = 'closed') {
 											?><td><button class="btn btn-danger" disabled><i class="fas fa-minus-circle"></i></button></td><?php
 										} else {
 											if ($community->pending){
-												?><td><button class="btn btn-info"><i class="fas fa-circle-notch fa-spin"></i></button></td><?php
+												?><td><button class="confirm btn btn-info" action="unpendCommunity"><i class="fas fa-circle-notch fa-spin"></i></button></td><?php
 											} else {
 												?><td><button class="btn btn-primary"><i class="fas fa-times"></i></button></td><?php
 											}
@@ -143,10 +155,15 @@
 							
 
 									if ($community->followed) {
-										?><td><button class="btn btn-success"><i class="fas fa-check"></i></button></td><?php
+										if ($community->admin == $_SESSION['mixer_id']) {
+											?><td><button class="btn btn-success" disabled><i class="fas fa-crown" style="color: gold"></i></button></td><?php
+										} else {
+											?><td><button class="confirm btn btn-success" action="unfollowCommunity"><i class="fas fa-check"></i></button></td><?php
+										}
 									} else {
 										?><td><button class="btn btn-primary"><i class="fas fa-times"></i></button></td><?php
 									}
+
 									if ($community->joined) {
 										if ($community->core) {
 											?><td><button class="btn btn-success"><i class="fas fa-check"></i></button></td><?php
@@ -229,6 +246,7 @@
 
 			<div id="settingsManager" class="inactiveView">
 				<h2>Manage Settings</h2>
+				<p class="devNote">Settings management are pending once more features are implemented.</p>
 			</div>
 		</div>
 	</div>

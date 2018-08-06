@@ -17,6 +17,7 @@ body {
 	background-color: rgb(24, 46, 80);
 	color: white;
 	font-size: 16px;
+	padding-top: 70px;
 }
 
 span.mixBlue { color: rgb(37,188,235) !important; }
@@ -28,6 +29,10 @@ a:active { color: rgb(37,188,235);}
 
 h1,h2,h3,h4,h5,h6, button, header {
 	font-family: 'Josefin Sans', sans-serif;
+}
+
+h1,h2,h3,h4,h5,h6 {
+	border-bottom: 1px solid rgb(110, 131, 140);
 }
 
 footer.footer {
@@ -71,7 +76,7 @@ div.btn-group, div.btn-group-vertical {
 --------------------------------------- */
 
 div.pageHeader {
-	border-bottom: 1px solid rgb(110, 131, 140);
+	/*border-bottom: 1px solid rgb(110, 131, 140);*/
 	padding: 0px 0px;
 	margin-top: 0;
 	margin-bottom: 15px;
@@ -79,7 +84,7 @@ div.pageHeader {
 
 
 main {
-	padding-top: 80px;
+	/*padding-top: 80px;*/
 }
 
 img.avatar {
