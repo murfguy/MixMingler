@@ -1,4 +1,4 @@
-<main role="main" class="container-fluid">
+<main role="main" class="container">
 	<div id="userHeader" class="pageHeader">
 		<h1>Account Management</h1>
 	</div>
@@ -135,35 +135,39 @@
 
 								<?php 
 
+									// Joined Community Button
 									if ($community->joined) {
 										if ($community->admin == $_SESSION['mixer_id']) {
-												?><td><button class="btn btn-success" disabled><i class="fas fa-crown" style="color: gold"></i></button></td><?php
+												?><td><button btnType="mini" class="btn btn-success" disabled><i class="fas fa-crown" style="color: gold"></i></button></td><?php
 										} else {
-											?><td><button class="confirm btn btn-success" action="leaveCommunity" target="<?php echo $community->id; ?>"><i class="fas fa-check"></i></button></td><?php
+											?><td><button class="action confirm btn btn-success" btnType="mini" action="leaveCommunity" communityId="<?php echo $community->id; ?>" userId="<?php echo $_SESSION['mixer_id']; ?>"><i class="fas fa-check"></i></button></td><?php
 										}
 									} else{ 
-										if ($community->status = 'closed') {
-											?><td><button class="btn btn-danger" disabled><i class="fas fa-minus-circle"></i></button></td><?php
+										if ($community->status == 'closed') {
+											?><td><button btnType="mini" class="btn btn-danger" disabled><i class="fas fa-minus-circle"></i></button></td><?php
 										} else {
 											if ($community->pending){
-												?><td><button class="confirm btn btn-info" action="unpendCommunity"><i class="fas fa-circle-notch fa-spin"></i></button></td><?php
+												?><td><button btnType="mini" class="confirm btn btn-info" action="unpendCommunity"><i class="fas fa-circle-notch fa-spin"></i></button></td><?php
 											} else {
-												?><td><button class="btn btn-primary"><i class="fas fa-times"></i></button></td><?php
+												?><td><button btnType="mini" class="action btn btn-primary" action="joinCommunity" communityId="<?php echo $community->id; ?>" userId="<?php echo $_SESSION['mixer_id']; ?>"><i class="fas fa-times"></i></button></td><?php
 											}
 										}
 									}
 							
 
+									// Followed Community Button
 									if ($community->followed) {
 										if ($community->admin == $_SESSION['mixer_id']) {
 											?><td><button class="btn btn-success" disabled><i class="fas fa-crown" style="color: gold"></i></button></td><?php
 										} else {
-											?><td><button class="confirm btn btn-success" action="unfollowCommunity"><i class="fas fa-check"></i></button></td><?php
+											?><td><button btnType="mini" class="confirm action btn btn-success" action="unfollowCommunity" communityId="<?php echo $community->id; ?>" userId="<?php echo $_SESSION['mixer_id']; ?>"><i class="fas fa-check"></i></button></td><?php
 										}
 									} else {
-										?><td><button class="btn btn-primary"><i class="fas fa-times"></i></button></td><?php
+										?><td><button btnType="mini" class="action btn btn-primary"action="followCommunity" communityId="<?php echo $community->id; ?>" userId="<?php echo $_SESSION['mixer_id']; ?>"><i class="fas fa-times"></i></button></td><?php
 									}
 
+
+									// Core Community Button
 									if ($community->joined) {
 										if ($community->core) {
 											?><td><button class="btn btn-success"><i class="fas fa-check"></i></button></td><?php

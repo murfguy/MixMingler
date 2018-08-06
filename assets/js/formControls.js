@@ -10,7 +10,7 @@ function setFormListeners() {
 		}
 	});
 	
-	setConfirmations();
+	setConfirmationActions();
 
 	// Set validation listeners to prevent forms from sending without valid data
 	setRequestCommunityValidationListeners();
@@ -548,34 +548,78 @@ function displayAlert(target, message, level, timeOnScreen) {
 	}
 }
 
-function setConfirmations () {
-	$(".confirm").on('click', function () {
-		console.log('confirm');
+function setConfirmationActions () {
+	console.log("setConfirmationActions()");
+
+	$(".action").on('click', function () {
+		console.log('action: ' + $(this).attr('action'));
 
 		action = 'testServlet/';
+		actionData = null;
+		targetButton = $(this);
+
+		/*if (!targetButton.hasClass('confirm')) {
+			targetButton.html('<i class="fas fa-circle-notch fa-spin"></i>');
+		}*/
+
+		action = $(this).attr('action');
 
 		switch ($(this).attr('action')) {
+			case "joinCommunity":
+				alertTitle = "Joining Community..."; 				
+				actionData = {
+					communityId: $(this).attr('communityId'),
+					userId: $(this).attr('userId')
+				}
+				break;
+
+
 			case "leaveCommunity":
 				message = "You will no longer be a member of this community!";
 				confirmText = "Leave";
 				cancelText = "Stay";
-				ajaxAlert = "Leaving Community..."; 
-				successAlert = "You succesfully left {commmunityName}."; 
+				alertTitle = "Leaving Community..."; 
+				actionData = {
+					communityId: $(this).attr('communityId'),
+					userId: $(this).attr('userId')
+				}
+				break;
+
+			case "unpendCommunity":
+				message = "Your request to join this community will be cancelled.";
+				confirmText = "Cancel Join";
+				cancelText = "Keep Waiting";
+				alertTitle = "Removing Join Request..."; 
+				actionData = {
+					communityId: $(this).attr('communityId'),
+					userId: $(this).attr('userId')
+				}
+				break;
+
+			case "followCommunity":
+				alertTitle = "Following Community..."; 				
+				actionData = {
+					communityId: $(this).attr('communityId'),
+					userId: $(this).attr('userId')
+				}
 				break;
 
 			case "unfollowCommunity":
 				message = "You won't see this community in your preferred listings!";
 				confirmText = "Unfollow";
 				cancelText = "Keep Following";
-				ajaxAlert = "Unfollowing Community..."; 
-				successAlert = "You succesfully unfollowed {commmunityName}."; 
+				alertTitle = "Unfollowing Community..."; 				
+				actionData = {
+					communityId: $(this).attr('communityId'),
+					userId: $(this).attr('userId')
+				}
 				break;
 
-			case "unfollowType":
+			/*case "unfollowType":
 				message = "You won't see this stream type in your preferred listings!";
 				confirmText = "Unfollow";
 				cancelText = "Keep Following";
-				ajaxAlert = "Unfollowing Stream Type..."; 
+				alertTitle = "Unfollowing Stream Type..."; 
 				successAlert = "You succesfully unfollowed {typeName}."; 
 				break;
 
@@ -583,23 +627,17 @@ function setConfirmations () {
 				message = "This will be hidden from the types listing page.";
 				confirmText = "Ignore";
 				cancelText = "Nevermind";
-				ajaxAlert = "Ignoring Stream Type..."; 
+				alertTitle = "Ignoring Stream Type..."; 
 				successAlert = "You succesfully ignored {typeName}."; 
 				break;
 
-			case "unpendCommunity":
-				message = "You're request to join this community will be deleted.";
-				confirmText = "Cancel Join";
-				cancelText = "Keep Waiting";
-				ajaxAlert = "Removing Join Request..."; 
-				successAlert = "You succesfully removed your join request."; 
-				break;
+			
 
 			case "promoteMember":
 				message = "This will make the target member a moderator of this community.";
 				confirmText = "Make Mod";
 				cancelText = "Keep as User";
-				ajaxAlert = "Making a Moderator..."; 
+				alertTitle = "Making a Moderator..."; 
 				successAlert = "{username} was made a moderator for {communityName}.";
 				break;
 
@@ -607,69 +645,183 @@ function setConfirmations () {
 				message = "This will make the target member a standard member of this community.";
 				confirmText = "Remove as Mod";
 				cancelText = "Keep as Mod";
-				ajaxAlert = "Removing a Moderator..."; 
+				alertTitle = "Removing a Moderator..."; 
 				successAlert = "{username} is no longer a moderator of {communityName}.";
-				break;
+				break;*/
 
 			default:
 				message = "This action will change something.";
 				confirmText = "Perform Action";
 				cancelText = "Cancel";
-				ajaxAlert = "Performing Action..."; 
+				alertTitle = "Performing Action..."; 
 				successAlert = "You succesfully completed the action."; 
 				break;
 
 		}
 
-		$.confirm({
-			title: 'Are you sure?',
-			content: message,
-			theme: 'dark',
-			buttons: {
-				yes: {
-					text: confirmText,
-					btnClass: 'btn-danger',
-					action: function () {
-						
-						$.alert({
-							title: ajaxAlert,
-							theme: 'dark',
-							autoClose: 'ok|8000',
-							content: function(){
-								var self = this;
-								
-								return $.ajax({
-									url: baseActionUrl + action,
-									dataType: 'json',
-									method: 'post',
-									data: {
-										variable: 'hi'
-									}
-								}).done(function (response) {
-									if (response.success) {
-										self.setContentAppend('<div>'+successAlert+'</div>');
-									} else {
-										self.setContentAppend('<div>There was an issue with completing your requested action! <br><b>Server Message:</b> '+response.message+'</div>');
-									}
-								}).fail(function(){
-									self.setContentAppend('<div>There was a problem with communicating with the server.</div>');
-								}).always(function(response){
-									//self.setContentAppend('<div>Always!</div>');
-									console.log(response)
-								});
-							}
-						})
-						
+		if ($(this).hasClass('confirm')) {
+			$.confirm({
+				title: 'Are you sure?',
+				content: message,
+				theme: 'dark',
+				buttons: {
+					yes: {
+						text: confirmText,
+						btnClass: 'btn-danger',
+						action: function () {
+							$.alert({
+								title: alertTitle,
+								theme: 'dark',
+								autoClose: 'ok|8000',
+								content: function(){
+									var self = this;
+									
+									return $.ajax({
+										url: baseActionUrl + action,
+										dataType: 'json',
+										method: 'post',
+										data: actionData
+									}).done(function (response) {
+										if (response.success) {
+											self.setContentAppend('<div>'+response.message+'</div>');
+											updateButtonView(targetButton, response);
+										} else {
+											self.setContentAppend('<div>There was an issue with completing your requested action! <br><b>Server Message:</b> '+response.message+'</div>');
+										}
+									}).fail(function(){
+										self.setContentAppend('<div>There was a problem with communicating with the server.</div>');
+									}).always(function(response){
+										//self.setContentAppend('<div>Always!</div>');
+										console.log(response)
+									});
+								}
+							})
+						}
 					},
-				},
-				no: {
-					text: cancelText,
-					action: function () {
-					
-					
+					no: {
+						text: cancelText
 					}
 				}
-			}
-		});
+			});
+		} else {
+			$.alert({
+				title: alertTitle,
+				theme: 'dark',
+				autoClose: 'ok|8000',
+				content: function(){
+					var self = this;
+					
+					return $.ajax({
+						url: baseActionUrl + action,
+						dataType: 'json',
+						method: 'post',
+						data: actionData
+					}).done(function (response) {
+						if (response.success) {
+							self.setContentAppend('<div>'+response.message+'</div>');
+							updateButtonView(targetButton, response);
+						} else {
+							self.setContentAppend('<div>There was an issue with completing your requested action! <br><b>Server Message:</b> '+response.message+'</div>');
+						}
+					}).fail(function(){
+						self.setContentAppend('<div>There was a problem with communicating with the server.</div>');
+					}).always(function(response){
+						//self.setContentAppend('<div>Always!</div>');
+						console.log(response)
+					});
+				}
+			})
+		}
 	})
+}
+
+function ajaxAlert(action, titleText, actionData, targetButton) {
+	
+}
+
+function updateButtonView(tgt, serverData) {
+	switch (serverData.completedAction) {
+		case "join":
+		case "addedToPending":
+			// Becomes "leave state"
+			tgt.removeClass('btn-primary btn-success');
+			tgt.addClass('confirm');
+			tgt.attr('action', 'leaveCommunity');
+			
+			if (serverData.approveMembers) {
+				tgt.addClass('btn-info');
+				tgt.attr('action', 'unpendCommunity');
+
+				if (tgt.attr('btnType') == 'mini') {
+					tgt.html('<i class="fas fa-circle-notch fa-spin"></i>');
+				} else {
+					tgt.html('<i class="fas fa-circle-notch fa-spin"></i> Pending');
+				}
+			} else {
+				if (tgt.attr('btnType') == 'mini') {
+					tgt.addClass('btn-success');
+					tgt.html('<i class="fas fa-check"></i>');
+				} else {
+					tgt.addClass('btn-danger');
+					tgt.html('Leave');
+				}
+			}
+			break;
+
+		case "leave":
+		case "removedFromPending":
+			tgt.removeClass('confirm btn-danger btn-success btn-info');
+			tgt.attr('action', 'joinCommunity');
+
+			if (serverData.communityStatus == 'closed') {
+				// community is closed. Button should revert to non-interactive state.
+				tgt.removeClass('action');
+				tgt.attr('disabled', '');
+				if (tgt.attr('btnType') == 'mini') {
+					tgt.addClass('btn-danger');
+					tgt.html('<i class="fas fa-minus-circle"></i>');
+				} else {
+					tgt.addClass('btn-secondary');
+					tgt.html('Closed');
+				}
+			} else {
+				// user succesfully left community. Revert to "join" status.
+				if (tgt.attr('btnType') == 'mini') {
+					tgt.addClass('btn-primary');
+					tgt.html('<i class="fas fa-times"></i>');
+				} else {
+					tgt.addClass('btn-primary');
+					tgt.html('Join');
+				}
+
+			}
+			break;
+
+		case "follow":
+			tgt.removeClass('btn-primary btn-success');
+			tgt.attr('action', 'unfollowCommunity');
+			tgt.addClass('confirm');
+
+			if (tgt.attr('btnType') == 'mini') {
+				tgt.addClass('btn-success');
+				tgt.html('<i class="fas fa-check"></i>');
+			} else {
+				tgt.addClass('btn-danger');
+				tgt.html('Unfollow');
+			}
+			break;
+
+		case "unfollow":
+			tgt.removeClass('confirm btn-danger btn-success');
+			tgt.attr('action', 'followCommunity');
+
+			if (tgt.attr('btnType') == 'mini') {
+				tgt.addClass('btn-primary');
+				tgt.html('<i class="fas fa-times"></i>');
+			} else {
+				tgt.addClass('btn-primary');
+				tgt.html('Follow');
+			}
+			break;
+	}
 }
