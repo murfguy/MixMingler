@@ -260,7 +260,7 @@ function foundCommunity(e, form) {
 }
 
 // ----------------------------------------------------------
-// -- Server Query Form Confirmation.Controls ---------------
+// -- Server Query Form Confirmation Controls ---------------
 // ----------------------------------------------------------
 
 function setConfirmationActions () {
@@ -386,22 +386,85 @@ function setConfirmationActions () {
 				}
 				break;
 
-			/*
+			
 			case "promoteMember":
 				message = "This will make the target member a moderator of this community.";
 				confirmText = "Make Mod";
 				cancelText = "Keep as User";
 				alertTitle = "Making a Moderator..."; 
-				successAlert = "{username} was made a moderator for {communityName}.";
+				actionData = {
+					communityId: $(this).attr('communityId'),
+					userId: $(this).attr('userId'),
+					status: $(this).attr('action')
+				}
 				break;
 
 			case "demoteMember":
+				action = 'changeMemberStatus/';
 				message = "This will make the target member a standard member of this community.";
 				confirmText = "Remove as Mod";
 				cancelText = "Keep as Mod";
 				alertTitle = "Removing a Moderator..."; 
-				successAlert = "{username} is no longer a moderator of {communityName}.";
-				break;*/
+				actionData = {
+					communityId: $(this).attr('communityId'),
+					userId: $(this).attr('userId'),
+					status: $(this).attr('action')
+				}
+				break;
+
+			case "approveMember":
+				action = 'changeMemberStatus/';
+				action = 'changeMemberStatus/';
+				alertTitle = "Approving Member..."; 
+				actionData = {
+					communityId: $(this).attr('communityId'),
+					userId: $(this).attr('userId'),
+					status: $(this).attr('action'),
+					status: $(this).attr('action')
+				}
+				break;
+
+
+			case "denyMember":
+				action = 'changeMemberStatus/';
+				message = "This will remove this user's request to join.";
+				confirmText = "Deny";
+				cancelText = "Nevermind";
+				alertTitle = "Denying Request..."; 
+				actionData = {
+					communityId: $(this).attr('communityId'),
+					userId: $(this).attr('userId'),
+					status: $(this).attr('action')
+				}
+				break;
+
+
+			case "kickMember":
+				action = 'changeMemberStatus/';
+				message = "This will remove this user from the community.";
+				confirmText = "Kick";
+				cancelText = "Nevermind";
+				alertTitle = "Denying Request..."; 
+				actionData = {
+					communityId: $(this).attr('communityId'),
+					userId: $(this).attr('userId'),
+					status: $(this).attr('action')
+				}
+				break;
+
+
+			case "banMember":
+				action = 'changeMemberStatus/';
+				message = "This will ban this user from being able to join the community.";
+				confirmText = "Ban Hammer";
+				cancelText = "Nevermind";
+				alertTitle = "Banning Member..."; 
+				actionData = {
+					communityId: $(this).attr('communityId'),
+					userId: $(this).attr('userId'),
+					status: $(this).attr('action')
+				}
+				break;
 
 			default:
 				message = "This action will change something.";
@@ -593,6 +656,8 @@ function updateButtonView(tgt, serverData) {
 			tgt.attr('action', 'unfollowType');
 			tgt.addClass('btn-danger confirm');
 			tgt.html('Unfollow');
+
+			$("div.actionButtons button#ignore").hide();
 			break;
 
 		case "unfollowType":
@@ -600,6 +665,8 @@ function updateButtonView(tgt, serverData) {
 			tgt.attr('action', 'followType');
 			tgt.addClass('btn-primary');
 			tgt.html('Follow');
+
+			$("div.actionButtons button#ignore").show();
 			break;
 
 		case "ignoreType":
@@ -607,6 +674,7 @@ function updateButtonView(tgt, serverData) {
 			tgt.attr('action', 'unignoreType');
 			tgt.addClass('btn-danger');
 			tgt.html('Unignore');
+			$("div.actionButtons button#follow").hide();
 			break;
 
 		case "unignoreType":
@@ -614,6 +682,7 @@ function updateButtonView(tgt, serverData) {
 			tgt.attr('action', 'ignoreType');
 			tgt.addClass('btn-warning confirm');
 			tgt.html('Ignore');
+			$("div.actionButtons button#follow").show();
 			break;
 	}
 }

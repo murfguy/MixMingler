@@ -92,6 +92,8 @@ class Auth extends CI_Controller {
 					$this->news->addNews($owner['channel']['id'], "{username} joined MixMingler.", 'mingler');
 				}
 
+				$this->users->syncEmailAddress($owner['email'], $owner['channel']['id']);
+
 				$minglerData = $this->users->getUserFromMingler($owner['channel']['id']);
 				$this->users->loggedIn($owner['channel']['id']);
 

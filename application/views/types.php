@@ -26,7 +26,7 @@
 
 				echo "<h2>Followed Games</h2>";
 				if (!empty($currentUser->followedTypeList)) {
-					echo "<div class=\"typeList large row\">"; 
+					echo "<div class=\"typeList\">"; 
 						echo "<div class=\"streamerList row\">";
 						foreach ($currentUser->followedTypeList as $type) {
 
@@ -40,23 +40,11 @@
 									'viewers' => $type['viewersCurrent']
 								),
 								'cover' => $type['coverUrl']));
-						
-
-
-							/*if (empty($type['coverUrl'])) {
-								$type['coverUrl'] = "https://mixer.com/_latest/assets/images/main/types/default.jpg";
-							}
-							echo "<div class=\"typeInfo\">";
-							echo "<a href=\"/type/".$type['id']."/".$type['slug']."\"><img src=\"".$type['coverUrl']."\" class=\"coverArt\" /></a>";
-
-								echo "<p class=\"typeName\"><a href=\"/type/".$type['id']."/".$type['slug']."\">".$type['name']."</a></p>";
-								echo "<p class=\"stats\"><span class=\"onlineStat\" data-toggle=\"tooltip\" data-placement=\"bottom\" title=\"Current Streams\"><i class=\"fas fa-play-circle\"></i>  ".$type['online']."</span>&nbsp;&nbsp;&nbsp;&nbsp;<span class=\"onlineStat\" data-placement=\"bottom\"data-toggle=\"tooltip\" title=\"Current Viewers\"><i class=\"fas fa-eye\"></i> ".$type['viewersCurrent']."</span></p>";
-							echo "</div>";*/
 						}
 						echo "</div>";
 
 						echo "<h2>Followed Games with no online streams</h2>";
-						echo "<div class=\"streamerList row\">";
+						echo "<div class=\"row\">";
 							foreach ($currentUser->offlineFollowedTypeList as $type) {
 								echo card(array(
 									'id' => $type['id'],

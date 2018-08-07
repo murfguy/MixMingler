@@ -11,6 +11,7 @@ class Servlet extends CI_Controller {
 		$this->load->library('types');
 		$this->load->library('communities');
 		$this->load->library('tools');
+		$this->load->library('communications');
 
 		$this->returnData = new stdClass();
 		$this->returnData->success = false;
@@ -365,6 +366,10 @@ class Servlet extends CI_Controller {
 						$sql_query = "UPDATE mixer_users SET coreCommunities = IF(coreCommunities='', ?, concat(coreCommunities, ',', ?)) WHERE mixer_id=?";
 						$query = $this->db->query($sql_query, array($communityID, $communityID, $_SESSION['mixer_id']));
 
+						// Add member into list of joined members
+						$sql_query = "UPDATE communities SET coreMembers = IF(coreMembers='', ?, concat(coreMembers, ',', ?)) WHERE id=?";
+						$query = $this->db->query($sql_query, array($mixer_id, $mixer_id, $communityID));
+
 						$this->returnData->success = true;
 						$this->returnData->message = $community->long_name." is now one of your Core Communities.";
 						$this->returnData->completedAction = "setAsCore";
@@ -616,7 +621,7 @@ class Servlet extends CI_Controller {
 					$query = $this->db->query($sql_query, array($ignoredTypes, $mixer_id));
 
 					$this->returnData->success = true;
-					$this->returnData->message = "You are no longer following ".$type->typeName." streams.";
+					$this->returnData->message = "You are no longer ignoring ".$type->typeName." streams.";
 					$this->returnData->completedAction = "unignoreType";
 				} else {
 					$this->returnData->message = "";
@@ -773,6 +778,8 @@ class Servlet extends CI_Controller {
 				$_SESSION['mixer_user']
 			);
 			$query = $this->db->query($sql_query, $inputData);
+
+			$this->communications->sendNewCommunityRequestAlert($_SESSION['mixer_user'], $_POST['long_name']);
 		}
 		
 
@@ -887,12 +894,65 @@ class Servlet extends CI_Controller {
 	}
 
 	public function changeMemberStatus() {
-		// confirm as community admin/moderator
-		$communityID = $_POST['communityId'];
-
-		$this->returnData->success = false;
+		// Is someone logged in?
 		if (isset($_SESSION['mixer_user'])) {
-			$mixer_id = $_SESSION['mixer_id'];
+
+			// Did we get usuable data with which to check/update database?
+			if (empty($_POST['communityId']) || empty($_POST['userId']) || empty($_POST['status'])) {
+
+				$currentUserId = $_SESSION['mixer_id'];
+				$memberId = (int)$_POST['userId'];
+				$communityID = $_POST['communityId'];
+				$memberStatus = $_POST['status'];
+
+				$this->returnData->currentUserId = $currentUserId;
+				$this->returnData->memberId = $memberId;
+				$this->returnData->memberStatus = $memberStatus;
+
+				$sql_query = "SELECT admin, moderators, coreMembers, members, pendingMembers, bannedMembers FROM communities WHERE id=?";
+				$query = $this->db->query($sql_query, array($communityID));
+				$community = null; if (!empty($query->result())) { $community = $query->result()[0]; };
+
+				// And now we collect relevant data to our target user.
+				$sql_query = "SELECT name_token, coreCommunities, modCommunities, joinedCommunities, pendingCommunities FROM mixer_users WHERE mixer_id=?";
+				$query = $this->db->query($sql_query, array($mixer_id));
+				$member = null; if (!empty($query->result())) { $member = $query->result()[0]; };
+
+				// Did we collect good data?
+				if (!empty($community) && !empty($member)) {
+					$isMod = false;
+					if (!empty($community->moderators)) {
+						$isMod = in_array($currentUserId, explode(",", $community->moderators));
+					}
+					$isAdmin = ($community->admin == $currentUserId);
+
+					// Is the current user allowed to do this?
+					if ($isMod || $isAdmin) {
+
+						// We can succesfully modify the member information now
+
+					} else {
+						$this->returnData->message = "You must be an admin/moderator of this community to perform this action.";
+					}
+				} else {
+					$this->returnData->message = "";
+					if (empty($community)) { $this->returnData->message .= "The community you were trying to access was not found in the database. "; }
+					if (empty($member)) { $this->returnData->message .= "The mixer user you were trying to access was not found in the database. "; }
+				}
+
+			} else {
+				$this->returnData->message = "Community ID, User ID or desired status were not provided.";
+			}
+		} else {
+			$this->returnData->message = "No user is logged in to be able to perform this action.";
+		}
+
+
+		// confirm as community admin/moderator
+		//$communityID = $_POST['communityId'];
+
+		if (isset($_SESSION['mixer_user'])) {
+			/*$mixer_id = $_SESSION['mixer_id'];
 			$memberStatus = $_POST['status'];
 			$memberName = $_POST['memberName'];
 			$memberId = (int)$_POST['memberId'];
@@ -900,7 +960,7 @@ class Servlet extends CI_Controller {
 			$this->returnData->currentUserId = $mixer_id;
 			$this->returnData->memberId = $memberId;
 			$this->returnData->memberName = $memberName;
-			$this->returnData->memberStatus = $memberStatus;
+			$this->returnData->memberStatus = $memberStatus;*/
 
 			$sql_query = "SELECT admin, moderators, pendingMembers FROM communities WHERE id=?";
 			$query = $this->db->query($sql_query, array($communityID));
@@ -910,15 +970,14 @@ class Servlet extends CI_Controller {
 			if (!empty($community_info->moderators)) {
 				$isMod = in_array($mixer_id, explode(",", $community_info->moderators));
 			}
-
-			$isAdmin = ($community_info->admin == $mixer_id);
+			$isAdmin = false;//($community_info->admin == $mixer_id);
 
 			// This is either an admin OR a moderator, so we can execute the requested action.
 			if ($isMod || $isAdmin) {
-				$this->returnData->success = true;
-				$this->returnData->message = "User is an admin or moderator, and can execute this action.";
+				//$this->returnData->success = true;
+				//$this->returnData->message = "User is an admin or moderator, and can execute this action.";
 
-				$sql_query = "SELECT pendingCommunities FROM mixer_users WHERE mixer_id=?";
+				//$sql_query = "SELECT pendingCommunities FROM mixer_users WHERE mixer_id=?";
 				$query = $this->db->query($sql_query, array($memberId));
 				$pendingCommunities = $query->result()[0]->pendingCommunities;
 
@@ -972,7 +1031,6 @@ class Servlet extends CI_Controller {
 			// if approved, remove from pending, add to members
 			// if banned, remove from pending/members/coreMembers/moderators, add to banned
 	}
-
 
 
 	// --------------------------------------------------------------- 

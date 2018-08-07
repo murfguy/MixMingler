@@ -90,10 +90,11 @@ class Version {
 				- Can toggle 'requires approval' setting
 				- Transfer ownership
 				- Delete community
-			Moderation Tool: membership management controls completed. (Moderators) -- Target: Phase 2
+			Moderation Tool: membership management controls (Moderators) -- Target: Phase 1
 				- Promote/demote
 				- Kick
 				- Ban
+				- Approve/Deny
 
 		--- Community List page ---------------------------------------------------------
 			UI/UX overhaul  -- Target: Ongoing/Phase 3
@@ -120,10 +121,11 @@ class Version {
 			Allow selection/view of community news feeds -- Target: Phase 2
 		
 		--- User Profile Page -----------------------------------------------------------
+			Display Core Communities -- completed
 
 		--- User Account Settings -------------------------------------------------------
-			Manage communities (leave/follow/unpend) -- Target: Phase 1
-			Select Core Communities -- Target: Phase 1
+			Manage communities (leave/follow/unpend) -- completed
+			Select Core Communities -- completed
 
 		--- Type Details Page -----------------------------------------------------------
 			AJAX data collection -- Target: Phase 2
@@ -145,6 +147,12 @@ class Version {
 		$patch->date = date($date_string, strtotime('2018-08-01'));
 		$patch->notes = array();
 		$patch->notes[] = "UX tweak: Shows active type list if user is not following any types.";
+		$patch->notes[] = "UX tweak: Alerts and Confirmations occur when users interact with server operations.";
+		$patch->notes[] = "Backend: refactored server operations to better align with alert/confirm prompts";
+		$patch->notes[] = "Account Page: UI adjustments";
+		$patch->notes[] = "Account Page: Manage communities";
+		$patch->notes[] = "Account Page: Set/Unset Core Communities";
+		$patch->notes[] = "Login: Mixer email address synced upon login.";
 		$patchNotes[] = $patch;
 
 

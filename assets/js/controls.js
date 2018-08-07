@@ -8,19 +8,8 @@ var baseActionUrl = baseURL+"/servlet/";
 	$('[data-toggle="tooltip"]').tooltip();
 
 	//hidePharError();
-	
-	/*$("#protoLogin").submit(function (event) {
-		console.log("submitting!");
-		event.preventDefault();
 
-		mixer_name = $("#inputMixerName").val();
-		if (mixer_name != "") {
-			login(mixer_name);
-		}
-	})*/
-
-	
-
+	// Convert follow/ignore type buttons based on display state
 	console.log("classes: " + $("div.actionButtons.types").attr("class"));
 	if ( $("div.actionButtons.types").hasClass("followed") ) {
 		// Hide ignore, make "follow" button into "unfollow"

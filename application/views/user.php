@@ -152,12 +152,16 @@
 				if ($minglerData->registered > 0) {
 					// User is a registered Mingler Member!
 
-					echo "<div class=\"infoBox\">";
-						echo "<h6 class=\"infoHeader\">Core Communities</h6>";
-						echo "<div class=\"infoInterior\">";
-							echo "<p>coming soon</p>";
+					if ($communitiesData->core != null) {
+						echo "<div class=\"infoBox\">";
+							echo "<h6 class=\"infoHeader\">Core Communities</h6>";
+							echo "<div class=\"infoInterior\">";
+							foreach($communitiesData->core as $community) {
+								echo "<p><a href=\"/community/".$community->slug."/\">".$community->long_name."</a></p>";
+								}
+							echo "</div>";
 						echo "</div>";
-					echo "</div>";
+					}
 
 					if ($communitiesData->joined != null) {
 						echo "<div class=\"infoBox\">";

@@ -93,9 +93,9 @@ class Communities {
 
 	public function getCommunityLeads($communityId) {
 		$sql_query = "SELECT communities.id, communities.long_name, communities.admin, communities.moderators, mixer_users.name_token, mixer_users.mixer_id
-FROM communities
-JOIN mixer_users ON  FIND_IN_SET(mixer_users.mixer_id, communities.moderators) OR mixer_users.mixer_id = communities.admin
-WHERE communities.id = ?";
+		FROM communities
+		JOIN mixer_users ON FIND_IN_SET(mixer_users.mixer_id, communities.moderators) OR mixer_users.mixer_id = communities.admin
+		WHERE communities.id = ?";
 		$query = $this->CI->db->query($sql_query, array($communityId));
 		return $query->result();
 	}

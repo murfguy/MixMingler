@@ -112,6 +112,11 @@ class Users {
 		$query = $this->CI->db->query($sql_query, array($mixerId));
 	}
 
+	public function syncEmailAddress($emailAddress, $mixerId) {
+		$sql_query = "UPDATE mixer_users SET email=? WHERE mixer_id=?";
+		$query = $this->CI->db->query($sql_query, array($emailAddress, $mixerId));
+	}
+
 	public function loggedIn($mixerId) {
 		$sql_query = "UPDATE mixer_users SET previousLogin=mixer_users.lastLogin, lastLogin=NOW()  WHERE mixer_id=?";
 		$query = $this->CI->db->query($sql_query, array($mixerId));
@@ -277,6 +282,13 @@ FROM communities
 JOIN mixer_users ON FIND_IN_SET(communities.id, mixer_users.adminCommunities) OR FIND_IN_SET(communities.id, mixer_users.modCommunities)
 WHERE mixer_users.mixer_id = ? AND (communities.status='open' OR communities.status='closed')";	
 		$query = $this->CI->db->query($sql_query, array($mixer_id));
+		return  $query->result();
+	}
+
+	public function getSiteAdmins() {
+		// return data for all site admins
+		$sql_query = "SELECT *  FROM `mixer_users` WHERE `minglerRole` in ('owner', 'admin') ORDER BY name_token DESC";
+		$query = $this->CI->db->query($sql_query);
 		return  $query->result();
 	}
 }

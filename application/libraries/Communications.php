@@ -9,32 +9,43 @@ class Communications {
 		$this->CI =& get_instance();
 
 		// Load Database
-		$this->load->database();
+		$this->CI->load->database();
 		//$this->load->library('communities');
 		//$this->load->library('types');
-		$this->load->library('email');
+		$this->CI->load->library('email');
+
+		$config['charset'] = "utf-8";
+		$config['mailtype'] = "text";
+		$config['newline'] = "\r\n";
+
+		$this->CI->email->initialize($config);
+		$this->CI->email->from('alerts@mixmingler.com', 'MixMingler Alerts');
 	}
 
-	public function sendNewCommunityRequestAlert($requester, $communityName) {
+	public function sendNewCommunityRequestAlert($emailData, $messageData) {
 
-		$this->email->from('alerts@mixmingler.com', 'MixMingler Alerts');
-		$this->email->to('murfguy@gmail.com');
+		
+		$this->CI->email->to('murfguy@gmail.com');
 
-		$this->email->subject('New Community Request`');
-		$this->email->message("Greetings! It looks like $requester has placed a request to found a new community called '$communityName'. Please log in to MixMingler to approve or deny this request. This is an automated email. Do not respond.");
+		$this->CI->email->subject('New Community Request`');
+		$this->CI->email->message("Greetings! It looks like $requester has placed a request to found a new community called '$communityName'. Please log in to MixMingler to approve or deny this request. This is an automated email. Do not respond.");
 
-		$this->email->send();
+		$this->CI->email->send();
 	}
 
 
 	public function sendNewPendingMemberAlert($requester, $communityName) {
-		$this->email->from('alerts@mixmingler.com', 'MixMingler Alerts');
-		$this->email->to('murfguy@gmail.com');
+		
+		$this->CI->email->to('murfguy@gmail.com');
 
-		$this->email->subject("New Pending Member for $communityName");
-		$this->email->message("Greetings! It looks like $requester is interested in joining '$communityName'. Please log in to MixMingler to approve or deny this request. This is an automated email. Do not respond.");
+		$this->CI->email->subject("New Pending Member for $communityName");
+		$this->CI->email->message("Greetings! It looks like $requester is interested in joining '$communityName'. Please log in to MixMingler to approve or deny this request. This is an automated email. Do not respond.");
 
-		$this->email->send();
+		$this->CI->email->send();
+	}
+
+	public function sendApprovedCommunityAlert($emailData, $messageData) {
+
 	}
 }
 ?>

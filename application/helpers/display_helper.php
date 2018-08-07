@@ -21,10 +21,6 @@ if ( ! function_exists('card')) {
 					//'streamer' => "/assets/graphics/blankAvatar.png",
 				);
 
-				//if (empty($params['cover'])) {
-					//$params['cover'] = $backupCovers[$params['kind']];
-				//}
-
 				$str .= '<a href="'.$params['url'].'"><img src="'.$params['cover'].'" onerror="this.onerror=null;this.src=\''.$backupCovers[$params['kind']].'\';" class="coverArt" /></a>';
 				$str .= '<p class="typeName"><a href="'.$params['url'].'">'.$params['name'].'</a></p>';
 			
