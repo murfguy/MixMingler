@@ -43,9 +43,16 @@
 					}
 
 					echo "<div class=\"actionButtons types $state\">";
-						echo "<button type=\"button\" data-toggle=\"tooltip\" title=\"Gets updates about this game on your homepage!\" id=\"follow\" typeId=\"".$typeData->typeId."\" class=\"typeAction btn-sm btn-primary\">Follow</button>";
+						?>
+						<button class="action btn btn-sm btn-primary" id="follow" action="followType" typeId="<?php echo $typeData->typeId; ?>" userId="<?php echo $_SESSION['mixer_id']; ?>">Follow</button>
+						<button class="action btn btn-sm btn-warning" id="ignore" 
+						action="ignoreType" typeId="<?php echo $typeData->typeId; ?>" userId="<?php echo $_SESSION['mixer_id']; ?>">Ignore</button>
+						<?php
 
-						echo "<button type=\"button\" data-toggle=\"tooltip\" title=\"Hide this game in listings.\" id=\"ignore\" typeId=\"".$typeData->typeId."\" class=\"typeAction btn-sm btn-danger\">Ignore</button>";
+
+						//echo "<button type=\"button\" data-toggle=\"tooltip\" title=\"Gets updates about this game on your homepage!\" id=\"follow\" typeId=\"".$typeData->typeId."\" class=\"typeAction btn-sm btn-primary\">Follow</button>";
+
+						//echo "<button type=\"button\" data-toggle=\"tooltip\" title=\"Hide this game in listings.\" id=\"ignore\" typeId=\"".$typeData->typeId."\" class=\"typeAction btn-sm btn-danger\">Ignore</button>";
 					echo "</div>";
 				}
 

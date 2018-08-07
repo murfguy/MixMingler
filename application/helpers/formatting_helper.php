@@ -1,7 +1,7 @@
 <?php if ( ! defined('BASEPATH')) exit('No direct script access allowed');
 
 
-if ( ! function_exists('removeValueFromList')) {
+/*if ( ! function_exists('removeValueFromList')) {
 	function removeValueFromList($value, $list) {
 		//Convert list list to PHP array
 		$array = explode(",", $list);
@@ -60,4 +60,4 @@ if ( ! function_exists('getElapsedTimeString')) {
 			return number_format(ceil($elapsedTime/(60*60*24)))." days ago";
 		}
 	}
-}
+}*/

@@ -44,7 +44,7 @@ class Account extends CI_Controller {
 			} 
 
 			$pendingList = null;
-			if (!empty($minglerData->coreCommunities)) {
+			if (!empty($minglerData->pendingCommunities)) {
 				$communitiesData->pending = $this->communities->getCommunitiesFromList($minglerData->pendingCommunities);
 				$pendingList = explode(",", $minglerData->pendingCommunities);
 				$communityList = array_unique(array_merge($communityList,$pendingList), SORT_REGULAR);
@@ -77,7 +77,7 @@ class Account extends CI_Controller {
 			}
 
 			$viewData->minglerData = $minglerData;
-			//$viewData->communitiesData = $communitiesData;
+			$viewData->communitiesData = $communitiesData;
 			$viewData->communityList = $communityList;
 			$viewData->communityData = $communities;
 

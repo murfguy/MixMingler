@@ -13,6 +13,9 @@ class Tools {
 	}
 
 	public function removeValueFromList($value, $list) {
+		// Convert semi-colons to commas
+		$list = str_replace(";", ",", $list);
+
 		//Convert list list to PHP array
 		$array = explode(",", $list);
 		

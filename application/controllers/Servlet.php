@@ -443,102 +443,191 @@ class Servlet extends CI_Controller {
 	// --- Follow/Ignore Type Functions ------------------------------ 
 	// ---------------------------------------------------------------
 
-	public function followType($typeID) {
-		// Add type ID to end of "followedCommunities" in mixer_user
-
+	public function followType() {
+		$this->returnData->requestedAction = "followType";
+		
 		// If user is logged in
 		if (isset($_SESSION['mixer_user'])) {
-			// Add community ID to end of "joinedCommunities" in mixer_user
-			$sql_query = "UPDATE mixer_users SET followedTypes = IF(followedTypes='', ?, concat(followedTypes, ';', ?)) WHERE name_token=?";
-			$query = $this->db->query($sql_query, array($typeID, $typeID, $_SESSION['mixer_user']));
+			if (!empty($_POST['userId']) && !empty($_POST['typeId'])) {
+				$typeId = $_POST['typeId'];
+				$mixer_id = $_POST['userId'];
+				$this->returnData->typeId = $typeId;
+				$this->returnData->mixer_id = $mixer_id;
 
-			$this->returnData->username = $_SESSION['mixer_user'];
-			$this->returnData->typeID = $typeID;
-			$this->returnData->success = true;
-			$this->returnData->message = "Followed Type";
+				// Let's select the data we need from the community.
+				$sql_query = "SELECT typeName FROM stream_types WHERE typeId=?";
+				$query = $this->db->query($sql_query, array($typeId));
+				$type = null; if (!empty($query->result())) { $type = $query->result()[0]; };
 
+				// And now we collect relevant data to our target user.
+				$sql_query = "SELECT name_token FROM mixer_users WHERE mixer_id=?";
+				$query = $this->db->query($sql_query, array($mixer_id));
+				$member = null; if (!empty($query->result())) { $member = $query->result()[0]; };
 
-			//$this->news->addNews($_SESSION['mixer_id'], "{username} followed the {commId:$communityID} community.", "mingler");
+				if (!empty($type) && !empty($member)) {
+					$this->returnData->userName = $member->name_token;
+					$this->returnData->typeName = $type->typeName;
+
+					// Add community ID to end of "joinedCommunities" in mixer_user
+					$sql_query = "UPDATE mixer_users SET followedTypes = IF(followedTypes='', ?, concat(followedTypes, ';', ?)) WHERE name_token=?";
+					$query = $this->db->query($sql_query, array($typeId, $typeId, $_SESSION['mixer_user']));
+
+					$this->returnData->success = true;
+					$this->returnData->message = "You are now following ".$type->typeName." streams.";
+					$this->returnData->completedAction = "followType";
+
+				} else {
+					$this->returnData->message = "";
+					if (empty($type)) { $this->returnData->message .= "The stream type you were trying to access was not found in the database. "; }
+					if (empty($member)) { $this->returnData->message .= "The mixer user you were trying to access was not found in the database. "; }
+				}
+			} else {
+				$this->returnData->message = "No user or stream type id was provided.";
+			}
+		} else {
+			$this->returnData->message = "You are not logged in.";
 		}
 		$this->returnData();
 	}
 
-	public function unfollowType($typeID) {
-		// Remove community ID from "followedCommunities" in mixer_user
-		// Decrease follow count by one in communities
-		// Remove community ID from "joinedCommunities" in mixer_user
-		// Decrease follow count by one in communities
-
-		if (isset($_SESSION['mixer_user'])) {
-			// First, let's check the communities for the logged in user.
-			$sql_query = "SELECT followedTypes FROM mixer_users WHERE name_token=?";
-			$query = $this->db->query($sql_query, array($_SESSION['mixer_user']));
-			//Convert types listto PHP array
-			$types = explode(";", $query->result()[0]->followedTypes);
-			// Remove the left community from the array
-			if (($key = array_search($typeID, $types)) !== false) { unset($types[$key]); }
-			// Restore to string.
-			$types = implode(';', $types);
-			
-			// UPDATE Database with updated list of communities
-			$sql_query = "UPDATE mixer_users SET followedTypes = ? WHERE name_token=?";
-			$query = $this->db->query($sql_query, array($types, $_SESSION['mixer_user']));
-
-			$this->returnData->username = $_SESSION['mixer_user'];
-			$this->returnData->typeID = $typeID;
-			$this->returnData->success = true;
-			$this->returnData->message = "Unfollowed Type";
-
-		}
-		$this->returnData();
-	}
-
-	public function ignoreType($typeID) {
-		// Add type ID to end of "followedCommunities" in mixer_user
-
+	public function unfollowType() {
+		$this->returnData->requestedAction = "unfollowType";
 		// If user is logged in
 		if (isset($_SESSION['mixer_user'])) {
-			// Add community ID to end of "joinedCommunities" in mixer_user
-			$sql_query = "UPDATE mixer_users SET ignoredTypes = IF(ignoredTypes='', ?, concat(ignoredTypes, ',', ?)) WHERE name_token=?";
-			$query = $this->db->query($sql_query, array($typeID, $typeID, $_SESSION['mixer_user']));
+			if (!empty($_POST['userId']) && !empty($_POST['typeId'])) {
+				$typeId = $_POST['typeId'];
+				$mixer_id = $_POST['userId'];
+				$this->returnData->typeId = $typeId;
+				$this->returnData->mixer_id = $mixer_id;
 
-			$this->returnData->username = $_SESSION['mixer_user'];
-			$this->returnData->typeID = $typeID;
-			$this->returnData->success = true;
-			$this->returnData->message = "Ignored Type";
+				// Let's select the data we need from the community.
+				$sql_query = "SELECT typeName FROM stream_types WHERE typeId=?";
+				$query = $this->db->query($sql_query, array($typeId));
+				$type = null; if (!empty($query->result())) { $type = $query->result()[0]; };
 
+				// And now we collect relevant data to our target user.
+				$sql_query = "SELECT name_token, followedTypes FROM mixer_users WHERE mixer_id=?";
+				$query = $this->db->query($sql_query, array($mixer_id));
+				$member = null; if (!empty($query->result())) { $member = $query->result()[0]; };
 
-			//$this->news->addNews($_SESSION['mixer_id'], "{username} followed the {commId:$communityID} community.", "mingler");
+				if (!empty($type) && !empty($member)) {
+					$this->returnData->userName = $member->name_token;
+					$this->returnData->typeName = $type->typeName;
+
+					$followedTypes = $this->tools->removeValueFromList($typeId, $member->followedTypes);
+					$followedTypes = str_replace(",", ";", $followedTypes);
+
+					// UPDATE User date with updated list of communities
+					$sql_query = "UPDATE mixer_users SET followedTypes=? WHERE mixer_id=?";
+					$query = $this->db->query($sql_query, array($followedTypes, $mixer_id));
+
+					$this->returnData->success = true;
+					$this->returnData->message = "You are no longer following ".$type->typeName." streams.";
+					$this->returnData->completedAction = "unfollowType";
+
+				} else {
+					$this->returnData->message = "";
+					if (empty($type)) { $this->returnData->message .= "The stream type you were trying to access was not found in the database. "; }
+					if (empty($member)) { $this->returnData->message .= "The mixer user you were trying to access was not found in the database. "; }
+				}
+			} else {
+				$this->returnData->message = "No user or stream type id was provided.";
+			}
+		} else {
+			$this->returnData->message = "You are not logged in.";
 		}
 		$this->returnData();
 	}
 
-	public function unignoreType($typeID) {
-		// Remove community ID from "followedCommunities" in mixer_user
-		// Decrease follow count by one in communities
-		// Remove community ID from "joinedCommunities" in mixer_user
-		// Decrease follow count by one in communities
-
+	public function ignoreType() {
+		$this->returnData->requestedAction = "ignoreType";
+		// If user is logged in
 		if (isset($_SESSION['mixer_user'])) {
-			// First, let's check the communities for the logged in user.
-			$sql_query = "SELECT ignoredTypes FROM mixer_users WHERE name_token=?";
-			$query = $this->db->query($sql_query, array($_SESSION['mixer_user']));
-			//Convert types listto PHP array
-			$types = explode(",", $query->result()[0]->ignoredTypes);
-			// Remove the left community from the array
-			if (($key = array_search($typeID, $types)) !== false) { unset($types[$key]); }
-			// Restore to string.
-			$types = implode(',', $types);
-			
-			// UPDATE Database with updated list of communities
-			$sql_query = "UPDATE mixer_users SET ignoredTypes = ? WHERE name_token=?";
-			$query = $this->db->query($sql_query, array($types, $_SESSION['mixer_user']));
+			if (!empty($_POST['userId']) && !empty($_POST['typeId'])) {
+				$typeId = $_POST['typeId'];
+				$mixer_id = $_POST['userId'];
+				$this->returnData->typeId = $typeId;
+				$this->returnData->mixer_id = $mixer_id;
 
-			$this->returnData->username = $_SESSION['mixer_user'];
-			$this->returnData->typeID = $typeID;
-			$this->returnData->success = true;
-			$this->returnData->message = "Unignored Type";
+				// Let's select the data we need from the community.
+				$sql_query = "SELECT typeName FROM stream_types WHERE typeId=?";
+				$query = $this->db->query($sql_query, array($typeId));
+				$type = null; if (!empty($query->result())) { $type = $query->result()[0]; };
 
+				// And now we collect relevant data to our target user.
+				$sql_query = "SELECT name_token FROM mixer_users WHERE mixer_id=?";
+				$query = $this->db->query($sql_query, array($mixer_id));
+				$member = null; if (!empty($query->result())) { $member = $query->result()[0]; };
+
+				if (!empty($type) && !empty($member)) {
+					$this->returnData->userName = $member->name_token;
+					$this->returnData->typeName = $type->typeName;
+
+					// Add community ID to end of "joinedCommunities" in mixer_user
+					$sql_query = "UPDATE mixer_users SET ignoredTypes = IF(ignoredTypes='', ?, concat(ignoredTypes, ',', ?)) WHERE name_token=?";
+					$query = $this->db->query($sql_query, array($typeId, $typeId, $_SESSION['mixer_user']));
+
+					$this->returnData->success = true;
+					$this->returnData->message = "You are now ignoring ".$type->typeName." streams.";
+					$this->returnData->completedAction = "ignoreType";
+
+				} else {
+					$this->returnData->message = "";
+					if (empty($type)) { $this->returnData->message .= "The stream type you were trying to access was not found in the database. "; }
+					if (empty($member)) { $this->returnData->message .= "The mixer user you were trying to access was not found in the database. "; }
+				}
+			} else {
+				$this->returnData->message = "No user or stream type id was provided.";
+			}
+		} else {
+			$this->returnData->message = "You are not logged in.";
+		}
+		$this->returnData();
+	}
+
+	public function unignoreType() {		
+		$this->returnData->requestedAction = "unignoreType";
+		// If user is logged in
+		if (isset($_SESSION['mixer_user'])) {
+			if (!empty($_POST['userId']) && !empty($_POST['typeId'])) {
+				$typeId = $_POST['typeId'];
+				$mixer_id = $_POST['userId'];
+				$this->returnData->typeId = $typeId;
+				$this->returnData->mixer_id = $mixer_id;
+
+				// Let's select the data we need from the community.
+				$sql_query = "SELECT typeName FROM stream_types WHERE typeId=?";
+				$query = $this->db->query($sql_query, array($typeId));
+				$type = null; if (!empty($query->result())) { $type = $query->result()[0]; };
+
+				// And now we collect relevant data to our target user.
+				$sql_query = "SELECT name_token, ignoredTypes FROM mixer_users WHERE mixer_id=?";
+				$query = $this->db->query($sql_query, array($mixer_id));
+				$member = null; if (!empty($query->result())) { $member = $query->result()[0]; };
+
+				if (!empty($type) && !empty($member)) {
+					$this->returnData->userName = $member->name_token;
+					$this->returnData->typeName = $type->typeName;
+
+					$ignoredTypes = $this->tools->removeValueFromList($typeId, $member->ignoredTypes);
+
+					// UPDATE User date with updated list of communities
+					$sql_query = "UPDATE mixer_users SET ignoredTypes=? WHERE mixer_id=?";
+					$query = $this->db->query($sql_query, array($ignoredTypes, $mixer_id));
+
+					$this->returnData->success = true;
+					$this->returnData->message = "You are no longer following ".$type->typeName." streams.";
+					$this->returnData->completedAction = "unignoreType";
+				} else {
+					$this->returnData->message = "";
+					if (empty($type)) { $this->returnData->message .= "The stream type you were trying to access was not found in the database. "; }
+					if (empty($member)) { $this->returnData->message .= "The mixer user you were trying to access was not found in the database. "; }
+				}
+			} else {
+				$this->returnData->message = "No user or stream type id was provided.";
+			}
+		} else {
+			$this->returnData->message = "You are not logged in.";
 		}
 		$this->returnData();
 	}

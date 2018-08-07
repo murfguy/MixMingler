@@ -7,9 +7,9 @@ var baseActionUrl = baseURL+"/servlet/";
 
 	$('[data-toggle="tooltip"]').tooltip();
 
-	hidePharError();
+	//hidePharError();
 	
-	$("#protoLogin").submit(function (event) {
+	/*$("#protoLogin").submit(function (event) {
 		console.log("submitting!");
 		event.preventDefault();
 
@@ -17,7 +17,7 @@ var baseActionUrl = baseURL+"/servlet/";
 		if (mixer_name != "") {
 			login(mixer_name);
 		}
-	})
+	})*/
 
 	
 

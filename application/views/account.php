@@ -4,34 +4,69 @@
 	</div>
 
 			<div class="btn-group d-flex" role="group">
-				<button type="button" class="btn btn-info displayToggle" target="summaryView">Summary</button>
+				<button type="button" class="btn btn-info displayToggle" target="summaryView" disabled>Summary</button>
 				<button type="button" class="btn btn-info displayToggle" target="settingsManager">Settings</button>
 				<button type="button" class="btn btn-info displayToggle" target="typeManager">Games/Types</button>
-				<button type="button" class="btn btn-info displayToggle" target="commManager" disabled>Communities</button>
+				<button type="button" class="btn btn-info displayToggle" target="commManager">Communities</button>
 			</div>
 
 	<p class="devNote">Account Management features are planned to added/implemented alongside appropriate features. See the <a href="/alpha/">Alpha Information Page</a> for more info. Bugs or incomplete implementations are expected in this area if dev notes are present for associated tasks.</p>
 
 	<div class="row">
-		<!--<div class="col-2">
 
-			<div class="btn-group-vertical visible-xs" role="group" style="width: 100%;">
-				<button type="button" class="btn btn-info displayToggle" target="summaryView">Summary</button>
-				<button type="button" class="btn btn-info displayToggle" target="settingsManager">Settings</button>
-				<button type="button" class="btn btn-info displayToggle" target="typeManager">Games/Types</button>
-				<button type="button" class="btn btn-info displayToggle" target="commManager" disabled>Communities</button>
-			</div>
-		</div>-->
-		<div class="col-11">
+		<div class="col">
 
-			<div id="summaryView" class="inactiveView">
+			<div id="summaryView">
 				<h2>Account Summary</h2>
-				<p>Coming soon!</p>
-				<ul>
-					<li>overview of types followed/ignored</li>
-					<li>communities core/joined/followed</li>
-					<li>overview of pending new communites + pending to join</li>
-				</ul>
+				<h3>Quick Overview</h3>
+				<div class="row">
+					<div class="col">
+						<h4>MixMingler</h4>
+						<ul>
+							<li>You are a member of {joinCount} communities.</li>
+							<li>You follow {followCount} communities.</li>
+						</ul>
+						
+					</div>
+					<div class="col">
+						<h4>Mixer.com</h4>
+						<ul>
+							<li>You've been active {timesActive} over the last {elapsedTime} days.</li>
+						</ul>
+					</div>
+				</div>
+				
+				<h3>Pending Communities Information</h3>
+				<div class="row">
+					<div class="col">
+						<h4>Requests to Join</h4>
+						<p>Coming Soon</p>
+					</div>
+					<div class="col">
+						<h4>Requests to Found</h4>
+						<p>Coming Soon</p>
+					</div>
+				</div>
+
+
+				<h3>Your Core Communities</h3>
+				<div class="row">
+					<?php
+						foreach ($communitiesData->core as $community) {
+							//echo $community->long_name;
+							echo card(array(
+								'id' => $community->id,
+								'name' => $community->long_name,
+								'size' => 'med',
+								'kind' => 'community',
+								'url' => "/community/".$community->slug,
+								'stats' => array(
+									'members' => count(explode(",", $community->members))
+								),
+								'cover' => "/assets/graphics/covers/".$community->slug.".jpg"));
+						}
+					?>
+				</div>
 			</div>
 
 			<div id="typeManager" class="inactiveView">
@@ -57,12 +92,17 @@
 						<tbody>
 							<?php
 								if (!empty($followedTypesData)) {
-									foreach ($followedTypesData as $type) {
-										echo "<tr>";
+									foreach ($followedTypesData as $type) { ?>
+										<tr>
+											<td><img src="<?php echo $type->coverUrl; ?>" width="40"></td>
+											<td><a href="/type/<?php echo $type->typeId; ?>/<?php echo $type->slug; ?>\"><?php echo $type->typeName; ?></a></td>
+											<td><button class="action confirm btn btn-danger" btnType="mini" action="unfollowType" typeId="<?php echo $type->typeId; ?>" userId="<?php echo $_SESSION['mixer_id']; ?>">Unfollow</button></td>
+										</tr> <?php
+										/*echo "<tr>";
 										echo "<td><img src=\"$type->coverUrl\" width=\"40\"></td>";
 										echo "<td><a href=\"/type/$type->typeId/$type->slug\">$type->typeName</a></td>";
 										echo "<td><button type=\"button\" data-toggle=\"tooltip\" title=\"Stop getting updates about this game.\" id=\"unfollow\" typeId=\"".$type->typeId."\" class=\"typeAction btn btn-sm btn-danger\">Unfollow</button></td>";
-										echo "</tr>";
+										echo "</tr>";*/
 									}
 								} else {
 									echo "<tr>";
@@ -75,7 +115,7 @@
 					</div>
 					
 
-					<div id="typeIgnored">
+					<div id="typeIgnored" class="inactiveView">
 						<h3>Ignored Games/Types</h3>
 					<table class="table table-striped table-bordered table-hover table-sm ">
 						<thead class="thead-dark">
@@ -88,12 +128,18 @@
 						<tbody>
 							<?php
 								if (!empty($ignoredTypesData)) {
-									foreach ($ignoredTypesData as $type) {
-										echo "<tr>";
-										echo "<td><img src=\"$type->coverUrl\" width=\"40\"></td>";
-										echo "<td><a href=\"/type/$type->typeId/$type->slug\">$type->typeName</a></td>";
-										echo "<td><button type=\"button\" data-toggle=\"tooltip\" title=\"Have this game show up in lists again.\" id=\"unignore\" typeId=\"".$type->typeId."\" class=\"typeAction btn btn-sm btn-danger\">Unignore</button></td>";
-										echo "</tr>";
+									foreach ($ignoredTypesData as $type) { ?>
+										<tr>
+											<td><img src="<?php echo $type->coverUrl; ?>" width="40"></td>
+											<td><a href="/type/<?php echo $type->typeId; ?>/<?php echo $type->slug; ?>\"><?php echo $type->typeName; ?></a></td>
+											<td><button class="action btn btn-danger" btnType="mini" action="unignoreType" typeId="<?php echo $type->typeId; ?>" userId="<?php echo $_SESSION['mixer_id']; ?>">Unignore</button></td>
+										</tr>
+										<?php 
+										//echo "<tr>";
+										//echo "<td><img src=\"$type->coverUrl\" width=\"40\"></td>";
+										//echo "<td><a href=\"/type/$type->typeId/$type->slug\">$type->typeName</a></td>";
+										//echo "<td><button type=\"button\" data-toggle=\"tooltip\" title=\"Have this game show up in lists again.\" id=\"unignore\" typeId=\"".$type->typeId."\" class=\"typeAction btn btn-sm btn-danger\">Unignore</button></td>";
+										//echo "</tr>";
 									}
 								} else {
 									echo "<tr>";
@@ -108,15 +154,8 @@
 				</div>
 			</div>
 
-			<div id="commManager">
+			<div id="commManager" class="inactiveView">
 				<h2>Manage Communities</h2>
-
-				<h3>Your Core Communities</h3>
-				<div class="row">
-					<p>Coming soon: see your current core communities.</p>
-				</div>
-
-				<h3>Your Communities</h3>
 				<p>Click a button to toggle status.</p>
 
 				<table class="table table-striped table-bordered table-hover table-sm ">
@@ -132,9 +171,7 @@
 						<?php foreach ($communityData as $community) { ?>
 							<tr>
 								<td><?php echo $community->long_name; ?></td>
-
 								<?php 
-
 									// Joined Community Button
 									if ($community->joined) {
 										if ($community->admin == $_SESSION['mixer_id']) {
@@ -180,72 +217,12 @@
 
 								?>
 
-								
-								<!--<td><button class="btn btn-success"><i class="fas fa-check"></i></button></td>
-								<td><button class="btn btn-primary"><i class="fas fa-thumbs-up"></i></i></button></td>-->
 							</tr>
 						<?php } ?>
 
-						<!--<tr>
-							<td>[img]</td>
-							<td>Joined/Followed, Not Core</td>
-							<td><button class="btn btn-success"><i class="fas fa-check"></i></button></td>
-							<td><button class="btn btn-success"><i class="fas fa-check"></i></button></td>
-							<td><button class="btn btn-primary"><i class="fas fa-thumbs-up"></i></i></button></td>
-						</tr>
-						<tr>
-							<td>[img]</td>
-							<td>Followed Only</td>
-							<td><button class="btn btn-primary"><i class="fas fa-times"></i></button></td>
-							<td><button class="btn btn-success"><i class="fas fa-check"></i></button></td>
-							<td><button class="btn btn-secondary" disabled><i class="fas fa-minus-circle"></i></button></td>
-						</tr>
-						<tr>
-							<td>[img]</td>
-							<td>Joined Only, Not Core</td>
-							<td><button class="btn btn-success"><i class="fas fa-check"></i></button></td>
-							<td><button class="btn btn-primary"><i class="fas fa-times"></i></button></td>
-							<td><button class="btn btn-primary"><i class="fas fa-thumbs-up"></i></i></button></td>
-						</tr>
-						<tr>
-							<td>[img]</td>
-							<td>Joined/Followed/Core</td>
-							<td><button class="btn btn-success"><i class="fas fa-check"></i></button></td>
-							<td><button class="btn btn-success"><i class="fas fa-check"></i></button></td>
-							<td><button class="btn btn-success"><i class="fas fa-check"></i></button></td>
-						</tr>
-						<tr>
-							<td>[img]</td>
-							<td>Pending Join</td>
-							<td><button class="btn btn-info"><i class="fas fa-circle-notch fa-spin"></i></button></td>
-							<td><button class="btn btn-success"><i class="fas fa-check"></i></button></td>
-							<td><button class="btn btn-secondary" disabled><i class="fas fa-minus-circle"></i></button></td>
-						</tr>
-						<tr>
-							<td>[img]</td>
-							<td>Closed, but followed</td>
-							<td><button class="btn btn-secondary" disabled><i class="fas fa-minus-circle"></i></button></td>
-							<td><button class="btn btn-success"><i class="fas fa-check"></i></button></td>
-							<td><button class="btn btn-secondary" disabled><i class="fas fa-minus-circle"></i></button></td>
-						</tr>-->
+						
 					</tbody>
 				</table>
-
-				<!--<div class="btn-group btn-group-justified" style="width:50%" role="group">
-					<button type="button" class="btn btn-info displayToggle" target="typeFollowed" disabled>Joined</button>
-					<button type="button" class="btn btn-info displayToggle" target="typeIgnored">Followed</button>
-				</div>
-
-				<div class="windowGroup">
-					<div id="joinedComms">
-						<h4>Joined Communities</h4>
-						<p>coming soon!</p>
-					</div>
-					<div id="followedComms">
-						<h4>Joined Communities</h4>
-						<p>coming soon!</p>
-					</div>
-				</div>-->
 			</div>
 
 			<div id="settingsManager" class="inactiveView">

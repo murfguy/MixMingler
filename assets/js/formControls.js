@@ -341,31 +341,52 @@ function setConfirmationActions () {
 				message = "This will no longer be one of your core communities!";
 				confirmText = "Do it!";
 				cancelText = "Keep as Core";
-				alertTitle = "Removing as a Core Community..."; 				
+				alertTitle = "Removing as a Core Community...";
 				actionData = {
 					communityId: $(this).attr('communityId'),
 					userId: $(this).attr('userId')
 				}
 				break;
 
-			/*case "unfollowType":
-				message = "You won't see this stream type in your preferred listings!";
-				confirmText = "Unfollow";
+			case "followType":
+				alertTitle = "Following Stream Type..."; 
+				actionData = {
+					typeId: $(this).attr('typeId'),
+					userId: $(this).attr('userId')
+				}
+				break;
+
+			case "unfollowType":
+				message = "This will no longer show up as a preferred type.";
+				confirmText = "Unfollow Type";
 				cancelText = "Keep Following";
-				alertTitle = "Unfollowing Stream Type..."; 
-				successAlert = "You succesfully unfollowed {typeName}."; 
+				alertTitle = "Following Stream Type..."; 
+				actionData = {
+					typeId: $(this).attr('typeId'),
+					userId: $(this).attr('userId')
+				}
 				break;
 
 			case "ignoreType":
-				message = "This will be hidden from the types listing page.";
-				confirmText = "Ignore";
+				message = "This will be hidden from any large lists of stream types.";
+				confirmText = "Ignore it!";
 				cancelText = "Nevermind";
 				alertTitle = "Ignoring Stream Type..."; 
-				successAlert = "You succesfully ignored {typeName}."; 
+				actionData = {
+					typeId: $(this).attr('typeId'),
+					userId: $(this).attr('userId')
+				}
 				break;
 
-			
+			case "unignoreType":
+				alertTitle = "Unignoring Stream Type..."; 
+				actionData = {
+					typeId: $(this).attr('typeId'),
+					userId: $(this).attr('userId')
+				}
+				break;
 
+			/*
 			case "promoteMember":
 				message = "This will make the target member a moderator of this community.";
 				confirmText = "Make Mod";
@@ -565,6 +586,34 @@ function updateButtonView(tgt, serverData) {
 			tgt.attr('action', 'setAsCore');
 			tgt.addClass('btn-primary');
 			tgt.html('<i class="fas fa-thumbs-up"></i>');
+			break;
+
+		case "followType":
+			tgt.removeClass('confirm btn-danger');
+			tgt.attr('action', 'unfollowType');
+			tgt.addClass('btn-danger confirm');
+			tgt.html('Unfollow');
+			break;
+
+		case "unfollowType":
+			tgt.removeClass('confirm btn-danger');
+			tgt.attr('action', 'followType');
+			tgt.addClass('btn-primary');
+			tgt.html('Follow');
+			break;
+
+		case "ignoreType":
+			tgt.removeClass('confirm btn-danger');
+			tgt.attr('action', 'unignoreType');
+			tgt.addClass('btn-danger');
+			tgt.html('Unignore');
+			break;
+
+		case "unignoreType":
+			tgt.removeClass('confirm btn-danger');
+			tgt.attr('action', 'ignoreType');
+			tgt.addClass('btn-warning confirm');
+			tgt.html('Ignore');
 			break;
 	}
 }
