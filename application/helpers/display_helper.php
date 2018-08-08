@@ -69,6 +69,68 @@ if ( ! function_exists('card')) {
 	}
 }
 
+if ( ! function_exists('action_button')) {
+	function action_button($params) {
+		/*$params = [
+			'state' => 'success',
+			'confirm' => true,
+			'action' => 'promoteMember',
+			'disabled' => true,
+			'communityId' => 1,
+			'userId' => 255317,
+			'typeId' => 70323,
+			'btnType' => 'mini',
+			'displayType' => 'icon',
+			'content' => 'chess-knight'
+		];*/
+
+		if (!empty($params)) {
+			if (empty($params['state'])) {$params['state'] = 'primary'; }
+			if (empty($params['confirm'])) {$params['confirm'] = false; }
+			if (empty($params['displayType'])) {$params['displayType'] = 'text'; }
+			if (empty($params['disabled'])) {$params['disabled'] = false; }
+
+			$str = '<button';
+				if ($params['disabled']) { 
+					$str .=' disabled class="btn'; 
+				} else {
+					$str.= ' class="action btn';
+				}
+
+				if ($params['confirm']) { $str .=' confirm'; }
+				if (!empty($params['size'])) { $str .=' btn-'.$params['size']; }
+				if (!empty($params['state'])) { $str .=' btn-'.$params['state']; }
+			$str .= '"'; // end of class attribute
+
+			$str .=' action="'.$params['action'].'"';
+
+			if (!empty($params['communityId'])) { $str .=' communityId="'.$params['communityId'].'"'; }
+			if (!empty($params['userId'])) { $str .=' userId="'.$params['userId'].'"'; }
+			if (!empty($params['typeId'])) { $str .=' typeId="'.$params['typeId'].'"'; }
+			if (!empty($params['btnType'])) { $str .=' btnType="'.$params['btnType'].'"'; }
+
+
+			$str .= '>'; // end of <button>
+
+			if ($params['displayType'] == 'icon') {
+				$str .= '<i class="fas fa-'.$params['content'].'"></i>';
+			} else {
+				$str .= $content;
+			}
+
+
+			$str .= '</button>';
+
+		} else {
+			$str .= '<button class="btn btn-outline-danger>No data</button>';
+		}
+
+		
+
+		return $str;
+	}
+} // actionButton
+
 if ( ! function_exists('newsDisplay')) {
 	function newsDisplay($params = array()) {
 		if (!empty($params)) {

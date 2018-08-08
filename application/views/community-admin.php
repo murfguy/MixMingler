@@ -110,45 +110,38 @@
 			<div id="summaryView" class="inactiveView"></div>
 
 			<div id="memberManager">
+
 				<div class="pageHeader">
 					<h2>Member Management</h2>
 				</div>
-				<?php
-					if (!empty($pendingMembers)) { ?>
-						<h4>Pending Members</h4>
-						<p class="devNote">Only "approve"  and "deny" work right now.</p>
-						<table class="table table-striped table-bordered table-hover table-sm ">
-							<thead class="thead-dark">
-								<tr>
-									<th>User</th>
-									<th>Approve</th>
-									<th>Deny</th>
-									<th>Ban</th>
-								</tr>
-							</thead>
-						<?php foreach ($pendingMembers as $member) { ?>
-							<tr>
-								<td><?php echo $member->name_token ?></td>
-								<td id="approveUser-<?php echo $member->mixer_id ?>"><button class="modAction btn btn-success" btnAction="approve" memberId="<?php echo $member->mixer_id ?>" commId="<?php echo $community_info->id; ?>" memberName="<?php echo $member->name_token ?>" data-toggle="tooltip" title="Approve Member"><i class="fas fa-thumbs-up"></i></button></td>
-								<td id="denyUser-<?php echo $member->mixer_id ?>"><button  class="modAction btn btn-warning" btnAction="deny" memberId="<?php echo $member->mixer_id ?>" commId="<?php echo $community_info->id; ?>"  memberName="<?php echo $member->name_token ?>" data-toggle="tooltip" title="Deny Member"><i class="fas fa-thumbs-down"></i></button></td>
-								<td><button class="btn btn-danger" data-toggle="tooltip" title="Ban Member"><i class="fas fa-ban"></i></td>
-							</tr>
-						<?php } ?>
 
-						</table>
-				<?php }	?>
+				<div class="btn-group btn-group-justified" style="width:50%" role="group">
+					<button type="button" class="btn btn-info displayToggle" target="allMembers" disabled>All Members</button>
+					<?php if ($community_info->approveMembers) { ?><button type="button" class="btn btn-info displayToggle" target="pendingMembers">Pending Members</button><? } ?>
+					<button type="button" class="btn btn-info displayToggle" target="bannedMembers">Banned Members</button>
+				</div>
 
-				<?php
+
+				<div class="windowGroup">
+
+					<?php
+						$buttonParams = [
+							'communityId' => $community_info->id,
+							'btnType' => 'mini',
+							'displayType' => 'icon'
+						];
+					?>
+					<div id="allMembers">
+						<?php
 					if (!empty($members)) { ?>
 						<h4>All Members</h4>
-						<p class="devNote">No actions work at present.</p>
 						<table class="table table-striped table-bordered table-hover table-sm ">
 							<thead class="thead-dark">
 								<tr>
-									<th>User</th>
-									<th>Promote/Demote</th>
-									<th>Kick</th>
-									<th>Ban</th>
+									<th width="70%">User</th>
+									<th width="10%">Promote/Demote</th>
+									<th width="10%">Kick</th>
+									<th width="10%">Ban</th>
 								</tr>
 							</thead>
 						<?php 
@@ -160,6 +153,9 @@
 								if (in_array($member->mixer_id, $moderatorIds)) { $memberIs = "mod"; }
 								if ($member->mixer_id == $community_info->admin) { $memberIs = "admin"; }
 
+								$buttonParams['disabled'] = false;
+								$buttonParams['confirm'] = false;
+
 							?>
 							<tr>
 								<td><?php echo $member->name_token; ?>
@@ -169,32 +165,199 @@
 								<?php 
 									switch ($memberIs) {
 										case "admin":
-											?> <i class="fas fa-crown" style="color:gold"></i></td><td><i class="fas fa-crown" style="color:gold"></i> Admin<?php
+											?> <i class="fas fa-crown" style="color:gold"></i></td><td><?php 
+										$buttonParams['state'] = 'secondary';
+										$buttonParams['action'] = 'kickMember';
+										$buttonParams['disabled'] = true;
+										$buttonParams['content'] = 'minus-circle';
+										$buttonParams['userId'] = $member->mixer_id;
+
+										echo action_button($buttonParams); ?></td><?php
 											break;
 
 										case "mod":
-											?> <i class="fas fa-chess-knight" style="color: silver"></i></td><td><button class="btn btn-secondary action confirm" data-toggle="tooltip" title="Demote to Member" btnType="mini" action="demoteMember" communityId="<?php echo $community_info->id; ?>" userId="<?php echo $member->mixer_id; ?>"><i class="fas fa-user"></i></button><?php
+											?> <i class="fas fa-chess-knight" style="color: silver"></i></td><td>
+
+												<?php 
+							
+												$buttonParams['state'] = 'secondary';
+												$buttonParams['confirm'] = true;
+												$buttonParams['action'] = 'demoteMember';
+												$buttonParams['content'] = 'user';
+												$buttonParams['userId'] = $member->mixer_id;
+
+												echo action_button($buttonParams);	
 											break;
 
 										case "user":
 										default:
-											?></td><td><button class="btn btn-success action confirm" data-toggle="tooltip" title="Promote to Moderator" action="promoteMember" communityId="<?php echo $community_info->id; ?>" userId="<?php echo $member->mixer_id; ?>"><i class="fas fa-chess-knight"></i></button><?php
+											?></td><td>
+
+												<?php 
+							
+												$buttonParams['state'] = 'success';
+												$buttonParams['confirm'] = true;
+												$buttonParams['action'] = 'promoteMember';
+												$buttonParams['content'] = 'chess-knight';
+												$buttonParams['userId'] = $member->mixer_id;
+
+												echo action_button($buttonParams);	
 											break;
 									}?>
 								</td>
 								
 								<?php if ($memberIs == "user") { ?>
-									<td><button class="btn btn-danger" data-toggle="tooltip" title="Kick Member"action="kickMember" communityId="<?php echo $community_info->id; ?>" userId="<?php echo $member->mixer_id; ?>"><i class="fas fa-thumbs-down"></i></button></td>
-									<td><button class="btn btn-danger" data-toggle="tooltip" title="Ban Member" action="banMember" communityId="<?php echo $community_info->id; ?>" userId="<?php echo $member->mixer_id; ?>"><i class="fas fa-ban"></i></td>
+									<td><?php 
+										$buttonParams['state'] = 'danger';
+										$buttonParams['confirm'] = true;
+										$buttonParams['action'] = 'kickMember';
+										$buttonParams['content'] = 'trash';
+										$buttonParams['userId'] = $member->mixer_id;
+
+										echo action_button($buttonParams); ?></td>
+
+									<td><?php 
+										$buttonParams['state'] = 'danger';
+										$buttonParams['confirm'] = true;
+										$buttonParams['action'] = 'banMember';
+										$buttonParams['content'] = 'ban';
+										$buttonParams['userId'] = $member->mixer_id;
+
+										echo action_button($buttonParams); ?></td>
 								<?php } else { ?>
-									<td colspan="2">Cannot remove or ban.</td>
+									<td><?php 
+										$buttonParams['state'] = 'secondary';
+										$buttonParams['action'] = 'kickMember';
+										$buttonParams['disabled'] = true;
+										$buttonParams['content'] = 'minus-circle';
+										$buttonParams['userId'] = $member->mixer_id;
+
+										echo action_button($buttonParams); ?></td>
+
+									<td><?php 
+										$buttonParams['state'] = 'secondary';
+										$buttonParams['action'] = 'banMember';
+										$buttonParams['disabled'] = true;
+										$buttonParams['content'] = 'minus-circle';
+										$buttonParams['userId'] = $member->mixer_id;
+
+										echo action_button($buttonParams); ?></td>
+
 								<?php } ?>
 								
 							</tr>
 						<?php }  ?>
 
 						</table>
-				<?php }	?>
+					<?php }	else { ?>
+						<p>No one is in this community.... which is odd, because the admin should be.</p>
+					<?php }  ?>
+					</div> <!-- allMembers -->
+
+					<div id="pendingMembers" class="inactiveView">
+						<h4>Pending Members</h4>
+							<?php if (!empty($pendingMembers)) { ?>
+							
+							<table class="table table-striped table-bordered table-hover table-sm ">
+								<thead class="thead-dark">
+									<tr>
+										<th width="70%">User</th>
+										<th width="10%">Approve</th>
+										<th width="10%">Deny</th>
+										<th width="10%">Ban</th>
+									</tr>
+								</thead>
+							<?php foreach ($pendingMembers as $member) { ?>
+								<tr>
+									<td><?php echo $member->name_token ?></td>
+
+
+									<td><?php 
+										$buttonParams['state'] = 'success';
+										$buttonParams['action'] = 'approveMember';
+										$buttonParams['content'] = 'thumbs-up';
+										$buttonParams['userId'] = $member->mixer_id;
+										$buttonParams['confirm'] = false;
+
+										echo action_button($buttonParams); ?></td>
+
+									<td><?php 
+										$buttonParams['state'] = 'danger';
+										$buttonParams['action'] = 'denyMember';
+										$buttonParams['content'] = 'thumbs-down';
+										$buttonParams['userId'] = $member->mixer_id;
+										$buttonParams['confirm'] = true;
+
+										echo action_button($buttonParams); ?></td>
+
+									<td><?php 
+										$buttonParams['state'] = 'danger';
+										$buttonParams['action'] = 'banMember';
+										$buttonParams['content'] = 'ban';
+										$buttonParams['userId'] = $member->mixer_id;
+										$buttonParams['confirm'] = true;
+
+										echo action_button($buttonParams); ?></td>
+
+
+									<!--<td id="approveUser-<?php echo $member->mixer_id ?>"><button class="modAction btn btn-success" btnAction="approve" memberId="<?php echo $member->mixer_id ?>" commId="<?php echo $community_info->id; ?>" memberName="<?php echo $member->name_token ?>" data-toggle="tooltip" title="Approve Member"><i class="fas fa-thumbs-up"></i></button></td>
+									<td id="denyUser-<?php echo $member->mixer_id ?>"><button  class="modAction btn btn-warning" btnAction="deny" memberId="<?php echo $member->mixer_id ?>" commId="<?php echo $community_info->id; ?>"  memberName="<?php echo $member->name_token ?>" data-toggle="tooltip" title="Deny Member"><i class="fas fa-thumbs-down"></i></button></td>
+									<td><button class="btn btn-danger" data-toggle="tooltip" title="Ban Member"><i class="fas fa-ban"></i></td>-->
+								</tr>
+							<?php } ?>
+
+							</table>
+						<?php } else { ?>
+							<p>There are no currently pending members.</p>
+						<?php } ?>
+					</div>
+
+					<div id="bannedMembers" class="inactiveView">
+						<h4>Banned Members</h4>
+							<?php if (!empty($bannedMembers)) { ?>
+							
+							<table class="table table-striped table-bordered table-hover table-sm ">
+								<thead class="thead-dark">
+									<tr>
+										<th width="90%">User</th>
+										<th width="10%">Unban</th>
+									</tr>
+								</thead>
+							<?php foreach ($bannedMembers as $member) { ?>
+								<tr>
+									<td><?php echo $member->name_token ?></td>
+
+									
+										<td><?php 
+										$buttonParams['state'] = 'primary';
+										$buttonParams['confirm'] = true;
+										$buttonParams['action'] = 'unbanMember';
+										$buttonParams['content'] = 'backspace';
+										$buttonParams['userId'] = $member->mixer_id;
+
+										echo action_button($buttonParams); ?></td>
+									
+
+
+									<!--<td id="approveUser-<?php echo $member->mixer_id ?>"><button class="modAction btn btn-success" btnAction="approve" memberId="<?php echo $member->mixer_id ?>" commId="<?php echo $community_info->id; ?>" memberName="<?php echo $member->name_token ?>" data-toggle="tooltip" title="Approve Member"><i class="fas fa-thumbs-up"></i></button></td>-->
+									<!--<td id="denyUser-<?php echo $member->mixer_id ?>"><button  class="modAction btn btn-warning" btnAction="deny" memberId="<?php echo $member->mixer_id ?>" commId="<?php echo $community_info->id; ?>"  memberName="<?php echo $member->name_token ?>" data-toggle="tooltip" title="Deny Member"><i class="fas fa-thumbs-down"></i></button></td>
+									<td><button class="btn btn-danger" data-toggle="tooltip" title="Ban Member"><i class="fas fa-ban"></i></td>-->
+								</tr>
+							<?php } ?>
+
+							</table>
+						<?php } else { ?>
+							<p>There are no banned members. Lucky you!</p>
+						<?php } ?>
+					</div>
+				</div>
+
+
+
+
+					
+
+				
 
 				<!--<?php if ($currentUser->isAdmin) { ?> 
 				<h3>Admin Only Features</h3>

@@ -46,12 +46,13 @@ class Community extends CI_Controller {
 			// Get all Community Members
 			$members = $this->communities->getCommunityMembersFromList($community_info->members);
 			$followers = $this->communities->getCommunityMembersFromList($community_info->followers);
-			//$coreMembers = $this->communities->getCommunityMembersFromList($community_info->id, $community_info->coreMembers);
+			$coreMembers = $this->communities->getCommunityMembersFromList($community_info->coreMembers, 'name_token', 'ASC');
 			$admin = $this->communities->getCommunityMembersFromList($community_info->admin)[0];
 			$founder = $this->communities->getCommunityMembersFromList($community_info->founder)[0];
 			$moderators = $this->communities->getCommunityMembersFromList($community_info->moderators, 'name_token', 'ASC');
 			$pendingMembers = $this->communities->getCommunityMembersFromList($community_info->pendingMembers);
-			//$bannedMembers = $this->communities->getCommunityMembersFromList($community_info->id, $community_info->bannedMembers);
+			$bannedMembers = $this->communities->getCommunityMembersFromList($community_info->bannedMembers, 'name_token', 'ASC');
+	
 
 			// Get admin and mods
 			$community_leads = $this->communities->getCommunityLeads($data->community_info->id);
@@ -122,9 +123,9 @@ class Community extends CI_Controller {
 			$data->followers = $followers;
 			$data->admin = $admin;
 			$data->moderators = $moderators;
-			//$data->coreMembers = $members;
+			$data->coreMembers = $coreMembers;
 			$data->pendingMembers = $pendingMembers;
-			//$data->bannedMembers = $members;
+			$data->bannedMembers = $bannedMembers;
 			$data->community_leads = $community_leads;
 			$data->online_members = $online_members;
 			//$this->load->view('community-admin', $data);

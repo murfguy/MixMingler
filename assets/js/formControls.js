@@ -388,6 +388,7 @@ function setConfirmationActions () {
 
 			
 			case "promoteMember":
+				action = 'changeMemberStatus/';
 				message = "This will make the target member a moderator of this community.";
 				confirmText = "Make Mod";
 				cancelText = "Keep as User";
@@ -414,12 +415,10 @@ function setConfirmationActions () {
 
 			case "approveMember":
 				action = 'changeMemberStatus/';
-				action = 'changeMemberStatus/';
 				alertTitle = "Approving Member..."; 
 				actionData = {
 					communityId: $(this).attr('communityId'),
 					userId: $(this).attr('userId'),
-					status: $(this).attr('action'),
 					status: $(this).attr('action')
 				}
 				break;
@@ -459,6 +458,19 @@ function setConfirmationActions () {
 				confirmText = "Ban Hammer";
 				cancelText = "Nevermind";
 				alertTitle = "Banning Member..."; 
+				actionData = {
+					communityId: $(this).attr('communityId'),
+					userId: $(this).attr('userId'),
+					status: $(this).attr('action')
+				}
+				break;
+
+			case "unbanMember":
+				action = 'changeMemberStatus/';
+				message = "This will restore a user's ability to join this community.";
+				confirmText = "Restore User";
+				cancelText = "Nevermind";
+				alertTitle = "Unbanning Member..."; 
 				actionData = {
 					communityId: $(this).attr('communityId'),
 					userId: $(this).attr('userId'),
@@ -683,6 +695,60 @@ function updateButtonView(tgt, serverData) {
 			tgt.addClass('btn-warning confirm');
 			tgt.html('Ignore');
 			$("div.actionButtons button#follow").show();
+			break;
+
+
+		case "approveMember":
+			tgt.closest('tr').html('<td>'+serverData.memberName+'\'s membership was approved.</td>');
+			break;
+		case "denyMember":
+			tgt.closest('tr').html('<td>'+serverData.memberName+' was denied membership.</td>');
+			break;
+
+		case "kickMember":
+			tgt.closest('tr').html('<td>'+serverData.memberName+' was kicked from the community.</td>');
+			break;
+
+		case "promoteMember":
+			tgt.removeClass('confirm btn-success');
+			tgt.attr('action', 'demoteMember');
+			tgt.addClass('btn-secondary confirm');
+			tgt.html('<i class="fas fa-user"></i>');
+
+			$("button[userId='"+serverData.memberId+"'][action='banMember']").removeClass('action confirm btn-danger');
+			$("button[userId='"+serverData.memberId+"'][action='banMember']").attr('disabled', '');
+			$("button[userId='"+serverData.memberId+"'][action='banMember']").addClass('btn-secondary')
+			$("button[userId='"+serverData.memberId+"'][action='banMember']").html('<i class="fas fa-minus-circle"></i>')
+
+			$("button[userId='"+serverData.memberId+"'][action='kickMember']").removeClass('action confirm btn-danger');
+			$("button[userId='"+serverData.memberId+"'][action='kickMember']").attr('disabled', '');
+			$("button[userId='"+serverData.memberId+"'][action='kickMember']").addClass('btn-secondary')
+			$("button[userId='"+serverData.memberId+"'][action='kickMember']").html('<i class="fas fa-minus-circle"></i>')
+			break;
+
+		case "demoteMember":
+			tgt.removeClass('confirm btn-secondary');
+			tgt.attr('action', 'demoteMember');
+			tgt.addClass('btn-success confirm');
+			tgt.html('<i class="fas fa-chess-knight"></i>');
+
+			$("button[userId='"+serverData.memberId+"'][action='banMember']").removeClass('btn-secondary');
+			$("button[userId='"+serverData.memberId+"'][action='banMember']").removeAttr('disabled');
+			$("button[userId='"+serverData.memberId+"'][action='banMember']").addClass('btn-danger action confirm')
+			$("button[userId='"+serverData.memberId+"'][action='banMember']").html('<i class="fas fa-ban"></i>')
+
+			$("button[userId='"+serverData.memberId+"'][action='kickMember']").removeClass('btn-secondary');
+			$("button[userId='"+serverData.memberId+"'][action='kickMember']").removeAttr('disabled');
+			$("button[userId='"+serverData.memberId+"'][action='kickMember']").addClass('btn-danger action confirm')
+			$("button[userId='"+serverData.memberId+"'][action='kickMember']").html('<i class="fas fa-trash"></i>')
+
+			break;
+
+		case "banMember":
+			tgt.closest('tr').html('<td>'+serverData.memberName+' was banned from the community.</td>');
+			break;
+		case "unbanMember":
+			tgt.closest('tr').html('<td>'+serverData.memberName+' was unbanned from the community.</td>');
 			break;
 	}
 }
