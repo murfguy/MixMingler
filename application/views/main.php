@@ -60,6 +60,15 @@
 		</div> <!-- #leftColumn -->
 	
 		<div class="col-7 userFeed" id="centerColumn">
+			
+			<div class="infoBox">
+				<h4 class="infoHeader">Site Admin Notices</h4>
+				<div class="infoInterior">
+					<p class="devNote">Shows list of pending communities that need approval.</p>
+				</div><!-- infoInterior -->
+			</div><!-- infoBox/Site Admin Notices -->
+
+
 			<?php 
 				$hasNotices = false;
 				if ($approvedCommunities != null) { $hasNotices = true; } 
@@ -68,8 +77,9 @@
 
 				if ($hasNotices) { ?>
 
+
 				<div class="infoBox">
-					<h4 class="infoHeader">Community Notices</h4>
+					<h4 class="infoHeader">Moderator Notices</h4>
 					<div class="infoInterior">
 
 					<?php if ($approvedCommunities != null) { ?>
@@ -103,7 +113,7 @@
 						<h4>Your community has been denied approval.</h4>
 
 						<?php foreach ($rejectedCommunities as $community) { ?>
-							<table>
+							<table class="table">
 								<tr>
 									<td><?php echo $community->long_name; ?></td>
 									<td>Admin: <?php echo $community->adminName; ?></td>
@@ -129,7 +139,7 @@
 						<h4>Your new community pending approval.</h4>
 
 						<?php foreach ($pendingCommunities as $community) { ?>
-							<table>
+							<table class="table">
 								<tr>
 									<td><?php echo $community->long_name; ?></td>
 									<td>Requested on: <?php echo date('F. d, Y', strtotime($community->requestTime)); ?></td>

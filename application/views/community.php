@@ -80,18 +80,30 @@
 									<button type="button" class="action confirm btn btn-sm btn-danger" action="leaveCommunity" communityId="<?php echo $community_info->id; ?>" userId="<?php echo $_SESSION['mixer_id']; ?>">Leave</button>
 									<!--echo "<button type=\"button\" data-toggle=\"tooltip\" title=\"Leave this community.\" id=\"leave\" commId=\"".$community_info->id."\" class=\"commAction btn-sm btn-danger\">Leave</button>"; --><?php
 								} else { 
-									if ($community_info->status == 'closed') {
-										//echo "secondary\" disabled>Closed</button>";
-										?><button type="button" class="btn btn-sm btn-secondary" action="joinCommunity" communityId="<?php echo $community_info->id; ?>" userId="<?php echo $_SESSION['mixer_id']; ?>" disabled>Closed</button><?php
+									if ($currentUser->isBanned) {
+										$params = [
+											'displayType' => 'text',
+											'content' => 'Banned',
+											'state' => 'dark',
+											'disabled' => true,
+											'size' => 'sm'
+										];
+										echo action_button($params);
 									} else {
-										if ($currentUser->isPending) {
-											//echo "info\" id=\"unpend\">Pending</button>";
-											?><button type="button" class="action confirm btn btn-sm btn-info" action="unpendCommunity" communityId="<?php echo $community_info->id; ?>" userId="<?php echo $_SESSION['mixer_id']; ?>"><i class="fas fa-circle-notch fa-spin"></i> Pending</button><?php
+										if ($community_info->status == 'closed') {
+											//echo "secondary\" disabled>Closed</button>";
+											?><button type="button" class="btn btn-sm btn-secondary" action="joinCommunity" communityId="<?php echo $community_info->id; ?>" userId="<?php echo $_SESSION['mixer_id']; ?>" disabled>Closed</button><?php
 										} else {
-											//echo "primary\" id=\"join\" >Join</button>";
-											?><button type="button" class="action btn btn-sm btn-primary" action="joinCommunity" communityId="<?php echo $community_info->id; ?>" userId="<?php echo $_SESSION['mixer_id']; ?>">Join</button><?php
+											if ($currentUser->isPending) {
+												//echo "info\" id=\"unpend\">Pending</button>";
+												?><button type="button" class="action confirm btn btn-sm btn-info" action="unpendCommunity" communityId="<?php echo $community_info->id; ?>" userId="<?php echo $_SESSION['mixer_id']; ?>"><i class="fas fa-circle-notch fa-spin"></i> Pending</button><?php
+											} else {
+												//echo "primary\" id=\"join\" >Join</button>";
+												?><button type="button" class="action btn btn-sm btn-primary" action="joinCommunity" communityId="<?php echo $community_info->id; ?>" userId="<?php echo $_SESSION['mixer_id']; ?>">Join</button><?php
+											}
 										}
 									}
+									
 
 								}
 							 

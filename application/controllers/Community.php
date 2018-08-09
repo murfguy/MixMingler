@@ -72,6 +72,7 @@ class Community extends CI_Controller {
 				$currentUser->isFounder = false;
 				$currentUser->isAdmin = false;
 				$currentUser->isMod = false;
+				$currentUser->isBanned = false;
 
 				if ($_SESSION['mixer_id'] == $community_info->founder) {
 					$currentUser->isFounder = true;
@@ -83,6 +84,10 @@ class Community extends CI_Controller {
 
 				if (in_array($_SESSION['mixer_id'], explode(',', $community_info->moderators))) {
 					$currentUser->isMod = true;
+				}
+				
+				if (in_array($_SESSION['mixer_id'], explode(',', $community_info->bannedMembers))) {
+					$currentUser->isBanned = true;
 				}
 
 				$sql_query = "SELECT joinedCommunities,followedCommunities, pendingCommunities FROM mixer_users WHERE name_token=?";

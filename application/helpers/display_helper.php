@@ -102,7 +102,7 @@ if ( ! function_exists('action_button')) {
 				if (!empty($params['state'])) { $str .=' btn-'.$params['state']; }
 			$str .= '"'; // end of class attribute
 
-			$str .=' action="'.$params['action'].'"';
+			if (!empty($params['action'])) { $str .=' action="'.$params['action'].'"'; }
 
 			if (!empty($params['communityId'])) { $str .=' communityId="'.$params['communityId'].'"'; }
 			if (!empty($params['userId'])) { $str .=' userId="'.$params['userId'].'"'; }
@@ -115,7 +115,7 @@ if ( ! function_exists('action_button')) {
 			if ($params['displayType'] == 'icon') {
 				$str .= '<i class="fas fa-'.$params['content'].'"></i>';
 			} else {
-				$str .= $content;
+				$str .= $params['content'];
 			}
 
 

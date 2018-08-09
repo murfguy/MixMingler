@@ -90,7 +90,7 @@ class Version {
 				- Can toggle 'requires approval' setting
 				- Transfer ownership
 				- Delete community
-			Moderation Tool: membership management controls (Moderators) -- Target: Phase 1
+			Moderation Tool: membership management controls (Moderators) -- completed
 				- Promote/demote
 				- Kick
 				- Ban
@@ -153,6 +153,12 @@ class Version {
 		$patch->notes[] = "Account Page: Manage communities";
 		$patch->notes[] = "Account Page: Set/Unset Core Communities";
 		$patch->notes[] = "Login: Mixer email address synced upon login.";
+		$patch->notes[] = "Community Moderation: Manage Users (approve/deny/kick/ban/promote)"; // NOTE: need to restrict promotion to admins only.
+		//$patch->notes[] = "Email Notices: Site Admins - New Community Request Received";
+		//$patch->notes[] = "Email Notices: Community Mods - New Community Request Submitted";
+		//$patch->notes[] = "Email Notices: Community Mods - New Community Request Approved";
+		//$patch->notes[] = "Email Notices: Community Mods - New Community Request Deniued";
+		//$patch->notes[] = "Email Notices: Community Mods - New Member Request Received";
 		$patchNotes[] = $patch;
 
 

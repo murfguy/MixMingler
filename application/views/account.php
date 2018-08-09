@@ -52,6 +52,7 @@
 				<h3>Your Core Communities</h3>
 				<div class="row">
 					<?php
+					if (!empty($communitiesData->core)) {
 						foreach ($communitiesData->core as $community) {
 							//echo $community->long_name;
 							echo card(array(
@@ -65,7 +66,11 @@
 								),
 								'cover' => "/assets/graphics/covers/".$community->slug.".jpg"));
 						}
+					} else {
+						echo '<p>You haven\'t marked any core communities yet. Head over to your Communities tab to select some.</p>';
+						}
 					?>
+					
 				</div>
 			</div>
 
@@ -84,9 +89,9 @@
 					<table class="table table-striped table-bordered table-hover table-sm ">
 						<thead class="thead-dark">
 							<tr>
-								<th>Cover</th>
-								<th>Name</th>
-								<th>Action</th>
+								<th width="10%">Cover</th>
+								<th width="75%">Name</th>
+								<th width="15%">Action</th>
 							</tr>
 						</thead>
 						<tbody>
@@ -98,11 +103,6 @@
 											<td><a href="/type/<?php echo $type->typeId; ?>/<?php echo $type->slug; ?>\"><?php echo $type->typeName; ?></a></td>
 											<td><button class="action confirm btn btn-danger" btnType="mini" action="unfollowType" typeId="<?php echo $type->typeId; ?>" userId="<?php echo $_SESSION['mixer_id']; ?>">Unfollow</button></td>
 										</tr> <?php
-										/*echo "<tr>";
-										echo "<td><img src=\"$type->coverUrl\" width=\"40\"></td>";
-										echo "<td><a href=\"/type/$type->typeId/$type->slug\">$type->typeName</a></td>";
-										echo "<td><button type=\"button\" data-toggle=\"tooltip\" title=\"Stop getting updates about this game.\" id=\"unfollow\" typeId=\"".$type->typeId."\" class=\"typeAction btn btn-sm btn-danger\">Unfollow</button></td>";
-										echo "</tr>";*/
 									}
 								} else {
 									echo "<tr>";
@@ -120,9 +120,9 @@
 					<table class="table table-striped table-bordered table-hover table-sm ">
 						<thead class="thead-dark">
 							<tr>
-								<th>Cover</th>
-								<th>Name</th>
-								<th>Action</th>
+								<th width="10%">Cover</th>
+								<th width="75%">Name</th>
+								<th width="15%">Action</th>
 							</tr>
 						</thead>
 						<tbody>
@@ -161,35 +161,79 @@
 				<table class="table table-striped table-bordered table-hover table-sm ">
 					<thead class="thead-dark">
 						<tr>
-							<th scope="col">Name</th>
-							<th scope="col">Joined</th>
-							<th scope="col">Followed</th>
-							<th scope="col">Make Core!</th>
+							<th scope="col" width="70%">Name</th>
+							<th scope="col" width="10%">Joined</th>
+							<th scope="col" width="10%">Followed</th>
+							<th scope="col" width="10%">Make Core!</th>
 						</tr>
 					</thead>
 					<tbody>
-						<?php foreach ($communityData as $community) { ?>
+						<?php foreach ($communityData as $community) {
+							$buttonParams = [
+								'communityId' => $community->id,
+								'userId' => $_SESSION['mixer_id'],
+								'btnType' => 'mini',
+								'displayType' => 'icon'
+							];
+
+						 ?>
 							<tr>
 								<td><?php echo $community->long_name; ?></td>
 								<?php 
 									// Joined Community Button
 									if ($community->joined) {
-										if ($community->admin == $_SESSION['mixer_id']) {
-												?><td><button btnType="mini" class="btn btn-success" disabled><i class="fas fa-crown" style="color: gold"></i></button></td><?php
-										} else {
-											?><td><button class="action confirm btn btn-success" btnType="mini" action="leaveCommunity" communityId="<?php echo $community->id; ?>" userId="<?php echo $_SESSION['mixer_id']; ?>"><i class="fas fa-check"></i></button></td><?php
-										}
-									} else{ 
-										if ($community->status == 'closed') {
-											?><td><button btnType="mini" class="btn btn-danger" disabled><i class="fas fa-minus-circle"></i></button></td><?php
-										} else {
-											if ($community->pending){
-												?><td><button btnType="mini" class="confirm btn btn-info" action="unpendCommunity"><i class="fas fa-circle-notch fa-spin"></i></button></td><?php
+										if ($community->admin == $_SESSION['mixer_id']) { ?>
+											<td><?php 
+												// User is the admin
+												$buttonParams['disabled'] = true;
+												$buttonParams['state'] = 'success';
+												$buttonParams['content'] = 'crown';
+
+												echo action_button($buttonParams); ?>
+
+											</td><?php } else { ?>
+
+											<td><?php 
+												// User is not admin, and has joined.
+												$buttonParams['state'] = 'success';
+												$buttonParams['content'] = 'check';
+												$buttonParams['action'] = 'leaveCommunity';
+
+												echo action_button($buttonParams); ?>
+											</td><?php } //
+										} else { 
+											// User is not a member of this community.
+											if (in_array($_SESSION['mixer_id'], explode(',', $community->bannedMembers))) {
+												// User is banned
+												?><td><?php 
+												// Community is closed
+												$buttonParams['disabled'] = true;
+												$buttonParams['state'] = 'dark';
+												$buttonParams['content'] = 'ban';
+
+												echo action_button($buttonParams); ?>
+												</td><?php
 											} else {
-												?><td><button btnType="mini" class="action btn btn-primary" action="joinCommunity" communityId="<?php echo $community->id; ?>" userId="<?php echo $_SESSION['mixer_id']; ?>"><i class="fas fa-times"></i></button></td><?php
+												if ($community->status == 'closed') {
+													?><td><?php 
+													// Community is closed
+													$buttonParams['disabled'] = true;
+													$buttonParams['state'] = 'danger';
+													$buttonParams['content'] = 'minus-circle';
+
+													echo action_button($buttonParams); ?>
+													</td><?php
+												} else {
+													if ($community->pending){
+														?><td><button btnType="mini" class="confirm btn btn-info" action="unpendCommunity"><i class="fas fa-circle-notch fa-spin"></i></button></td><?php
+													} else {
+														?><td><button btnType="mini" class="action btn btn-primary" action="joinCommunity" communityId="<?php echo $community->id; ?>" userId="<?php echo $_SESSION['mixer_id']; ?>"><i class="fas fa-times"></i></button></td><?php
+													}
+												}
 											}
+
+											
 										}
-									}
 							
 
 									// Followed Community Button
