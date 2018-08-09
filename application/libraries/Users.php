@@ -277,11 +277,13 @@ ORDER BY stream_count DESC";
 	}
 	
 	public function getUsersAdminedOrModeratedCommunities($mixer_id) {
-		$sql_query = "SELECT communities.*
-FROM communities
-JOIN mixer_users ON FIND_IN_SET(communities.id, mixer_users.adminCommunities) OR FIND_IN_SET(communities.id, mixer_users.modCommunities)
-WHERE mixer_users.mixer_id = ? AND (communities.status='open' OR communities.status='closed')";	
+		$sql_query = "SELECT communities.* 
+			FROM `UserCommunities` 
+			JOIN mixer_users ON mixer_users.mixer_id = UserCommunities.MixerID
+			JOIN communities ON communities.id = UserCommunities.CommunityID
+			WHERE MixerID = ? AND (MemberState = 'moderator' OR MemberState='admin')";
 		$query = $this->CI->db->query($sql_query, array($mixer_id));
+
 		return  $query->result();
 	}
 

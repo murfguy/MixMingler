@@ -76,7 +76,7 @@ class Communities {
 		return $query->result();
 	}
 
-	public function getCommunityMembersFromList($list, $sortOn = 'lastSeenOnline', $direction = 'DESC') {
+	/*public function getCommunityMembersFromList($list, $sortOn = 'lastSeenOnline', $direction = 'DESC') {
 		if (!empty($list)) {
 			$sql_query = "SELECT mixer_id, name_token, numFollowers, avatarURL FROM mixer_users WHERE mixer_id IN ? ORDER BY $sortOn $direction";
 			//echo "<p>".str_replace('?', $list, $sql_query)."</p>";
@@ -87,15 +87,35 @@ class Communities {
 		} else {
 			return null;
 		}
+	}*/
+
+	// --- Junction Table Refactor for: getCommunityMembersFromList
+	public function getCommunityMembersByGroup($group, $sortOn = 'name_token', $direction = 'ASC') {
+		$sql_query = "SELECT mixer_users.* 
+			FROM `UserCommunities` 
+			JOIN mixer_users ON mixer_users.mixer_id = UserCommunities.MixerID
+			JOIN communities ON communities.id = UserCommunities.CommunityID
+			WHERE MemberState = ?";
+		$query = $this->CI->db->query($sql_query, array($group));
+		return $query->result();
+	}
+
+	public function getArrayOfMemberIDs($members) {
+		$memberIDs = array();
+		foreach ($members as $member) {
+			$memberIDs[] = $member->mixer_id;
+		}
+		return $memberIDs;
 	}
 
 
 
 	public function getCommunityLeads($communityId) {
-		$sql_query = "SELECT communities.id, communities.long_name, communities.admin, communities.moderators, mixer_users.name_token, mixer_users.mixer_id
-		FROM communities
-		JOIN mixer_users ON FIND_IN_SET(mixer_users.mixer_id, communities.moderators) OR mixer_users.mixer_id = communities.admin
-		WHERE communities.id = ?";
+		$sql_query = "SELECT m.name_token, c.long_name, MixerID, MemberState 
+FROM `UserCommunities` 
+JOIN mixer_users AS m ON m.mixer_id = UserCommunities.MixerID
+JOIN communities AS c ON c.id = UserCommunities.CommunityID
+WHERE (MemberState = 'admin' OR MemberState='moderator') AND CommunityID=?";
 		$query = $this->CI->db->query($sql_query, array($communityId));
 		return $query->result();
 	}
@@ -157,5 +177,6 @@ class Communities {
 		$query = $this->CI->db->query($sql_query, array($status));
 		return $query->result();
 	}
+
 
 }?>

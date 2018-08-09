@@ -22,8 +22,42 @@ class Communications {
 		$this->CI->email->from('alerts@mixmingler.com', 'MixMingler Alerts');
 	}
 
-	public function sendNewCommunityRequestAlert($emailData, $messageData) {
+	public function sendMessage($recipients, $messageType, $msgParams, $recipientParams = array()) {
+		switch ($recipients) {
+			case 'admins':
+				$addressees = $this->getSiteAdminEmailAddresses();
+				break;
 
+			case 'mods':
+				$addressees = null;
+				break;
+
+			case 'user':
+				$addressees = null;
+				break;
+		}
+
+
+	}
+
+	private function getMessage($type, $params) {
+		$msgData = new stdClass();
+		$msgData->subject = "[MixMingler] ";
+		$msgData->message = "Hello {username},\r\r ";
+
+		switch ($type) {
+			case "newCommunityRequest":
+				$msgData->subject .= " New Community Request";				
+				$msgData->message .= "It looks like ".$params['requester']." has placed a request to found a new community called '".$params['communityName']."'. Please log in to MixMingler to approve or deny this request.";
+				break;
+		}
+
+		$msgData->subject .= " New Community Request";				
+		$msgData->message .= "\r\r This is an automated email. Do not respond as no one will answer.";
+	}
+
+	public function sendNewCommunityRequestAlert($requester, $communityName) {
+		// Collect site admins
 		
 		$this->CI->email->to('murfguy@gmail.com');
 
@@ -45,6 +79,17 @@ class Communications {
 	}
 
 	public function sendApprovedCommunityAlert($emailData, $messageData) {
+
+	}
+
+	private function getSiteAdminEmailAddresses() {
+		$sql_query = "SELECT name_token, email FROM mixer_users WHERE minglerRole IN ('owner', 'admin') ORDER BY id ASC";
+		$query = $this->CI->db->query($sql_query);
+
+		return $query->result();
+	}
+
+	private function getCommunityModsEmailAddresses() {
 
 	}
 }

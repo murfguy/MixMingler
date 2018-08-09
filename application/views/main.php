@@ -9,7 +9,20 @@
 	</div>
 
 	<div class="row">
-		<div class="col-3 userInfo" id="leftColumn">
+		<div class="col-3 userInfo">
+
+			<!--<div class="infoBox">
+				<h4 class="infoHeader bg-danger">Alerts</h4>
+				<div class="infoInterior">
+					<h6>Site Admin</h6>
+					<p><a href="/admin/">Pending Communities</a> <span class="badge badge-danger">1</span></p>
+
+					<h6>Community Mod</h6>
+					<p><a href="/community/alphatest/mod">Alpha Testing Group</a> <span class="badge badge-danger">2</span></p>
+				</div>
+			</div>--><!-- .infoBox -->
+
+
 			<div class="infoBox">
 				<h4 class="infoHeader">Communities You Follow</h4>
 				<div class="infoInterior">

@@ -98,10 +98,24 @@
 							<?php
 								if (!empty($followedTypesData)) {
 									foreach ($followedTypesData as $type) { ?>
+
 										<tr>
 											<td><img src="<?php echo $type->coverUrl; ?>" width="40"></td>
 											<td><a href="/type/<?php echo $type->typeId; ?>/<?php echo $type->slug; ?>\"><?php echo $type->typeName; ?></a></td>
-											<td><button class="action confirm btn btn-danger" btnType="mini" action="unfollowType" typeId="<?php echo $type->typeId; ?>" userId="<?php echo $_SESSION['mixer_id']; ?>">Unfollow</button></td>
+											<td><?php 
+												$buttonParams = [
+													'typeId' => $type->typeId,
+													'userId' => $_SESSION['mixer_id'],
+													'btnType' => 'mini',
+													'displayType' => 'text',
+													'content' => 'Unfollow',
+													'confirm' => true,
+													'action' => 'unfollowType',
+													'state' => 'danger'
+												];
+												echo action_button($buttonParams); ?>
+
+												<!--<button class="action confirm btn btn-danger" btnType="mini" action="unfollowType" typeId="<?php echo $type->typeId; ?>" userId="<?php echo $_SESSION['mixer_id']; ?>">Unfollow</button>--></td>
 										</tr> <?php
 									}
 								} else {
@@ -132,15 +146,22 @@
 										<tr>
 											<td><img src="<?php echo $type->coverUrl; ?>" width="40"></td>
 											<td><a href="/type/<?php echo $type->typeId; ?>/<?php echo $type->slug; ?>\"><?php echo $type->typeName; ?></a></td>
-											<td><button class="action btn btn-danger" btnType="mini" action="unignoreType" typeId="<?php echo $type->typeId; ?>" userId="<?php echo $_SESSION['mixer_id']; ?>">Unignore</button></td>
+											<td><?php 
+												$buttonParams = [
+													'typeId' => $type->typeId,
+													'userId' => $_SESSION['mixer_id'],
+													'btnType' => 'mini',
+													'displayType' => 'text',
+													'content' => 'Unignore',
+													'confirm' => false,
+													'action' => 'unignoreType',
+													'state' => 'danger'
+												];
+												echo action_button($buttonParams); ?>
+												<!--<button class="action btn btn-danger" btnType="mini" action="unignoreType" typeId="<?php echo $type->typeId; ?>" userId="<?php echo $_SESSION['mixer_id']; ?>">Unignore</button>--></td>
 										</tr>
 										<?php 
-										//echo "<tr>";
-										//echo "<td><img src=\"$type->coverUrl\" width=\"40\"></td>";
-										//echo "<td><a href=\"/type/$type->typeId/$type->slug\">$type->typeName</a></td>";
-										//echo "<td><button type=\"button\" data-toggle=\"tooltip\" title=\"Have this game show up in lists again.\" id=\"unignore\" typeId=\"".$type->typeId."\" class=\"typeAction btn btn-sm btn-danger\">Unignore</button></td>";
-										//echo "</tr>";
-									}
+									} // foreach ignoredType
 								} else {
 									echo "<tr>";
 									echo "<td colspan=\"3\">You haven't ignored any games.</td>";
@@ -173,11 +194,13 @@
 								'communityId' => $community->id,
 								'userId' => $_SESSION['mixer_id'],
 								'btnType' => 'mini',
-								'displayType' => 'icon'
+								'displayType' => 'icon',
+								'confirm' => false
 							];
 
 						 ?>
 							<tr>
+								<?php if (in_array($community->status, array("open", "closed")) ) { ?>
 								<td><?php echo $community->long_name; ?></td>
 								<?php 
 									// Joined Community Button
@@ -188,7 +211,6 @@
 												$buttonParams['disabled'] = true;
 												$buttonParams['state'] = 'success';
 												$buttonParams['content'] = 'crown';
-
 												echo action_button($buttonParams); ?>
 
 											</td><?php } else { ?>
@@ -198,22 +220,22 @@
 												$buttonParams['state'] = 'success';
 												$buttonParams['content'] = 'check';
 												$buttonParams['action'] = 'leaveCommunity';
+												$buttonParams['confirm'] = true;
 
 												echo action_button($buttonParams); ?>
 											</td><?php } //
 										} else { 
 											// User is not a member of this community.
-											if (in_array($_SESSION['mixer_id'], explode(',', $community->bannedMembers))) {
+											if (in_array($_SESSION['mixer_id'], explode(',', $community->bannedMembers))) {?>
+												<td><?php 
 												// User is banned
-												?><td><?php 
-												// Community is closed
 												$buttonParams['disabled'] = true;
 												$buttonParams['state'] = 'dark';
 												$buttonParams['content'] = 'ban';
 
 												echo action_button($buttonParams); ?>
-												</td><?php
-											} else {
+												</td>
+											<?php } else {
 												if ($community->status == 'closed') {
 													?><td><?php 
 													// Community is closed
@@ -225,44 +247,102 @@
 													</td><?php
 												} else {
 													if ($community->pending){
-														?><td><button btnType="mini" class="confirm btn btn-info" action="unpendCommunity"><i class="fas fa-circle-notch fa-spin"></i></button></td><?php
-													} else {
-														?><td><button btnType="mini" class="action btn btn-primary" action="joinCommunity" communityId="<?php echo $community->id; ?>" userId="<?php echo $_SESSION['mixer_id']; ?>"><i class="fas fa-times"></i></button></td><?php
+														?><td><?php 
+															// Membership is pending
+															$buttonParams['state'] = 'info';
+															$buttonParams['content'] = 'circle-notch fa-spin';
+															$buttonParams['action'] = 'unpendCommunity';
+															$buttonParams['confirm'] = true;
+
+															echo action_button($buttonParams); ?>
+															
+														</td>
+													<?php } else {
+														?><td><?php 
+															// Join Community
+															$buttonParams['state'] = 'primary';
+															$buttonParams['content'] = 'times';
+															$buttonParams['action'] = 'joinCommunity';
+
+															echo action_button($buttonParams); ?><!--<button btnType="mini" class="action btn btn-primary" action="joinCommunity" communityId="<?php echo $community->id; ?>" userId="<?php echo $_SESSION['mixer_id']; ?>"><i class="fas fa-times"></i></button>--></td><?php
 													}
 												}
 											}
-
-											
 										}
 							
 
 									// Followed Community Button
 									if ($community->followed) {
 										if ($community->admin == $_SESSION['mixer_id']) {
-											?><td><button class="btn btn-success" disabled><i class="fas fa-crown" style="color: gold"></i></button></td><?php
+											?><td><?php 
+												// User is the admin
+												$buttonParams['disabled'] = true;
+												$buttonParams['state'] = 'success';
+												$buttonParams['content'] = 'crown';
+												echo action_button($buttonParams); ?><!--<button class="btn btn-success" disabled><i class="fas fa-crown" style="color: gold"></i></button>--></td><?php
 										} else {
-											?><td><button btnType="mini" class="confirm action btn btn-success" action="unfollowCommunity" communityId="<?php echo $community->id; ?>" userId="<?php echo $_SESSION['mixer_id']; ?>"><i class="fas fa-check"></i></button></td><?php
+											?><td><?php 
+												// Unfollow
+												$buttonParams['confirm'] = true;
+												$buttonParams['state'] = 'success';
+												$buttonParams['content'] = 'check';
+												$buttonParams['action'] = 'unfollowCommunity';
+												echo action_button($buttonParams); ?></td><?php
 										}
 									} else {
-										?><td><button btnType="mini" class="action btn btn-primary"action="followCommunity" communityId="<?php echo $community->id; ?>" userId="<?php echo $_SESSION['mixer_id']; ?>"><i class="fas fa-times"></i></button></td><?php
+										?><td><?php 
+												// Follow
+												$buttonParams['confirm'] = false;
+												$buttonParams['state'] = 'primary';
+												$buttonParams['content'] = 'times';
+												$buttonParams['action'] = 'followCommunity';
+												echo action_button($buttonParams); ?>
+												</td><?php
 									}
 
 
 									// Core Community Button
 									if ($community->joined) {
 										if ($community->core) {
-											?><td><button class="action confirm btn btn-success" action="removeAsCore" communityId="<?php echo $community->id; ?>" userId="<?php echo $_SESSION['mixer_id']; ?>"><i class="fas fa-check"></i></button></td><?php
+											?><td><?php 
+												// remove core
+												$buttonParams['confirm'] = true;
+												$buttonParams['state'] = 'success';
+												$buttonParams['content'] = 'check';
+												$buttonParams['action'] = 'removeAsCore';
+												$buttonParams['disabled'] = false;
+												echo action_button($buttonParams); ?>
+
+												</td><?php
 										} else {
-											?><td><button class="action btn btn-primary" action="setAsCore" communityId="<?php echo $community->id; ?>" userId="<?php echo $_SESSION['mixer_id']; ?>"><i class="fas fa-thumbs-up"></i></button></td><?php
+											?><td><?php 
+												// remove core
+												$buttonParams['confirm'] = false;
+												$buttonParams['state'] = 'primary';
+												$buttonParams['content'] = 'thumbs-up';
+												$buttonParams['action'] = 'setAsCore';
+												$buttonParams['disabled'] = false;
+												echo action_button($buttonParams); ?>
+
+												</td><?php
 										}
 									} else {
-										?><td><button class="btn btn-danger" disabled><i class="fas fa-minus-circle"></i></button></td><?php
+										?><td><?php 
+												// remove core
+												$buttonParams['confirm'] = false;
+												$buttonParams['state'] = 'danger';
+												$buttonParams['content'] = 'minus-circle';
+												$buttonParams['action'] = null;
+												$buttonParams['disabled'] = true;
+
+												echo action_button($buttonParams); ?></td><?php
 									}
 
 								?>
 
 							</tr>
-						<?php } ?>
+						<?php }// if open or closed
+					} //foreach ?>
 
 						
 					</tbody>

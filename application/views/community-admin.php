@@ -1,6 +1,6 @@
 <main role="main" class="container">
 	<div class="pageHeader">
-		<h1><?php echo $community_info->long_name; ?> Moderation Page</h1>
+		<h1><?php echo $community->long_name; ?> Moderation Page</h1>
 	</div>
 
 
@@ -9,7 +9,7 @@
 	<div class="container">
 		<?php 
 			$hasAccess = true;
-			if ($community_info->status == 'approved') { $hasAccess = false; ?>
+			if ($community->status == 'approved') { $hasAccess = false; ?>
 			<div id="foundCommunityNotice" class="alert alert-success">
 				<h4>Congrats! Your community was approved!</h4>
 				<p>You're just a few short steps away from making this a full-fledged MixMingler community! Simply finalize your details and then hit the "Found Community" button. Once founded, you'll need to wait a bit before you can make another community. Until then, let's work towards making this the best community you can make it!</p>
@@ -17,7 +17,7 @@
 				<?php 
 					$attributes = array('id' => 'foundCommunity');
 					$hidden = array(
-						'commId' => $community_info->id,
+						'commId' => $community->id,
 						'mixerUser_id' => $_SESSION['mixer_id']
 					);
 					echo form_open('servlet/foundCommunity', $attributes, $hidden); 
@@ -61,23 +61,23 @@
 				<ul>
 					<li>Coming soon: Add cover art!</li>
 				</ul>
-				<button class="foundButton btn btn-lg btn-primary">Found the "<?php echo $community_info->long_name; ?>" Community!</button>
+				<button class="foundButton btn btn-lg btn-primary">Found the "<?php echo $community->long_name; ?>" Community!</button>
 				<?php echo form_close(); ?>
 			</div>
 		<?php } ?>
 
-		<?php if ($community_info->status == 'rejected') { $hasAccess = false; ?>
+		<?php if ($community->status == 'rejected') { $hasAccess = false; ?>
 			<div class="alert alert-danger">
 				<h4>Sorry! Your community was rejected!</h4>
 				<p>Alas, there was something that made us decide that this community doesn't quite work right now.</p>
 				<p>The admin who rejected your community left this note:</p>
-					<blockquote><?php echo $community_info->siteAdminNote; ?></blockquote>
+					<blockquote><?php echo $community->siteAdminNote; ?></blockquote>
 				<p>The only action you have right now is to delete this community. However, once you do, you are free to try and make a new commmunity again. Please note that repeat attempts to found a community in direct opposition to admin reasoning can result in being banned from making communities.</p>
 				<p><button class="btn btn-lg btn-danger">Delete Community</button></p>
 			</div>
 		<?php } ?>
 
-		<?php if ($community_info->status == 'pending') { $hasAccess = false; ?>
+		<?php if ($community->status == 'pending') { $hasAccess = false; ?>
 			<div class="alert alert-warning">
 				<h4>Your community is pending approval!</h4>
 				<p>WOAH!!!! Slow your held horse roll there! Your community is still awaiting admin approval. Once it's ready though, we'll let you know!</p>
@@ -120,7 +120,7 @@
 
 				<div class="btn-group btn-group-justified" style="width:50%" role="group">
 					<button type="button" class="btn btn-info displayToggle" target="allMembers" disabled>All Members</button>
-					<?php if ($community_info->approveMembers) { ?><button type="button" class="btn btn-info displayToggle" target="pendingMembers">Pending Members</button><?php } ?>
+					<?php if ($community->approveMembers) { ?><button type="button" class="btn btn-info displayToggle" target="pendingMembers">Pending Members</button><?php } ?>
 					<button type="button" class="btn btn-info displayToggle" target="bannedMembers">Banned Members</button>
 				</div>
 
@@ -129,7 +129,7 @@
 
 					<?php
 						$buttonParams = [
-							'communityId' => $community_info->id,
+							'communityId' => $community->id,
 							'btnType' => 'mini',
 							'displayType' => 'icon'
 						];
@@ -154,13 +154,10 @@
 								</tr>
 							</thead>
 						<?php 
-							$moderatorIds = explode(",", $community_info->moderators);
-
 							foreach ($members as $member) { 
-
 								$memberIs = "user";
-								if (in_array($member->mixer_id, $moderatorIds)) { $memberIs = "mod"; }
-								if ($member->mixer_id == $community_info->admin) { $memberIs = "admin"; }
+								if (in_array($member->mixer_id, $memberIdLists['moderators'])) { $memberIs = "mod"; }
+								if ($member->mixer_id == $community->admin) { $memberIs = "admin"; }
 
 								$buttonParams['disabled'] = false;
 								$buttonParams['confirm'] = false;
@@ -342,12 +339,6 @@
 										$buttonParams['userId'] = $member->mixer_id;
 
 										echo action_button($buttonParams); ?></td>
-									
-
-
-									<!--<td id="approveUser-<?php echo $member->mixer_id ?>"><button class="modAction btn btn-success" btnAction="approve" memberId="<?php echo $member->mixer_id ?>" commId="<?php echo $community_info->id; ?>" memberName="<?php echo $member->name_token ?>" data-toggle="tooltip" title="Approve Member"><i class="fas fa-thumbs-up"></i></button></td>-->
-									<!--<td id="denyUser-<?php echo $member->mixer_id ?>"><button  class="modAction btn btn-warning" btnAction="deny" memberId="<?php echo $member->mixer_id ?>" commId="<?php echo $community_info->id; ?>"  memberName="<?php echo $member->name_token ?>" data-toggle="tooltip" title="Deny Member"><i class="fas fa-thumbs-down"></i></button></td>
-									<td><button class="btn btn-danger" data-toggle="tooltip" title="Ban Member"><i class="fas fa-ban"></i></td>-->
 								</tr>
 							<?php } ?>
 

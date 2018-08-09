@@ -712,41 +712,49 @@ class Servlet extends CI_Controller {
 	public function requestCommunity() {
 		$this->returnData->success = true;
 		$this->returnData->messages = array();
-
+		// Check for any errors
+		
+		// Does that name exist? 
 		if ($this->communities->communityNameExists($_POST['long_name'])) {
 			$this->returnData->success = false;
 			$this->returnData->messages[] = "A community with this name already exists.";
 		}
 
+		// Does that slug exist?
 		if ($this->communities->communitySlugExists($_POST['slug'])) {
 			$this->returnData->success = false;
 			$this->returnData->messages[] = "A community with this URL already exists.";
 		}
 
+		// Did they try and use 'create' as a slug?
 		if ($_POST['slug'] == "create") {
 			$this->returnData->success = false;
 			$this->returnData->messages[] = "That URL is reserved and cannot be used.";
 		}
 
+		// Was there a description?
 		if (empty($_POST['description'])) {
 			$this->returnData->success = false;
 			$this->returnData->messages[] = "Description wasn't provided.";
 		} 
 
+		// Was there a summary?
 		if (empty($_POST['summary'])) {
 			$this->returnData->success = false;
 			$this->returnData->messages[] = "Summary wasn't provided.";
 		}
 		
+		// Did they pick a category?
 		if (empty($_POST['category_id'])) {
 			$this->returnData->success = false;
 			$this->returnData->messages[] = "A category wasn't selected.";
 		}
 		
 
+		// If all criteria passed:
 		if ($this->returnData->success) {
 			// Add new community request into database
-			$sql_query = "INSERT INTO communities (long_name, slug, category_id, summary, description, founder, admin, members, followers) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
+			$sql_query = "INSERT INTO communities (long_name, slug, category_id, summary, description, founder, admin) VALUES (?, ?, ?, ?, ?, ?, ?)";
 			$inputData = array(
 				$_POST['long_name'], 
 				$_POST['slug'], 
@@ -754,34 +762,26 @@ class Servlet extends CI_Controller {
 				strip_tags($_POST['summary']), 
 				strip_tags($_POST['description']),
 				$_SESSION['mixer_id'],
-				$_SESSION['mixer_id'],
-				$_SESSION['mixer_id'],
 				$_SESSION['mixer_id']
-			);
-			
+			);			
 			$query = $this->db->query($sql_query, $inputData);
+
+			// get new community's id value
+			$newCommunityId = $this->db->insert_id();
 
 			// Update requesting user's data to become founder, admin, member and follower of their new community.
-			$newCommunityId = $this->db->insert_id();
-			$sql_query = "UPDATE mixer_users SET
-				foundedCommunities = IF(foundedCommunities='', ?, concat(foundedCommunities, ',', ?)), 
-				adminCommunities = IF(adminCommunities='', ?, concat(adminCommunities, ',', ?)),
-				joinedCommunities = IF(joinedCommunities='', ?, concat(joinedCommunities, ',', ?)),
-				followedCommunities = IF(followedCommunities='', ?, concat(followedCommunities, ',', ?)) 
-				WHERE name_token=?";
-
 			$inputData = array(
-				$newCommunityId, $newCommunityId,
-				$newCommunityId, $newCommunityId,
-				$newCommunityId, $newCommunityId,
-				$newCommunityId, $newCommunityId,
-				$_SESSION['mixer_user']
+				$_SESSION['mixer_id'], $newCommunityId,
+				$_SESSION['mixer_id'], $newCommunityId,
+				$_SESSION['mixer_id'], $newCommunityId,
+				$_SESSION['mixer_id'], $newCommunityId,
 			);
+			$sql_query = "INSERT INTO UserCommunities (MixerID, CommunityID, MemberState) VALUES (?, ?, 'founder'), (?, ?, 'admin'), (?, ?, 'member'), (?, ?, 'follower')";
 			$query = $this->db->query($sql_query, $inputData);
 
+			// Send an email alert to site admins about new community request
 			$this->communications->sendNewCommunityRequestAlert($_SESSION['mixer_user'], $_POST['long_name']);
 		}
-		
 
 		$this->returnData();
 	}
@@ -909,24 +909,32 @@ class Servlet extends CI_Controller {
 				$this->returnData->memberId = $memberId;
 				$this->returnData->memberStatus = $memberStatus;
 
-				$sql_query = "SELECT long_name, admin, moderators, coreMembers, members, pendingMembers, bannedMembers FROM communities WHERE id=?";
+				/*$sql_query = "SELECT c.admin, c.long_name,
+					GROUP_CONCAT( CASE WHEN MemberState='moderator' THEN MixerID ELSE NULL END) as moderators
+					FROM `UserCommunities` as UC
+					JOIN mixer_users AS m ON m.mixer_id = UC.MixerID
+					JOIN communities AS c ON c.id = UC.CommunityID
+					WHERE CommunityID=?";
 				$query = $this->db->query($sql_query, array($communityID));
-				$community = null; if (!empty($query->result())) { $community = $query->result()[0]; };
+				$community = null; if (!empty($query->result())) { $community = $query->result()[0]; };*/
 
 				// And now we collect relevant data to our target user.
-				$sql_query = "SELECT name_token, email, coreCommunities, modCommunities, joinedCommunities, pendingCommunities FROM mixer_users WHERE mixer_id=?";
-				$query = $this->db->query($sql_query, array($memberId));
+				$sql_query = "SELECT C.admin,C.long_name AS communityName, M.name_token, M.email, GROUP_CONCAT(UC.MemberState) as states
+					FROM `UserCommunities` as UC
+					JOIN mixer_users AS M ON M.mixer_id = UC.MixerID
+					JOIN communities AS C ON C.id = UC.CommunityID
+					WHERE CommunityID=? AND MixerID=?";
+				$query = $this->db->query($sql_query, array($communityID, $memberId));
 				$member = null; if (!empty($query->result())) { $member = $query->result()[0]; };
 
 				// Did we collect good data?
-				if (!empty($community) && !empty($member)) {
+				if (!empty($member)) {
 					$this->returnData->memberName = $member->name_token;
-					
-					$isMod = false;
-					if (!empty($community->moderators)) {
-						$isMod = in_array($currentUserId, explode(",", $community->moderators));
-					}
-					$isAdmin = ($community->admin == $currentUserId);
+					$states = explode(",", $member->states);
+					$this->returnData->memberStates = $states;
+
+					$isMod = in_array('moderator', $states);
+					$isAdmin = ($member->admin == $currentUserId);
 
 					// Is the current user allowed to do this?
 					if ($isMod || $isAdmin) {
@@ -935,7 +943,7 @@ class Servlet extends CI_Controller {
 						// ----------------------------------------------------------------------------------------
 						// -- Modify lists of membership based on requested action
 						// ----------------------------------------------------------------------------------------
-
+						/*
 						// Remove from 'pending lists'
 						if (in_array($memberStatus, array('approveMember','denyMember', "kickMember", "banMember")) ) {							
 							$pendingMemberList = $this->tools->removeValueFromList($memberId, $community->pendingMembers);
@@ -961,13 +969,14 @@ class Servlet extends CI_Controller {
 
 						if ($memberStatus == "unbanMember") {
 							$bannedMemberList = $this->tools->removeValueFromList($memberId, $community->bannedMembers);
-						}
+						}*/
 
 
 						// ----------------------------------------------------------------------------------------
 						// -- Update database based on requested action
 						// ----------------------------------------------------------------------------------------
 
+					
 						switch ($memberStatus) {
 							case "approveMember":								
 								// Update user data with removed pending list, and added into joined list
@@ -998,43 +1007,35 @@ class Servlet extends CI_Controller {
 								$sql_query = "UPDATE communities SET pendingMembers=? WHERE id=?";
 								$query = $this->db->query($sql_query, array($pendingMemberList, $communityID));
 
-
 								$this->returnData->message = $member->name_token." was denied membership to ".$community->long_name;
 
 								// notify user about denial
 								break;
 
 							case "promoteMember":
-								// User - add community to: modCommunities
-								$sql_query = "UPDATE mixer_users SET modCommunities = IF(modCommunities='', ?, concat(modCommunities, ',', ?)) WHERE mixer_id=?";
-								$query = $this->db->query($sql_query, array($communityID, $communityID, $memberId));
+								if (!in_array('moderator', $states)) {
+									$sql_query = "INSERT INTO UserCommunities (MixerID, CommunityID, MemberState) VALUES (?, ?, 'moderator')";
+									$query = $this->db->query($sql_query, array($memberId, $communityID));
 
-								// Community - add user to: moderators
-								$sql_query = "UPDATE communities SET moderators = IF(moderators='', ?, concat(moderators, ',', ?)) WHERE id=?";
-								$query = $this->db->query($sql_query, array($memberId, $memberId, $communityID));
+									$this->returnData->success = true;
+									$this->returnData->message = $member->name_token." was changed to a 'moderator' in ".$member->communityName;
 
-
-								// Add news item 
-								$newsText = $this->news->getEventString("newCommRole", array("moderator", $communityID));
-								$this->news->addNews($memberId, $newsText, "community", $communityID);
-
-
-								$this->returnData->message = $member->name_token." was changed to a 'moderator' in ".$community->long_name;
+									// Add news item 
+									$newsText = $this->news->getEventString("newCommRole", array("moderator", $communityID));
+									$this->news->addNews($memberId, $newsText, "community", $communityID);
+								} else {
+									$this->returnData->message = $member->name_token." is already a 'moderator' in ".$member->communityName;
+								}
 
 								// notify user about promotion
 								break;
 
 							case "demoteMember":
-								// User - remove community from: modCommunities
-								$sql_query = "UPDATE mixer_users SET modCommunities=? WHERE mixer_id=?";
-								$query = $this->db->query($sql_query, array($moderatedCommunityList, $memberId));
+								$sql_query = "DELETE FROM UserCommunities WHERE MixerID=? AND CommunityID=? AND MemberState='moderator'";
+								$query = $this->db->query($sql_query, array($memberId, $communityID));
 
-								// Community - remove user from: moderators
-								$sql_query = "UPDATE communities SET moderators=? WHERE id=?";
-								$query = $this->db->query($sql_query, array($moderatorMemberList, $communityID));
-
-
-								$this->returnData->message = $member->name_token." was changed to a 'user' in ".$community->long_name;
+								$this->returnData->success = true;
+								$this->returnData->message = $member->name_token."'s status as a moderator in ".$member->communityName." was removed.";
 
 								// notify user about demotion
 								break;
@@ -1078,7 +1079,6 @@ class Servlet extends CI_Controller {
 								break;
 						}
 						
-						$this->returnData->success = true;
 						$this->returnData->completedAction = $memberStatus;
 
 					} else {
@@ -1283,6 +1283,55 @@ class Servlet extends CI_Controller {
 		$this->returnData->elapsedTime = time() - $startTime;
 
 		$this->returnData->mixerData = $allStreamers;
+
+		$this->returnData();
+	}
+
+	public function queryBuildTester() {
+		//$target = "UserCommunity";
+		$target = "UserCommunities";
+
+		//$target = "UserCommunity";
+		/*$sql_query = "SELECT mixer_users.name_token, communities.long_name
+FROM $target
+JOIN mixer_users ON mixer_users.mixer_id = $target.UserID
+JOIN communities ON communities.id = $target.CommunityID
+WHERE communities.id=?";
+		//$params = array($target, 1);
+		$query = $this->db->query($sql_query, $params);
+		//$this->returnData->queryData = $query->result();*/
+
+		/*$this->db->select('mixer_users.name_token');
+		$this->db->select('communities.long_name');
+		
+		$this->db->join('mixer_users', "mixer_users.mixer_id = UserCommunities.MixerID");
+		$this->db->join('communities', "communities.id = UserCommunities.CommunityID");
+
+		$this->db->where('CommunityID', 1);
+		$this->db->where('MemberState', 'admin');
+
+		$query = $this->db->get($target);*/
+
+		/*SELECT communities.*
+			FROM communities
+			JOIN mixer_users ON FIND_IN_SET(communities.id, mixer_users.adminCommunities) OR FIND_IN_SET(communities.id, mixer_users.modCommunities)
+			WHERE mixer_users.mixer_id = ? AND (communities.status='open' OR communities.status='closed')*/
+
+		$this->db->select('communities.*');
+		$this->db->join('mixer_users', "mixer_users.mixer_id = UserCommunities.MixerID");
+		$this->db->join('communities', "communities.id = UserCommunities.CommunityID");
+
+		$this->db->where('CommunityID', 1);
+		$this->db->where('MemberState', 'admin');
+		$this->db->or_where('MemberState', 'mod');
+
+		$query = $this->db->get($target);
+
+
+
+		$this->returnData->queryData = $query->result();
+
+
 
 		$this->returnData();
 	}

@@ -233,6 +233,7 @@ div.infoBox {
 	margin-bottom: 10px;
 	font-size: 14px;
 	background-color: rgb(41, 37, 72);
+	overflow: hidden;
 }
 
 div.infoBox.col {
@@ -243,7 +244,8 @@ div.infoBox > .infoHeader {
 	border-bottom: 1px solid #90a9d2;
 	padding: 8px 0px 0px 8px;
 	background-color: #15123c;
-	border-radius: 10px 10px 0px 0px;
+	
+	/*border-radius: 10px 10px 0px 0px;*/
 }
 
 div.infoInterior {

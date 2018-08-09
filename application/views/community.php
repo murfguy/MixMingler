@@ -3,8 +3,8 @@
 		<p class="devNote"  data-toggle="tooltip" title="Planned for v0.3" data-placement="left">General updates and full fledged community features are planned for development during v0.3 (Communities). See the <a href="/alpha/">Alpha Information Page</a> for more info. Bugs or incomplete implementations are expected in this area.</p>
 
 	<div id="userHeader" class="pageHeader">
-		<h1><?php echo $community_info->long_name; ?></h1>
-		<p><?php echo $community_info->description; ?></p>
+		<h1><?php echo $community->long_name; ?></h1>
+		<p><?php echo $community->description; ?></p>
 	</div>
 
 
@@ -35,21 +35,20 @@
 			echo "<h1>Community Members</h1>";
 			//echo "<table class=\"membersList\">";
 			if (!empty($members)) {
-				$moderatorIds = explode(",", $community_info->moderators);
 			echo "<div class=\"row\" id=\"memberListing\">";
 
 				foreach ($members as $member) {
 					echo "<div class=\"\">";
 					echo "<a href=\"/user/".$member->name_token."\" data-toggle=\"tooltip\" title=\"Followers: ".number_format($member->numFollowers)."\"><img class=\"avatar thin-border\" src=\"".$member->avatarURL."\" width=\"25px\">".$member->name_token."</a>";
 					
-					if ($member->mixer_id == $community_info->founder) {
+					if ($member->mixer_id == $community->founder) {
 						echo ' <i class="fas fa-star" style="color: gold"></i>';
 					}
-					if ($member->mixer_id == $community_info->admin) {
+					if ($member->mixer_id == $community->admin) {
 						echo ' <i class="fas fa-crown" style="color: gold"></i>';
 					}
 
-					if ($member->mixer_id == in_array($member->mixer_id, $moderatorIds)){
+					if ($member->mixer_id == in_array($member->mixer_id, $memberIdLists['moderators'])){
 						echo ' <i class="fas fa-chess-knight" style="color: silver"></i>';
 					}
 
@@ -71,14 +70,14 @@
 				<?php 
 					if ($currentUser != null) {
 
-						if ($community_info->admin != $_SESSION['mixer_id']) {
+						if ($community->admin != $_SESSION['mixer_id']) {
 							if ($currentUser->isMod) { ?>
-								<button type="button" data-toggle="tooltip" id="moderateLink" title="Moderate this community." onclick="window.location.href = '/community/<?php echo $community_info->slug; ?>/mod';" class="btn btn-sm btn-primary">Moderate Community</a>
+								<button type="button" data-toggle="tooltip" id="moderateLink" title="Moderate this community." onclick="window.location.href = '/community/<?php echo $community->slug; ?>/mod';" class="btn btn-sm btn-primary">Moderate Community</a>
 							<?php }
 
 								if ($currentUser->isMember) { ?>
-									<button type="button" class="action confirm btn btn-sm btn-danger" action="leaveCommunity" communityId="<?php echo $community_info->id; ?>" userId="<?php echo $_SESSION['mixer_id']; ?>">Leave</button>
-									<!--echo "<button type=\"button\" data-toggle=\"tooltip\" title=\"Leave this community.\" id=\"leave\" commId=\"".$community_info->id."\" class=\"commAction btn-sm btn-danger\">Leave</button>"; --><?php
+									<button type="button" class="action confirm btn btn-sm btn-danger" action="leaveCommunity" communityId="<?php echo $community->id; ?>" userId="<?php echo $_SESSION['mixer_id']; ?>">Leave</button>
+									<!--echo "<button type=\"button\" data-toggle=\"tooltip\" title=\"Leave this community.\" id=\"leave\" commId=\"".$community->id."\" class=\"commAction btn-sm btn-danger\">Leave</button>"; --><?php
 								} else { 
 									if ($currentUser->isBanned) {
 										$params = [
@@ -90,16 +89,16 @@
 										];
 										echo action_button($params);
 									} else {
-										if ($community_info->status == 'closed') {
+										if ($community->status == 'closed') {
 											//echo "secondary\" disabled>Closed</button>";
-											?><button type="button" class="btn btn-sm btn-secondary" action="joinCommunity" communityId="<?php echo $community_info->id; ?>" userId="<?php echo $_SESSION['mixer_id']; ?>" disabled>Closed</button><?php
+											?><button type="button" class="btn btn-sm btn-secondary" action="joinCommunity" communityId="<?php echo $community->id; ?>" userId="<?php echo $_SESSION['mixer_id']; ?>" disabled>Closed</button><?php
 										} else {
 											if ($currentUser->isPending) {
 												//echo "info\" id=\"unpend\">Pending</button>";
-												?><button type="button" class="action confirm btn btn-sm btn-info" action="unpendCommunity" communityId="<?php echo $community_info->id; ?>" userId="<?php echo $_SESSION['mixer_id']; ?>"><i class="fas fa-circle-notch fa-spin"></i> Pending</button><?php
+												?><button type="button" class="action confirm btn btn-sm btn-info" action="unpendCommunity" communityId="<?php echo $community->id; ?>" userId="<?php echo $_SESSION['mixer_id']; ?>"><i class="fas fa-circle-notch fa-spin"></i> Pending</button><?php
 											} else {
 												//echo "primary\" id=\"join\" >Join</button>";
-												?><button type="button" class="action btn btn-sm btn-primary" action="joinCommunity" communityId="<?php echo $community_info->id; ?>" userId="<?php echo $_SESSION['mixer_id']; ?>">Join</button><?php
+												?><button type="button" class="action btn btn-sm btn-primary" action="joinCommunity" communityId="<?php echo $community->id; ?>" userId="<?php echo $_SESSION['mixer_id']; ?>">Join</button><?php
 											}
 										}
 									}
@@ -109,16 +108,16 @@
 							 
 
 							if ($currentUser->isFollower) { ?>
-								<button type="button" class="action confirm btn btn-sm btn-danger" action="unfollowCommunity" communityId="<?php echo $community_info->id; ?>" userId="<?php echo $_SESSION['mixer_id']; ?>">Unfollow</button><?php
-								//echo "<button type=\"button\" data-toggle=\"tooltip\" title=\"Stop getting updates from this community on your profile.\" id=\"unfollow\" commId=\"".$community_info->id."\" class=\"commAction btn-sm btn-danger\">Unfollow</button>";
+								<button type="button" class="action confirm btn btn-sm btn-danger" action="unfollowCommunity" communityId="<?php echo $community->id; ?>" userId="<?php echo $_SESSION['mixer_id']; ?>">Unfollow</button><?php
+								//echo "<button type=\"button\" data-toggle=\"tooltip\" title=\"Stop getting updates from this community on your profile.\" id=\"unfollow\" commId=\"".$community->id."\" class=\"commAction btn-sm btn-danger\">Unfollow</button>";
 							} else {?>
-								<button type="button" class="action btn btn-sm btn-primary" action="followCommunity" communityId="<?php echo $community_info->id; ?>" userId="<?php echo $_SESSION['mixer_id']; ?>">Follow</button><?php
-								//echo "<button type=\"button\" data-toggle=\"tooltip\" title=\"Track streamers in this community from your profile page.\" id=\"follow\" commId=\"".$community_info->id."\" class=\"commAction btn-sm btn-primary\">Follow</button>";
+								<button type="button" class="action btn btn-sm btn-primary" action="followCommunity" communityId="<?php echo $community->id; ?>" userId="<?php echo $_SESSION['mixer_id']; ?>">Follow</button><?php
+								//echo "<button type=\"button\" data-toggle=\"tooltip\" title=\"Track streamers in this community from your profile page.\" id=\"follow\" commId=\"".$community->id."\" class=\"commAction btn-sm btn-primary\">Follow</button>";
 							}
 
 							
 						} else { ?>
-							<button type="button" data-toggle="tooltip" id="moderateLink" title="Moderate this community." onclick="window.location.href = '/community/<?php echo $community_info->slug; ?>/mod';" class="btn btn-sm btn-primary">Moderate Community</button>
+							<button type="button" data-toggle="tooltip" id="moderateLink" title="Moderate this community." onclick="window.location.href = '/community/<?php echo $community->slug; ?>/mod';" class="btn btn-sm btn-primary">Moderate Community</button>
 						<?php }
 
 						
