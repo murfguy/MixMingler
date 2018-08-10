@@ -131,6 +131,19 @@ if ( ! function_exists('action_button')) {
 	}
 } // actionButton
 
+if ( ! function_exists('imgBackup')) {
+	function imgBackup($kind) {
+		$backupCovers = array(
+			'type' => "https://mixer.com/_latest/assets/images/main/types/default.jpg",
+			'stream' => "https://mixer.com/_latest/assets/images/browse/thumbnail.jpg?f877a91",
+			'streamer' => "https://mixer.com/_latest/assets/images/main/avatars/default.png",
+			'community' => "/assets/graphics/covers/blankCover.png"
+		);
+		;
+		return "this.src='".$backupCovers[$kind]."'";
+	}
+}
+
 if ( ! function_exists('newsDisplay')) {
 	function newsDisplay($params = array()) {
 		if (!empty($params)) {

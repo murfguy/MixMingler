@@ -14,9 +14,19 @@ class News {
 		$this->CI->load->library('types');
 	}
 
-	public function addNews($mixer_id, $eventText, $eventType, $extraVars = "") {
-		$sql_query = "INSERT INTO timeline_events (mixer_id, eventText, eventType, extraVars) VALUES (?, ?, ?, ?)";
-		$values = array($mixer_id, $eventText, $eventType, $extraVars);
+	public function addNews($mixer_id, $event, $eventType, $extraVars = array()) {
+		$eventText = $this->getEventString($event);
+
+		if (empty($extraVars)) {
+			$extraVars = array('TypeID' => null, 'CommunityID' => null);
+		} else {
+			$extraVars = array();
+			if (empty($extraVars['TypeID'])) { $extraVars['TypeID'] = null; };
+			if (empty($extraVars['CommunityID'])) { $extraVars['CommunityID'] = null; };
+		}
+
+		$sql_query = "INSERT INTO TimelineEvents (MixerID, Content, Type, TypeID, CommunityID) VALUES (?, ?, ?, ?, ?)";
+		$values = array($mixer_id, $eventText, $eventType, $extraVars['TypeID'], $extraVars['CommunityID']);
 		$query = $this->CI->db->query($sql_query, $values);
 	}
 
@@ -34,14 +44,25 @@ class News {
 		return  $query->result();
 	}
 
-	public function getNewsInsertQueryDataArray ($mixer_id, $eventText, $eventType, $extraVars = "") {
+	public function getNewsInsertQueryDataArray ($mixer_id, $eventText, $eventType, $extraVars = array()) {
+		if (!empty($extraVars)) {
+			if (empty($extraVars['TypeID'])) { $extraVars['TypeID'] = null; }
+			if (empty($extraVars['CommunityID'])) { $extraVars['CommunityID'] = null; }
+		} else {
+			$extraVars['TypeID'] = null;
+			$extraVars['CommunityID'] = null;
+		}
+
+
 		$query_data = array(
-			'mixer_id' => $mixer_id,
-			'eventTime' => date('Y-m-d H:i:s'),
-			'eventText' => $eventText,
-			'eventType' => $eventType,
-			'extraVars' => $extraVars
+			'MixerID' => $mixer_id,
+			'EventTime' => date('Y-m-d H:i:s'),
+			'Content' => $eventText,
+			'Type' => $eventType,
+			'TypeID' => $extraVars['TypeID'],
+			'CommunityID' => $extraVars['CommunityID']
 		);
+
 		return $query_data;
 	}
 

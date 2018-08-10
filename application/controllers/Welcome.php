@@ -27,25 +27,26 @@ class Welcome extends CI_Controller {
 		
 		$viewData = new stdClass();
 		$viewData->userName = $_SESSION['mixer_user'];
-		$user = $this->users->getUserFromMingler($_SESSION['mixer_id']);
+		$mixerID = $_SESSION['mixer_id'];
+		$user = $this->users->getUserFromMingler($mixerID);
 
 		$communitiesData = new stdClass();
 		$communitiesData->core = null;
 		$communitiesData->joined = null;
 		$communitiesData->followed = null;
-		$communitiesData->new = $this->communities->getNewCommunities($user->previousLogin);
+		$communitiesData->new = $this->communities->getNewCommunities($user->PreviousLogin);
 
-		if (!empty($user->coreCommunities)) {
-			$communitiesData->core = $this->communities->getCommunitiesFromList($user->coreCommunities);
+		if (!empty($user->CoreCommunities)) {
+			$communitiesData->core = $this->communities->getCommunitiesFromList($user->CoreCommunities);
 		} 
-		if (!empty($user->joinedCommunities)) {
-			$communitiesData->joined = $this->communities->getCommunitiesFromList($user->joinedCommunities);
+		if (!empty($user->JoinedCommunities)) {
+			$communitiesData->joined = $this->communities->getCommunitiesFromList($user->JoinedCommunities);
 		} 
-		if (!empty($user->followedCommunities)) {
-			$communitiesData->followed = $this->communities->getCommunitiesFromList($user->followedCommunities);
+		if (!empty($user->FollowedCommunities)) {
+			$communitiesData->followed = $this->communities->getCommunitiesFromList($user->FollowedCommunities);
 		} 
 
-		$followedTypes = $this->types->getSpecifiedTypesFromMixer($user->followedTypes);
+		$followedTypes = $this->types->getSpecifiedTypesFromMixer($user->FollowedTypes);
 		//$followedTypes = array();
 		$gameNews = array();
 		$typeData = array();
@@ -58,9 +59,14 @@ class Welcome extends CI_Controller {
 		$viewData->user = $user;
 		$viewData->communitiesData = $communitiesData;
 		$viewData->modCommunities = $this->users->getUsersAdminedOrModeratedCommunities($_SESSION['mixer_id']);
-		$viewData->pendingCommunities = $this->users->getUsersPendingCommunities($_SESSION['mixer_id']);
-		$viewData->approvedCommunities = $this->users->getUsersApprovedCommunities($_SESSION['mixer_id']);
-		$viewData->rejectedCommunities = $this->users->getUsersRejectedCommunities($_SESSION['mixer_id']);
+
+
+		$viewData->pendingCommunities = $this->users->getCommunitiesByStatus($mixerID, 'pending');
+		$viewData->approvedCommunities = $this->users->getCommunitiesByStatus($mixerID, 'approved');
+		$viewData->rejectedCommunities = $this->users->getCommunitiesByStatus($mixerID, 'rejected');
+		//$viewData->pendingCommunities = $this->users->getUsersPendingCommunities($_SESSION['mixer_id']);
+		//$viewData->approvedCommunities = $this->users->getUsersApprovedCommunities($_SESSION['mixer_id']);
+		//$viewData->rejectedCommunities = $this->users->getUsersRejectedCommunities($_SESSION['mixer_id']);
 
 
 		$viewData->gameNews = $gameNews;

@@ -841,8 +841,8 @@ function submitModerationAction(actionUrl, communityId, mixer_id, name_token, ac
 function setRequestCommunityValidationListeners() {
 	console.log("setRequestCommunityValidationListeners()");
 
-	$("#requestCommunity input#long_name").on("change paste keyup", function() {
-		console.log( "#requestCommunity input#long_name on change paste keyup" );
+	$("#requestCommunity input#name").on("change paste keyup", function() {
+		console.log( "#requestCommunity input#name on change paste keyup" );
 
 		slug = $(this).val().toLowerCase();
 		slug = slug.replace(/ /g, "-");
@@ -853,8 +853,8 @@ function setRequestCommunityValidationListeners() {
 	});
 
 
-	$("input.long_name").on("change paste keyup", function() {
-		target = "#slug-"+$(this).attr('id').replace('long_name-', '');
+	$("input.name").on("change paste keyup", function() {
+		target = "#slug-"+$(this).attr('id').replace('name-', '');
 
 		slug = $(this).val().toLowerCase();
 		slug = slug.replace(/ /g, "-");

@@ -7,7 +7,7 @@
 		$success = true;
 
 		if ($creationCriteria['isLoggedIn']) {
-			if ($creationCriteria['bannedFromCreation'] == false) {
+			if ($creationCriteria['isBannedCreator'] == false) {
 				if ($creationCriteria['agedEnough'] == false) {
 					echo "<div class=\"alert alert-danger\" role=\"alert\"><h4>You are not eligible for community creation!</h4><strong>Failed Criteria:</strong> Your Mixer account is too young.</div>";
 					$success = false;
@@ -62,16 +62,16 @@
 					<div class="form-row">
 						<div class="form-group col-md-4">
 							<?php 
-								echo form_label('Community Name', 'long_name');
+								echo form_label('Community Name', 'name');
 
 								$attributes = array(
-									'id' => 'long_name',
+									'id' => 'name',
 									'class' => 'form-control form-control-sm',
 									'placeholder' => 'Enter the community\'s name.',
 									'data-validation' => 'required length',
 									'data-validation-length' => 'max32'
 								);
-								echo form_input('long_name', '', $attributes); 
+								echo form_input('name', '', $attributes); 
 							?>
 						</div>
 						<div class="form-group col-md-4">

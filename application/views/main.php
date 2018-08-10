@@ -1,6 +1,6 @@
 <main role="main" class="container">
 	<div class="pageHeader">
-		<h1><img src="<?php echo $avatarUrl = $user->avatarURL; ?>" class="avatar thin-border" width="60" />Welcome <?php echo $user->name_token; ?></h1>
+		<h1><img src="<?php echo $user->AvatarURL; ?>" onerror="<?php echo imgBackup('streamer'); ?>" class="avatar thin-border" width="60" />Welcome <?php echo $user->Username; ?></h1>
 	</div>
 
 	<div class="alert alert-success">

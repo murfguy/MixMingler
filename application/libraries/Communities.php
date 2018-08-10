@@ -11,11 +11,16 @@ class Communities {
 		// Load Database
 		$this->CI->load->database();
 		$this->CI->load->library('types');
+
+		$this->db = $this->CI->db;
+		$this->types = $this->CI->types;
 	}
 
 	public function getCommunity($communityID) {
-		$sql_query = "SELECT * FROM communities WHERE id=$communityID";
-		$query = $this->CI->db->query($sql_query, array($communityID));
+		//$sql_query = "SELECT * FROM Communities WHERE ID=$communityID";
+		$query = $this->db->query($sql_query, array($communityID));
+
+		$query = $this->db->get_where('Communities', array('ID' => $communityID));
 
 		if (!empty($query->result())) {
 			return $query->result()[0];
@@ -26,7 +31,7 @@ class Communities {
 	}
 
 	public function getCommunityBySlug($communitySlug) {
-		$sql_query = "SELECT * FROM communities WHERE slug=?";
+		$sql_query = "SELECT * FROM Communities WHERE slug=?";
 		$query = $this->CI->db->query($sql_query, array($communitySlug));
 		if (!empty($query->result())) {
 			return $query->result()[0];
@@ -58,20 +63,20 @@ class Communities {
 	}
 
 	public function getCommunitiesFromList($communityList) {
-		$sql_query = "SELECT * FROM communities WHERE id IN ($communityList)";
+		$sql_query = "SELECT * FROM Communities WHERE id IN ($communityList)";
 		$query = $this->CI->db->query($sql_query);
 		return $query->result();
 	}
 
 
 	public function getNewCommunities($timeStamp) {
-		$sql_query = "SELECT * FROM communities WHERE timeFounded > ? OR timeFounded > DATE_SUB(now(), INTERVAL 14 DAY)";
+		$sql_query = "SELECT * FROM Communities WHERE FoundationTime > ? OR FoundationTime > DATE_SUB(now(), INTERVAL 14 DAY)";
 		$query = $this->CI->db->query($sql_query, array($timeStamp));
 		return $query->result();
 	}
 
 	public function getCommunityMembers($communitySlug) {
-		$sql_query = "SELECT *  FROM `mixer_users` WHERE FIND_IN_SET((SELECT id FROM communities WHERE slug=?), `joinedCommunities`) > 0 ORDER BY name_token ASC";
+		$sql_query = "SELECT *  FROM `mixer_users` WHERE FIND_IN_SET((SELECT id FROM Communities WHERE slug=?), `joinedCommunities`) > 0 ORDER BY name_token ASC";
 		$query = $this->CI->db->query($sql_query, array($communitySlug));
 		return $query->result();
 	}
@@ -148,9 +153,34 @@ WHERE (MemberState = 'admin' OR MemberState='moderator') AND CommunityID=?";
 		return $query->result();
 	}
 
+	public function createNewCommunity($commData) {
+		// Add new community request into database
+		$data = array(
+			'Name' => $commData['name'],
+			'Slug' => $commData['slug'],
+			'CategoryID' => $commData['category_id'],
+			'Summary' => strip_tags($commData['summary']),
+			'Description' => strip_tags($commData['description']),
+			'Founder' => $_SESSION['mixer_id'],
+			'Admin' => $_SESSION['mixer_id']);
+		$this->db->insert('Communities', $data);
+
+		// get new community's id value
+		$newCommunityId = $this->db->insert_id();
+
+		// Update requesting user's data to become founder, admin, member and follower of their new community.
+		$data = array(
+			array('MixerID'=>$_SESSION['mixer_id'], 'CommunityID'=>$newCommunityId, 'MemberState' => 'founder'),
+			array('MixerID'=>$_SESSION['mixer_id'], 'CommunityID'=>$newCommunityId, 'MemberState' => 'admin'),
+			array('MixerID'=>$_SESSION['mixer_id'], 'CommunityID'=>$newCommunityId, 'MemberState' => 'member'),
+			array('MixerID'=>$_SESSION['mixer_id'], 'CommunityID'=>$newCommunityId, 'MemberState' => 'follower')
+		);			
+		$this->db->insert_batch('UserCommunities', $data);
+	}
+
 	public function communityNameExists($commName) {
-		$sql_query = "SELECT * FROM communities WHERE long_name=?";
-		$query = $this->CI->db->query($sql_query, array($commName));
+		$sql_query = "SELECT * FROM Communities WHERE Name=?";
+		$query = $this->db->query($sql_query, array($commName));
 		if ($query->num_rows() > 0) {
 			return true;
 		}
@@ -158,8 +188,8 @@ WHERE (MemberState = 'admin' OR MemberState='moderator') AND CommunityID=?";
 	}
 
 	public function communitySlugExists($slug) {
-		$sql_query = "SELECT * FROM communities WHERE slug=?";
-		$query = $this->CI->db->query($sql_query, array($slug));
+		$sql_query = "SELECT * FROM Communities WHERE Slug=?";
+		$query = $this->db->query($sql_query, array($slug));
 		
 		if ($query->num_rows() > 0) {
 			return true;

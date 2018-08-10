@@ -726,7 +726,7 @@ class Servlet extends CI_Controller {
 		// Check for any errors
 		
 		// Does that name exist? 
-		if ($this->communities->communityNameExists($_POST['long_name'])) {
+		if ($this->communities->communityNameExists($_POST['name'])) {
 			$this->returnData->success = false;
 			$this->returnData->messages[] = "A community with this name already exists.";
 		}
@@ -765,33 +765,13 @@ class Servlet extends CI_Controller {
 		// If all criteria passed:
 		if ($this->returnData->success) {
 			// Add new community request into database
-			$sql_query = "INSERT INTO communities (long_name, slug, category_id, summary, description, founder, admin) VALUES (?, ?, ?, ?, ?, ?, ?)";
-			$inputData = array(
-				$_POST['long_name'], 
-				$_POST['slug'], 
-				$_POST['category_id'], 
-				strip_tags($_POST['summary']), 
-				strip_tags($_POST['description']),
-				$_SESSION['mixer_id'],
-				$_SESSION['mixer_id']
-			);			
-			$query = $this->db->query($sql_query, $inputData);
-
-			// get new community's id value
-			$newCommunityId = $this->db->insert_id();
-
-			// Update requesting user's data to become founder, admin, member and follower of their new community.
-			$inputData = array(
-				$_SESSION['mixer_id'], $newCommunityId,
-				$_SESSION['mixer_id'], $newCommunityId,
-				$_SESSION['mixer_id'], $newCommunityId,
-				$_SESSION['mixer_id'], $newCommunityId,
-			);
-			$sql_query = "INSERT INTO UserCommunities (MixerID, CommunityID, MemberState) VALUES (?, ?, 'founder'), (?, ?, 'admin'), (?, ?, 'member'), (?, ?, 'follower')";
-			$query = $this->db->query($sql_query, $inputData);
+			$this->communities->createNewCommunity($_POST);
 
 			// Send an email alert to site admins about new community request
-			$this->communications->sendNewCommunityRequestAlert($_SESSION['mixer_user'], $_POST['long_name']);
+			$emailParams = array(
+				'requester'=>$_SESSION['mixer_user'],
+				'communityName'=>$_POST['name']);
+			$this->communications->sendMessage('admins', 'newCommunityRequest', $emailParams);
 		}
 
 		$this->returnData();

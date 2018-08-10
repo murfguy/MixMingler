@@ -50,13 +50,13 @@ class Types {
 	}
 
 	public function getAllTypeIdsFromMingler() {
-		$sql_query = "SELECT typeId FROM stream_types ORDER BY id ASC";
+		$sql_query = "SELECT TypeID FROM StreamTypes ORDER BY TypeID ASC";
 		$query = $this->CI->db->query($sql_query);
 		$types = $query->result();
 
 		$typeIds = array();
 		foreach ($types as $type) {
-			$typeIds[] = $type->typeId;
+			$typeIds[] = $type->TypeID;
 		}
 
 		return $typeIds;
@@ -213,7 +213,7 @@ LIMIT 0, 50";
 			$typeData = $this->getEmptyType();
 		}
 
-		$sql_query = "INSERT IGNORE INTO stream_types (typeId, typeName, slug, coverUrl, backgroundUrl) VALUES (?, ?, ?, ?, ?)";
+		$sql_query = "INSERT IGNORE INTO StreamTypes (TypeID, Name, Slug, CoverURL, BackgroundURL) VALUES (?, ?, ?, ?, ?)";
 		$query = $this->CI->db->query($sql_query, array($typeData['id'], $typeData['name'], $this->createSlug($typeData['name']), $typeData['coverUrl'], $typeData['backgroundUrl']));
 	}
 

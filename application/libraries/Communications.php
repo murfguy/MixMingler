@@ -10,20 +10,28 @@ class Communications {
 
 		// Load Database
 		$this->CI->load->database();
+		$this->db = $this->CI->db;
+		$this->CI->load->library('email');
+		$this->email = $this->CI->email;
+
+
 		//$this->load->library('communities');
 		//$this->load->library('types');
-		$this->CI->load->library('email');
 
 		$config['charset'] = "utf-8";
 		$config['mailtype'] = "text";
+		$config['wordwrap'] = TRUE;
 		$config['newline'] = "\r\n";
+		$config['bcc_batch_mode'] = TRUE;
+		$config['bcc_batch_size'] = TRUE;
 
-		$this->CI->email->initialize($config);
-		$this->CI->email->from('alerts@mixmingler.com', 'MixMingler Alerts');
+
+		$this->email->initialize($config);
+		$this->email->from('alerts@mixmingler.com', 'MixMingler Alerts');
 	}
 
-	public function sendMessage($recipients, $messageType, $msgParams, $recipientParams = array()) {
-		switch ($recipients) {
+	public function sendMessage($recipientGroup, $messageType, $msgParams) {
+		switch ($recipientGroup) {
 			case 'admins':
 				$addressees = $this->getSiteAdminEmailAddresses();
 				break;
@@ -37,55 +45,58 @@ class Communications {
 				break;
 		}
 
+		//$recipientAddressList = array();
+		foreach ($addressees as $recipient) {
+			$recipientAddressList[] = $recipient->Email;
+
+			$this->email->to($recipient->Email);
+			$msg = $this->getMessage($recipient->Username, $messageType, $msgParams);
+			$this->email->subject($msg->subject);
+			$this->email->message($msg->message);
+
+			$this->CI->email->send(FALSE);
+		}
 
 	}
 
-	private function getMessage($type, $params) {
+	private function getMessage($recipientName, $type, $params) {
 		$msgData = new stdClass();
-		$msgData->subject = "[MixMingler] ";
-		$msgData->message = "Hello {username},\r\r ";
+		$msgData->subject = "[MixMingler Alert] ";
+
+		$msgData->message = "Hello $recipientName,\n\n ";
+		$signOff = true;
 
 		switch ($type) {
 			case "newCommunityRequest":
-				$msgData->subject .= " New Community Request";				
-				$msgData->message .= "It looks like ".$params['requester']." has placed a request to found a new community called '".$params['communityName']."'. Please log in to MixMingler to approve or deny this request.";
+				$msgData->subject .= "Request for New Community: ".$params['communityName'];				
+				$msgData->message .= "It looks like ".$params['requester']." has placed a request to found a new community called '".$params['communityName']."'. Please log in to MixMingler to process this request.";
+				break;
+
+
+			case "communityRequestReceived":
+				$msgData->subject .= "Request for ".$params['communityName']." Was Received";
+				$msgData->message .= "Thanks for submiting your request to create the ".$params['communityName']." community. One of the Site Admins will take a look and process it soon. Once they've made a decision, you'll get another notice and your next set of instructions. You'll also find alerts and notices pertaining to your request on your MixMingler home page.";
+				break;
+
+			case "communityApproved":
+				$msgData->subject .= $params['communityName']." Was Approved!";
+				$msgData->message .= "GOOD NEWS! It looks like ".$params['communityName']." was approved! This means that your new community is awaiting your final touches for Foundation! When you log in to MixMingler, there will be a notice on your home page leading you to your next steps! Congrats, and have fun!";
+				break;
+
+			case "communityDenied":
+				$msgData->subject .= $params['communityName']." Was Denied!";
+				$msgData->message .= "We regret to inform you that your request for ".$params['communityName']." was denied! It could have been for a variety of reasons. Maybe there's a similar community. Maybe it included something inappropriate. Maybe the winds of fate are not in your favor. Either way, the Admin who processed your request left this note:\n\n".$params['adminNote']."\n\nYou won't be allowed to make a new community until you've deleted your current request. Please log in to MixMingler at your earliest convenience and do so. Once you do, you are free to try again. But please note that repeated efforts to request a community admins have denied can lead to being banned from creating communities.";
 				break;
 		}
+		$msgData->message .= "\n\nHappy Streaming!\n- The MixMingler Team";				
+		$msgData->message .= "\n\n-- This is an automated email. Do not respond as no one will answer. --";
 
-		$msgData->subject .= " New Community Request";				
-		$msgData->message .= "\r\r This is an automated email. Do not respond as no one will answer.";
-	}
-
-	public function sendNewCommunityRequestAlert($requester, $communityName) {
-		// Collect site admins
-		
-		$this->CI->email->to('murfguy@gmail.com');
-
-		$this->CI->email->subject('New Community Request`');
-		$this->CI->email->message("Greetings! It looks like $requester has placed a request to found a new community called '$communityName'. Please log in to MixMingler to approve or deny this request. This is an automated email. Do not respond.");
-
-		$this->CI->email->send();
-	}
-
-
-	public function sendNewPendingMemberAlert($requester, $communityName) {
-		
-		$this->CI->email->to('murfguy@gmail.com');
-
-		$this->CI->email->subject("New Pending Member for $communityName");
-		$this->CI->email->message("Greetings! It looks like $requester is interested in joining '$communityName'. Please log in to MixMingler to approve or deny this request. This is an automated email. Do not respond.");
-
-		$this->CI->email->send();
-	}
-
-	public function sendApprovedCommunityAlert($emailData, $messageData) {
-
+		return $msgData;
 	}
 
 	private function getSiteAdminEmailAddresses() {
-		$sql_query = "SELECT name_token, email FROM mixer_users WHERE minglerRole IN ('owner', 'admin') ORDER BY id ASC";
-		$query = $this->CI->db->query($sql_query);
-
+		$sql_query = "SELECT Username, Email FROM Users WHERE SiteRole IN ('owner', 'admin') ORDER BY id ASC";
+		$query = $this->db->query($sql_query);
 		return $query->result();
 	}
 

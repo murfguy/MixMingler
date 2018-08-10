@@ -171,36 +171,40 @@ class Community extends CI_Controller {
 			'rejected' => false,
 			'recentlyApproved' => false,
 			'recentlyFounded'=> false,
-			'bannedFromCreation' => false,
+			'isBannedCreator' => false,
 			'isLoggedIn' => true
 		);
 
 		if (!empty($_SESSION['mixer_id'])) {
+			$mixerID = $_SESSION['mixer_id'];
 			$user = $this->users->getUserFromMingler($_SESSION['mixer_id']);
 
 			$pending = null;
 			if ($user != null) {
-				$pending = $this->users->getUsersPendingCommunities($_SESSION['mixer_id']);
-				$approved = $this->users->getUsersApprovedCommunities($_SESSION['mixer_id']);
-				$rejected = $this->users->getUsersRejectedCommunities($_SESSION['mixer_id']);
+				$pending = $this->users->getCommunitiesByStatus($mixerID, 'pending');
+				$approved = $this->users->getCommunitiesByStatus($mixerID, 'approved');
+				$rejected = $this->users->getCommunitiesByStatus($mixerID, 'rejected');
+				//$pending = $this->users->getUsersPendingCommunities($_SESSION['mixer_id']);
+				//$approved = $this->users->getUsersApprovedCommunities($_SESSION['mixer_id']);
+				//$rejected = $this->users->getUsersRejectedCommunities($_SESSION['mixer_id']);
 			}
 
 			$timespan = 14; // Default, two weeks
-			if ($user->numFollowers < 200) { $timespan = 7*4; } // if < 200 followers, 4 weeks
-			if ($user->numFollowers < 100) { $timespan = 7*5; } // if < 100 followers, 5 weeks
-			if ($user->numFollowers < 50) { $timespan = 7*6; } // if < 50 followers, 6 weeks
+			if ($user->NumFollowers < 200) { $timespan = 7*4; } // if < 200 followers, 4 weeks
+			if ($user->NumFollowers < 100) { $timespan = 7*5; } // if < 100 followers, 5 weeks
+			if ($user->NumFollowers < 50) { $timespan = 7*6; } // if < 50 followers, 6 weeks
 
 			// Debug/Alpha Value
 			$timespan = 2; // 2 days
 
-			if ($user->minglerRole != 'user') { $timespan = 0; } // site runners can make communities whenever
+			if ($user->SiteRole != 'user') { $timespan = 0; } // site runners can make communities whenever
 
 			// If user is banned from making communities: fail, and no other criteria matter.
-			if ($user->bannedFromCreation) { $creationCriteria['bannedFromCreation'] = true; } else {
+			if ($user->isBannedCreator) { $creationCriteria['isBannedCreator'] = true; } else {
 				// If user isn't banned, then let's look at the other critera.
 
 				// If user's account is under 90 days old: fails
-				if (strtotime($user->joinedMixer) > (time() - (60*60*24*90))) { $creationCriteria['agedEnough'] = false; }
+				if (strtotime($user->JoinedMixer) > (time() - (60*60*24*90))) { $creationCriteria['agedEnough'] = false; }
 				
 				// If user has a pending community approval: fails
 				if ($pending != null) { $creationCriteria['pendingApproval'] = true; }
@@ -212,7 +216,7 @@ class Community extends CI_Controller {
 				if ($rejected != null) { $creationCriteria['rejected'] = true; }
 
 				// If user founded a community too recently: fail
-				if (strtotime($user->lastFoundation) > (time() - ((60*60*24)*$timespan))) { $creationCriteria['recentlyFounded'] = true; }
+				if (strtotime($user->LastFoundationTime) > (time() - ((60*60*24)*$timespan))) { $creationCriteria['recentlyFounded'] = true; }
 			}
 
 		} else {
@@ -228,14 +232,14 @@ class Community extends CI_Controller {
 
 	// Returns data for all communites, with member counts
 	private function loadAllCommunities() {
-		$sql_query = "SELECT communities.*,
-			community_categories.name as category_name,
-			community_categories.slug as category_slug,
-			count(UserCommunities.MixerID) as memberCount
-			FROM `communities`
-			JOIN community_categories ON communities.category_id = community_categories.id
-			JOIN UserCommunities ON communities.id = UserCommunities.CommunityID AND UserCommunities.MemberState = 'member'
-			WHERE communities.status='open' OR communities.status='closed'
+		$sql_query = "SELECT C.*,
+			CC.name as category_name,
+			CC.slug as category_slug,
+			count(UC.MixerID) as memberCount
+			FROM `Communities` as C
+			JOIN CommunityCategories as CC ON C.CategoryID = CC.ID
+			JOIN UserCommunities as UC ON C.ID = UC.CommunityID AND UC.MemberState = 'member'
+			WHERE C.status='open' OR C.status='closed'
 			GROUP BY CommunityID
 			ORDER BY memberCount DESC";
 
