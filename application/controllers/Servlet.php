@@ -345,17 +345,28 @@ class Servlet extends CI_Controller {
 				$this->returnData->communityID = $communityID;
 				$this->returnData->mixer_id = $mixer_id;
 
+
 				// Let's select the data we need from the community.
-				$sql_query = "SELECT long_name, admin, coreMembers FROM communities WHERE id=?";
+				/*$sql_query = "SELECT long_name, admin, coreMembers FROM communities WHERE id=?";
 				$query = $this->db->query($sql_query, array($communityID));
 				$community = null; if (!empty($query->result())) { $community = $query->result()[0]; };
 
 				// And now we collect relevant data to our target user.
 				$sql_query = "SELECT name_token, coreCommunities FROM mixer_users WHERE mixer_id=?";
 				$query = $this->db->query($sql_query, array($mixer_id));
-				$member = null; if (!empty($query->result())) { $member = $query->result()[0]; };
+				$member = null; if (!empty($query->result())) { $member = $query->result()[0]; };*/
 
-				if (!empty($community) && !empty($member)) {
+
+				$sql_query = "SELECT C.admin, C.long_name, M.name_token, M.email, GROUP_CONCAT(UC.MemberState) as states
+					FROM `UserCommunities` as UC
+					JOIN mixer_users AS M ON M.mixer_id = UC.MixerID
+					JOIN communities AS C ON C.id = UC.CommunityID
+					WHERE CommunityID=? AND MixerID=?";
+				//$member = null; if (!empty($query->result())) { $member = $query->result()[0]; };
+
+				$member = $this->users->getUserFromMingler($mixer_id);
+
+				if (!empty($member)) {
 					$this->returnData->userName = $member->name_token;
 					$this->returnData->communityName = $community->long_name;
 
@@ -908,18 +919,13 @@ class Servlet extends CI_Controller {
 				$this->returnData->currentUserId = $currentUserId;
 				$this->returnData->memberId = $memberId;
 				$this->returnData->memberStatus = $memberStatus;
-
-				/*$sql_query = "SELECT c.admin, c.long_name,
-					GROUP_CONCAT( CASE WHEN MemberState='moderator' THEN MixerID ELSE NULL END) as moderators
-					FROM `UserCommunities` as UC
-					JOIN mixer_users AS m ON m.mixer_id = UC.MixerID
-					JOIN communities AS c ON c.id = UC.CommunityID
-					WHERE CommunityID=?";
-				$query = $this->db->query($sql_query, array($communityID));
-				$community = null; if (!empty($query->result())) { $community = $query->result()[0]; };*/
-
-				// And now we collect relevant data to our target user.
-				$sql_query = "SELECT C.admin,C.long_name AS communityName, M.name_token, M.email, GROUP_CONCAT(UC.MemberState) as states
+				// Now we collect relevant data to our target user.
+				$sql_query = "SELECT 
+						C.admin,
+						C.long_name,
+						M.name_token,
+						M.email, 
+						GROUP_CONCAT(UC.MemberState) as states
 					FROM `UserCommunities` as UC
 					JOIN mixer_users AS M ON M.mixer_id = UC.MixerID
 					JOIN communities AS C ON C.id = UC.CommunityID
@@ -927,9 +933,13 @@ class Servlet extends CI_Controller {
 				$query = $this->db->query($sql_query, array($communityID, $memberId));
 				$member = null; if (!empty($query->result())) { $member = $query->result()[0]; };
 
+				//$member = $this->users->getUserFromMingler($memberId);
+				$community = $this->communities->getCommunity($communityID);
+
 				// Did we collect good data?
-				if (!empty($member)) {
+				if (!empty($community) && !empty($member)) {
 					$this->returnData->memberName = $member->name_token;
+					// Member's states related to this community
 					$states = explode(",", $member->states);
 					$this->returnData->memberStates = $states;
 
@@ -938,148 +948,163 @@ class Servlet extends CI_Controller {
 
 					// Is the current user allowed to do this?
 					if ($isMod || $isAdmin) {
-						// We can succesfully modify the member information now
-
-						// ----------------------------------------------------------------------------------------
-						// -- Modify lists of membership based on requested action
-						// ----------------------------------------------------------------------------------------
-						/*
-						// Remove from 'pending lists'
-						if (in_array($memberStatus, array('approveMember','denyMember', "kickMember", "banMember")) ) {							
-							$pendingMemberList = $this->tools->removeValueFromList($memberId, $community->pendingMembers);
-							$pendingCommunityList = $this->tools->removeValueFromList($communityID, $member->pendingCommunities);
-						}
-
-						// Remove from 'moderator lists'
-						if (in_array($memberStatus, array('demoteMember','kickMember', "banMember")) ) {					
-							$moderatorMemberList = $this->tools->removeValueFromList($memberId, $community->moderators);
-							$moderatedCommunityList = $this->tools->removeValueFromList($communityID, $member->modCommunities);
-						}
-
-						// Remove from all remaining lists
-						if (in_array($memberStatus, array('kickMember', "banMember")) ) {
-							// core membership lists
-							$coreMemberList = $this->tools->removeValueFromList($memberId, $community->coreMembers);
-							$coreCommunityList = $this->tools->removeValueFromList($communityID, $member->coreCommunities);
-
-							// General membership lists
-							$memberList = $this->tools->removeValueFromList($memberId, $community->members);
-							$joinedCommunityList = $this->tools->removeValueFromList($communityID, $member->joinedCommunities);
-						}
-
-						if ($memberStatus == "unbanMember") {
-							$bannedMemberList = $this->tools->removeValueFromList($memberId, $community->bannedMembers);
-						}*/
-
 
 						// ----------------------------------------------------------------------------------------
 						// -- Update database based on requested action
 						// ----------------------------------------------------------------------------------------
 
-					
+						// At this point, we only catching pre-existing exceptions. As such, all attempts are successful.
+						$this->returnData->success = true;
+						$this->returnData->completedAction = $memberStatus;
+
+						$isOwner = in_array('admin', $states);
+						$isModerator = in_array('moderator', $states);
+						$isMember = in_array('member', $states);
+						$isPending = in_array('pending', $states);
+						$isBanned = in_array('banned', $states);
+
 						switch ($memberStatus) {
-							case "approveMember":								
-								// Update user data with removed pending list, and added into joined list
-								$sql_query = "UPDATE mixer_users SET pendingCommunities=?, joinedCommunities = IF(joinedCommunities='', ?, concat(joinedCommunities, ',', ?)) WHERE mixer_id=?";
-								$query = $this->db->query($sql_query, array($pendingCommunityList, $communityID, $communityID, $memberId));
+							case "approveMember":
+								if (!$isPending) {
+									$this->returnData->message = $member->name_token." is not pending.";
+								} else {
+									$sql_query = "INSERT INTO UserCommunities (MixerID, CommunityID, MemberState) VALUES (?, ?, 'member')";
+									$query = $this->db->query($sql_query, array($memberId, $communityID));
 
-								// Update community data with new pending list, and new member added into joined list
-								$sql_query = "UPDATE communities SET pendingMembers=?, members = IF(members='', ?, concat(members, ',', ?)) WHERE id=?";
-								$query = $this->db->query($sql_query, array($pendingMemberList, $memberId, $memberId, $communityID));
+									$sql_query = "DELETE FROM UserCommunities WHERE MixerID=? AND CommunityID=? AND MemberState='pending'";
+									$query = $this->db->query($sql_query, array($memberId, $communityID));
 
+									$this->returnData->message = $member->name_token." was added as a new member to ".$community->long_name;
 
-								// Add news item 
-								$newsText = $this->news->getEventString("joinCommunity", array($communityID));
-								$this->news->addNews($memberId, $newsText, "community", $communityID);
+									// Add news item 
+									$newsText = $this->news->getEventString("joinCommunity", array($communityID));
+									$this->news->addNews($memberId, $newsText, "community", $communityID);
 
+									// notify: new member, community admin/mods
+								}
 
-								$this->returnData->message = $member->name_token." was added as a new member to ".$community->long_name;
-
-								// notify user about approval
 								break;
 
 							case "denyMember":
-								// Update user data with removed pending list, and added into joined list
-								$sql_query = "UPDATE mixer_users SET pendingCommunities=? WHERE mixer_id=?";
-								$query = $this->db->query($sql_query, array($pendingCommunityList, $memberId));
+								if (!$isPending) {
+									$this->returnData->message = $member->name_token." is not pending.";
+								} else {
+									$sql_query = "DELETE FROM UserCommunities WHERE MixerID=? AND CommunityID=? AND MemberState='pending'";
+									$query = $this->db->query($sql_query, array($memberId, $communityID));
 
-								// Update community data with new pending list, and new member added into joined list
-								$sql_query = "UPDATE communities SET pendingMembers=? WHERE id=?";
-								$query = $this->db->query($sql_query, array($pendingMemberList, $communityID));
+									$this->returnData->message = $member->name_token." was denied membership to ".$community->long_name;
 
-								$this->returnData->message = $member->name_token." was denied membership to ".$community->long_name;
+									// notify: new member, community admin/mods
+								}
 
-								// notify user about denial
 								break;
 
 							case "promoteMember":
-								if (!in_array('moderator', $states)) {
+								// fail condition: isModerator OR not isMember
+								if ($isOwner || $isModerator || !$isMember) {
+									$msg = $member->name_token." is ";
+									if ($isOwner) { $msg .= "the Community Admin and cannot be promoted."; }
+									if ($isModerator) { $msg .= $member->name_token."already a Moderator."; }
+									if (!$isMember) { $msg .= $member->name_token."no longer a member of ".$community->long_name."."; }
+									$this->returnData->message = $msg;
+								} else {
 									$sql_query = "INSERT INTO UserCommunities (MixerID, CommunityID, MemberState) VALUES (?, ?, 'moderator')";
 									$query = $this->db->query($sql_query, array($memberId, $communityID));
 
-									$this->returnData->success = true;
-									$this->returnData->message = $member->name_token." was changed to a 'moderator' in ".$member->communityName;
+									$this->returnData->message = $member->name_token." was changed to a 'moderator' in ".$community->long_name;
 
 									// Add news item 
 									$newsText = $this->news->getEventString("newCommRole", array("moderator", $communityID));
 									$this->news->addNews($memberId, $newsText, "community", $communityID);
-								} else {
-									$this->returnData->message = $member->name_token." is already a 'moderator' in ".$member->communityName;
 								}
 
 								// notify user about promotion
 								break;
 
 							case "demoteMember":
-								$sql_query = "DELETE FROM UserCommunities WHERE MixerID=? AND CommunityID=? AND MemberState='moderator'";
-								$query = $this->db->query($sql_query, array($memberId, $communityID));
+								// fail condition: not isModerator OR not isMember
+								if ($isOwner || !$isModerator || !$isMember) {
+									$msg = $member->name_token." is ";
+									if ($isOwner) { $msg .= "the Community Admin and cannot be demoted."; }
+									if (!$isModerator) { $msg .= "not a Moderator."; }
+									if (!$isMember) { $msg .= " no longer a member of ".$community->long_name."."; }
+									$this->returnData->message = $msg;
+								} else {
+									$sql_query = "DELETE FROM UserCommunities WHERE MixerID=? AND CommunityID=? AND MemberState='moderator'";
+									$query = $this->db->query($sql_query, array($memberId, $communityID));
 
-								$this->returnData->success = true;
-								$this->returnData->message = $member->name_token."'s status as a moderator in ".$member->communityName." was removed.";
+									$this->returnData->message = $member->name_token."'s status as a moderator in ".$community->long_name." was removed.";
+								}
 
 								// notify user about demotion
 								break;
 
 							case "kickMember":
-								// User - remove community from: modCommunities, coreCommunities, joinedCommunities, pendingCommunities
-								$sql_query = "UPDATE mixer_users SET modCommunities=?, coreCommunities=?, joinedCommunities=?, pendingCommunities=? WHERE mixer_id=?";
-								$query = $this->db->query($sql_query, array($moderatedCommunityList, $coreCommunityList, $joinedCommunityList, $pendingCommunityList, $memberId));
+								// fail condition: isModerator OR not isMember
+								if ($isOwner || $isModerator || !$isMember) {
+									$msg = $member->name_token." is ";
 
-								// Community - remove member from: moderators, coreMembers, member, pendingMembers
-								$sql_query = "UPDATE communities SET moderators=?, coreMembers=?, members=?, pendingMembers=? WHERE id=?";
-								$query = $this->db->query($sql_query, array($moderatorMemberList, $coreMemberList, $memberList, $pendingMemberList, $communityID));
+									if ($isModerator) { 
+										$msg .= "a Moderator and cannot be kicked."; 
+										$this->returnData->completedAction = "promoteMember"; 
+									}
+									if ($isOwner) { 
+										$msg .= "the Community Admin and cannot be  kicked."; 
+									}
 
+									if (!$isMember) { $msg .= " not a member of ".$community->long_name."."; }
+									$this->returnData->message = $msg;
+								} else {
+									$sql_query = "DELETE FROM UserCommunities WHERE (MixerID=? AND CommunityID=?) AND MemberState != 'founder'";
+									$query = $this->db->query($sql_query, array($memberId, $communityID));
 
-								$this->returnData->message = $member->name_token." was removed from ".$community->long_name;
+									$this->returnData->message = $member->name_token." was kicked from ".$community->long_name;
+								}
+
 								// notify user about removal
 								break;
 
 							case "banMember":
-								// User - remove community from: modCommunities, coreCommunities, joinedCommunities, pendingCommunities
-								$sql_query = "UPDATE mixer_users SET modCommunities=?, coreCommunities=?, joinedCommunities=?, pendingCommunities=? WHERE mixer_id=?";
-								$query = $this->db->query($sql_query, array($moderatedCommunityList, $coreCommunityList, $joinedCommunityList, $pendingCommunityList, $memberId));
+								// fail condition: isModerator OR not isMember
+								if ($isOwner || $isModerator) {
+									$msg = $member->name_token." is ";
 
-								// Community - remove member from: moderators, coreMembers, member, pendingMembers
-								$sql_query = "UPDATE communities SET bannedMembers = IF(bannedMembers='', ?, concat(bannedMembers, ',', ?)), moderators=?, coreMembers=?, members=?, pendingMembers=? WHERE id=?";
-								$query = $this->db->query($sql_query, array($memberId, $memberId, $moderatorMemberList, $coreMemberList, $memberList, $pendingMemberList, $communityID));
+									if ($isModerator) { 
+										$msg .= "a Moderator and cannot be banned."; 
+										$this->returnData->completedAction = "promoteMember"; 
+									}
 
-								// Community - add user to: bannedMembers
-								//$sql_query = "UPDATE communities SET bannedMembers = IF(bannedMembers='', ?, concat(bannedMembers, ',', ?)) WHERE id=?";
-								//$query = $this->db->query($sql_query, array($memberId, $memberId, $communityID));
+									if ($isOwner) { 
+										$msg .= "the Community Admin and cannot be  kicked."; 
+									}
 
-								$this->returnData->message = $member->name_token." was banned from ".$community->long_name;
+									//if (!$isMember) { $msg .= "not a member of ".$community->long_name."."; }
+									$this->returnData->message = $msg;
+								} else {
+									$sql_query = "DELETE FROM UserCommunities WHERE (MixerID=? AND CommunityID=?) AND MemberState != 'founder'";
+									$query = $this->db->query($sql_query, array($memberId, $communityID));
+
+									$sql_query = "INSERT INTO UserCommunities (MixerID, CommunityID, MemberState) VALUES (?, ?, 'banned')";
+									$query = $this->db->query($sql_query, array($memberId, $communityID));
+
+									$this->returnData->message = $member->name_token." was banned from ".$community->long_name;
+
+									// message admins/moderators
+								}
 								break;
 
 							case "unbanMember":
-								// Community - remove member from: bannedMembers
-								$sql_query = "UPDATE communities SET bannedMembers=? WHERE id=?";
-								$query = $this->db->query($sql_query, array($bannedMemberList, $communityID));
+								if (!$isBanned) {
+									$this->returnData->message = $member->name_token." is not banned from ".$community->long_name.".";
+								} else {
+									$sql_query = "DELETE FROM UserCommunities WHERE MixerID=? AND CommunityID=? AND MemberState='banned'";
+									$query = $this->db->query($sql_query, array($memberId, $communityID));
 
-								$this->returnData->message = $member->name_token." was unbanned from ".$community->long_name;
+									$this->returnData->message = $member->name_token." was unbanned from ".$community->long_name;
+								}
 								break;
 						}
 						
-						$this->returnData->completedAction = $memberStatus;
 
 					} else {
 						$this->returnData->message = "You must be an admin/moderator of this community to perform this action.";
@@ -1101,80 +1126,6 @@ class Servlet extends CI_Controller {
 
 		$this->returnData();
 
-		// confirm as community admin/moderator
-		//$communityID = $_POST['communityId'];
-
-		/*if (isset($_SESSION['mixer_user'])) {
-			/*$mixer_id = $_SESSION['mixer_id'];
-			$memberStatus = $_POST['status'];
-			$memberName = $_POST['memberName'];
-			$memberId = (int)$_POST['memberId'];
-
-			$this->returnData->currentUserId = $mixer_id;
-			$this->returnData->memberId = $memberId;
-			$this->returnData->memberName = $memberName;
-			$this->returnData->memberStatus = $memberStatus;
-
-			$sql_query = "SELECT admin, moderators, pendingMembers FROM communities WHERE id=?";
-			$query = $this->db->query($sql_query, array($communityID));
-			$community_info = $query->result()[0];
-
-			$isMod = false;
-			if (!empty($community_info->moderators)) {
-				$isMod = in_array($mixer_id, explode(",", $community_info->moderators));
-			}
-			$isAdmin = false;//($community_info->admin == $mixer_id);
-
-			// This is either an admin OR a moderator, so we can execute the requested action.
-			if ($isMod || $isAdmin) {
-				//$this->returnData->success = true;
-				//$this->returnData->message = "User is an admin or moderator, and can execute this action.";
-
-				//$sql_query = "SELECT pendingCommunities FROM mixer_users WHERE mixer_id=?";
-				$query = $this->db->query($sql_query, array($memberId));
-				$pendingCommunities = $query->result()[0]->pendingCommunities;
-
-				// Remove from 'pending lists'
-				$pendingMemberList = $this->tools->removeValueFromList($memberId, $community_info->pendingMembers);
-				$pendingCommunityList = $this->tools->removeValueFromList($communityID, $pendingCommunities);
-
-				$this->returnData->oldPendingMemberList = $community_info->pendingMembers;
-				$this->returnData->pendingMemberList = $pendingMemberList;
-
-				$this->returnData->oldPendingCommunityList = $pendingCommunities;
-				$this->returnData->pendingCommunityList = $pendingCommunityList;
-
-				switch ($memberStatus) {
-					case "approve":
-						// Update user data with removed pending list, and added into joined list
-						$sql_query = "UPDATE mixer_users SET pendingCommunities=?, joinedCommunities = IF(joinedCommunities='', ?, concat(joinedCommunities, ',', ?)) WHERE mixer_id=?";
-						$query = $this->db->query($sql_query, array($pendingCommunityList, $communityID, $communityID, $memberId));
-
-						// Update community data with new pending list, and new member added into joined list
-						$sql_query = "UPDATE communities SET pendingMembers=?, members = IF(members='', ?, concat(members, ',', ?)) WHERE id=?";
-						$query = $this->db->query($sql_query, array($pendingMemberList, $memberId, $memberId, $communityID));
-
-						$this->news->addNews($memberId, "{username} joined the {commId:$communityID} community.", "community", $communityID);
-						break;
-
-					case "deny":
-						// Update user data with removed pending list, and added into joined list
-						$sql_query = "UPDATE mixer_users SET pendingCommunities=? WHERE mixer_id=?";
-						$query = $this->db->query($sql_query, array($pendingCommunityList, $memberId));
-
-						// Update community data with new pending list, and new member added into joined list
-						$sql_query = "UPDATE communities SET pendingMembers=? WHERE id=?";
-						$query = $this->db->query($sql_query, array($pendingMemberList, $communityID));
-						break;
-				}
-				
-
-			} else {
-				$this->returnData->message = "User is not an admin or moderator of this community and cannot execute this action.";
-			}
-		} else {
-			$this->returnData->message = "User is not logged in.";
-		}*/
 	}
 
 

@@ -44,14 +44,14 @@ class Community extends CI_Controller {
 			$data->community = $community;
 
 			// Get all Community Members by their groupings
-			$founder = $this->communities->getCommunityMembersByGroup('founder')[0];
-			$admin = $this->communities->getCommunityMembersByGroup('admin')[0];
-			$moderators = $this->communities->getCommunityMembersByGroup('moderator');
-			$coreMembers = $this->communities->getCommunityMembersByGroup('core');
-			$members = $this->communities->getCommunityMembersByGroup('member');
-			$followers = $this->communities->getCommunityMembersByGroup('follower');
-			$pendingMembers = $this->communities->getCommunityMembersByGroup('pending');
-			$bannedMembers = $this->communities->getCommunityMembersByGroup('banned');
+			$founder = $this->communities->getCommunityMembersByGroup($community->id, 'founder')[0];
+			$admin = $this->communities->getCommunityMembersByGroup($community->id, 'admin')[0];
+			$moderators = $this->communities->getCommunityMembersByGroup($community->id, 'moderator');
+			$coreMembers = $this->communities->getCommunityMembersByGroup($community->id, 'core');
+			$members = $this->communities->getCommunityMembersByGroup($community->id, 'member');
+			$followers = $this->communities->getCommunityMembersByGroup($community->id, 'follower');
+			$pendingMembers = $this->communities->getCommunityMembersByGroup($community->id, 'pending');
+			$bannedMembers = $this->communities->getCommunityMembersByGroup($community->id, 'banned');
 
 			$data->memberIdLists = array(
 				'moderators' => $this->communities->getArrayOfMemberIDs($moderators),
@@ -226,16 +226,18 @@ class Community extends CI_Controller {
 		$this->load->view('community-add', $data);
 	}
 
+	// Returns data for all communites, with member counts
 	private function loadAllCommunities() {
 		$sql_query = "SELECT communities.*,
-community_categories.name as category_name,
-community_categories.slug as category_slug,
-count(UserCommunities.MixerID) as memberCount
-FROM `communities`
-JOIN community_categories ON communities.category_id = community_categories.id
-JOIN UserCommunities ON communities.id = UserCommunities.CommunityID AND UserCommunities.MemberState = 'member'
-WHERE communities.status='open' OR communities.status='closed'
-ORDER BY memberCount DESC";
+			community_categories.name as category_name,
+			community_categories.slug as category_slug,
+			count(UserCommunities.MixerID) as memberCount
+			FROM `communities`
+			JOIN community_categories ON communities.category_id = community_categories.id
+			JOIN UserCommunities ON communities.id = UserCommunities.CommunityID AND UserCommunities.MemberState = 'member'
+			WHERE communities.status='open' OR communities.status='closed'
+			GROUP BY CommunityID
+			ORDER BY memberCount DESC";
 
 		$query = $this->db->query($sql_query);
 		$displayData = new stdClass();

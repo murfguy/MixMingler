@@ -710,12 +710,17 @@ function updateButtonView(tgt, serverData) {
 			break;
 
 		case "promoteMember":
+			tgt = $("button[userId='"+serverData.memberId+"'][action='promoteMember']")
+
 			tgt.removeClass('confirm btn-success');
-			tgt.attr('action', 'demoteMember');
 			tgt.addClass('btn-secondary confirm');
 			tgt.html('<i class="fas fa-user"></i>');
+			tgt.attr('action', 'demoteMember');
+			
+			disableModerationButton($("button[userId='"+serverData.memberId+"'][action='banMember']"));
+			disableModerationButton($("button[userId='"+serverData.memberId+"'][action='kickMember']"));
 
-			$("button[userId='"+serverData.memberId+"'][action='banMember']").removeClass('action confirm btn-danger');
+			/*$("button[userId='"+serverData.memberId+"'][action='banMember']").removeClass('action confirm btn-danger');
 			$("button[userId='"+serverData.memberId+"'][action='banMember']").attr('disabled', '');
 			$("button[userId='"+serverData.memberId+"'][action='banMember']").addClass('btn-secondary')
 			$("button[userId='"+serverData.memberId+"'][action='banMember']").html('<i class="fas fa-minus-circle"></i>')
@@ -723,12 +728,12 @@ function updateButtonView(tgt, serverData) {
 			$("button[userId='"+serverData.memberId+"'][action='kickMember']").removeClass('action confirm btn-danger');
 			$("button[userId='"+serverData.memberId+"'][action='kickMember']").attr('disabled', '');
 			$("button[userId='"+serverData.memberId+"'][action='kickMember']").addClass('btn-secondary')
-			$("button[userId='"+serverData.memberId+"'][action='kickMember']").html('<i class="fas fa-minus-circle"></i>')
+			$("button[userId='"+serverData.memberId+"'][action='kickMember']").html('<i class="fas fa-minus-circle"></i>')*/
 			break;
 
 		case "demoteMember":
 			tgt.removeClass('confirm btn-secondary');
-			tgt.attr('action', 'demoteMember');
+			tgt.attr('action', 'promoteMember');
 			tgt.addClass('btn-success confirm');
 			tgt.html('<i class="fas fa-chess-knight"></i>');
 
@@ -753,6 +758,13 @@ function updateButtonView(tgt, serverData) {
 	}
 }
 
+
+function disableModerationButton(tgt) {
+	tgt.removeClass('action confirm btn-danger btn-success btn-primary btn-dark');
+	tgt.attr('disabled', '');
+	tgt.addClass('btn-secondary')
+	tgt.html('<i class="fas fa-minus-circle"></i>')
+}
 
 // ----------------------------------------------------------
 // -- Possible Refactor/Deletion candidates - ---------------

@@ -275,7 +275,10 @@
 										<th width="10%">Ban</th>
 									</tr>
 								</thead>
-							<?php foreach ($pendingMembers as $member) { ?>
+							<?php foreach ($pendingMembers as $member) { 
+									$buttonParams['disabled'] = false;
+									$buttonParams['confirm'] = false;
+								?>
 								<tr>
 									<td><a href="/user/<?php echo $member->name_token; ?>"><?php echo $member->name_token; ?></a></td>
 
@@ -326,7 +329,9 @@
 										<th width="10%">Unban</th>
 									</tr>
 								</thead>
-							<?php foreach ($bannedMembers as $member) { ?>
+							<?php foreach ($bannedMembers as $member) {
+									$buttonParams['disabled'] = false;
+									$buttonParams['confirm'] = false; ?>
 								<tr>
 									<td><a href="/user/<?php echo $member->name_token; ?>"><?php echo $member->name_token; ?></a></td>
 

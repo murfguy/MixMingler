@@ -90,13 +90,14 @@ class Communities {
 	}*/
 
 	// --- Junction Table Refactor for: getCommunityMembersFromList
-	public function getCommunityMembersByGroup($group, $sortOn = 'name_token', $direction = 'ASC') {
+	public function getCommunityMembersByGroup($communityId, $group, $sortOn = 'name_token', $direction = 'ASC') {
 		$sql_query = "SELECT mixer_users.* 
 			FROM `UserCommunities` 
 			JOIN mixer_users ON mixer_users.mixer_id = UserCommunities.MixerID
 			JOIN communities ON communities.id = UserCommunities.CommunityID
-			WHERE MemberState = ?";
-		$query = $this->CI->db->query($sql_query, array($group));
+			WHERE CommunityID=? AND MemberState = ? 
+			ORDER BY $sortOn $direction";
+		$query = $this->CI->db->query($sql_query, array($communityId, $group));
 		return $query->result();
 	}
 

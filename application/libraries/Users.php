@@ -16,7 +16,19 @@ class Users {
 	public function getUserFromMingler($mixerId) {
 		// Let's get streamer data from Mingler based on the ID value we got from Mixer.
 		$data = new stdClass();
-		$sql_query = "SELECT * FROM mixer_users WHERE mixer_id=?";
+		//$sql_query = "SELECT * FROM mixer_users WHERE mixer_id=?";
+		$sql_query = "SELECT m.*,
+			GROUP_CONCAT( CASE WHEN MemberState='admin' THEN CommunityID ELSE NULL END) as adminCommunities,
+			GROUP_CONCAT( CASE WHEN MemberState='moderator' THEN CommunityID ELSE NULL END) as modCommunities,
+			GROUP_CONCAT( CASE WHEN MemberState='core' THEN CommunityID ELSE NULL END) as coreCommunities,
+			GROUP_CONCAT( CASE WHEN MemberState='member' THEN CommunityID ELSE NULL END) as joinedCommunities,
+			GROUP_CONCAT( CASE WHEN MemberState='follower' THEN CommunityID ELSE NULL END) as followedCommunities,
+			GROUP_CONCAT( CASE WHEN MemberState='pending' THEN CommunityID ELSE NULL END) as pendingCommunities,
+			GROUP_CONCAT( CASE WHEN MemberState='banned' THEN CommunityID ELSE NULL END) as bannedCommunities
+			FROM `UserCommunities` as UC
+			JOIN mixer_users AS m ON m.mixer_id = UC.MixerID
+			JOIN communities AS c ON c.id = UC.CommunityID
+			WHERE MixerID=?";
 		$query = $this->CI->db->query($sql_query, array($mixerId));
 
 		if (!empty($query->result())) {
