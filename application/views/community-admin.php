@@ -1,6 +1,6 @@
 <main role="main" class="container">
 	<div class="pageHeader">
-		<h1><?php echo $community->long_name; ?> Moderation Page</h1>
+		<h1><?php echo $community->Name; ?> Moderation Page</h1>
 	</div>
 
 
@@ -9,7 +9,7 @@
 	<div class="container">
 		<?php 
 			$hasAccess = true;
-			if ($community->status == 'approved') { $hasAccess = false; ?>
+			if ($community->Status == 'approved') { $hasAccess = false; ?>
 			<div id="foundCommunityNotice" class="alert alert-success">
 				<h4>Congrats! Your community was approved!</h4>
 				<p>You're just a few short steps away from making this a full-fledged MixMingler community! Simply finalize your details and then hit the "Found Community" button. Once founded, you'll need to wait a bit before you can make another community. Until then, let's work towards making this the best community you can make it!</p>
@@ -17,7 +17,7 @@
 				<?php 
 					$attributes = array('id' => 'foundCommunity');
 					$hidden = array(
-						'commId' => $community->id,
+						'commId' => $community->ID,
 						'mixerUser_id' => $_SESSION['mixer_id']
 					);
 					echo form_open('servlet/foundCommunity', $attributes, $hidden); 
@@ -61,12 +61,12 @@
 				<ul>
 					<li>Coming soon: Add cover art!</li>
 				</ul>
-				<button class="foundButton btn btn-lg btn-primary">Found the "<?php echo $community->long_name; ?>" Community!</button>
+				<button class="foundButton btn btn-lg btn-primary">Found the "<?php echo $community->Name; ?>" Community!</button>
 				<?php echo form_close(); ?>
 			</div>
 		<?php } ?>
 
-		<?php if ($community->status == 'rejected') { $hasAccess = false; ?>
+		<?php if ($community->Status == 'rejected') { $hasAccess = false; ?>
 			<div class="alert alert-danger">
 				<h4>Sorry! Your community was rejected!</h4>
 				<p>Alas, there was something that made us decide that this community doesn't quite work right now.</p>
@@ -77,7 +77,7 @@
 			</div>
 		<?php } ?>
 
-		<?php if ($community->status == 'pending') { $hasAccess = false; ?>
+		<?php if ($community->Status == 'pending') { $hasAccess = false; ?>
 			<div class="alert alert-warning">
 				<h4>Your community is pending approval!</h4>
 				<p>WOAH!!!! Slow your held horse roll there! Your community is still awaiting admin approval. Once it's ready though, we'll let you know!</p>
@@ -120,7 +120,7 @@
 
 				<div class="btn-group btn-group-justified" style="width:50%" role="group">
 					<button type="button" class="btn btn-info displayToggle" target="allMembers" disabled>All Members</button>
-					<?php if ($community->approveMembers) { ?><button type="button" class="btn btn-info displayToggle" target="pendingMembers">Pending Members</button><?php } ?>
+					<?php if ($community->isApprovalRequired) { ?><button type="button" class="btn btn-info displayToggle" target="pendingMembers">Pending Members</button><?php } ?>
 					<button type="button" class="btn btn-info displayToggle" target="bannedMembers">Banned Members</button>
 				</div>
 
@@ -129,7 +129,7 @@
 
 					<?php
 						$buttonParams = [
-							'communityId' => $community->id,
+							'communityId' => $community->ID,
 							'btnType' => 'mini',
 							'displayType' => 'icon'
 						];
@@ -156,15 +156,15 @@
 						<?php 
 							foreach ($members as $member) { 
 								$memberIs = "user";
-								if (in_array($member->mixer_id, $memberIdLists['moderators'])) { $memberIs = "mod"; }
-								if ($member->mixer_id == $community->admin) { $memberIs = "admin"; }
+								if (in_array($member->ID, $memberIdLists['moderators'])) { $memberIs = "mod"; }
+								if ($member->ID == $community->Admin) { $memberIs = "admin"; }
 
 								$buttonParams['disabled'] = false;
 								$buttonParams['confirm'] = false;
 
 							?>
 							<tr>
-								<td><a href="/user/<?php echo $member->name_token; ?>"><?php echo $member->name_token; ?></a>
+								<td><a href="/user/<?php echo $member->Username; ?>"><?php echo $member->Username; ?></a>
 									
 								
 
@@ -177,7 +177,7 @@
 												$buttonParams['action'] = 'promoteMember';
 												$buttonParams['disabled'] = true;
 												$buttonParams['content'] = 'minus-circle';
-												$buttonParams['userId'] = $member->mixer_id;
+												$buttonParams['userId'] = $member->ID;
 
 												echo action_button($buttonParams); ?></td><?php
 												break;
@@ -188,7 +188,7 @@
 													$buttonParams['confirm'] = true;
 													$buttonParams['action'] = 'demoteMember';
 													$buttonParams['content'] = 'user';
-													$buttonParams['userId'] = $member->mixer_id;
+													$buttonParams['userId'] = $member->ID;
 
 													if (!$currentUser->isAdmin) {
 														$buttonParams['disabled'] = true;
@@ -205,7 +205,7 @@
 													$buttonParams['confirm'] = true;
 													$buttonParams['action'] = 'promoteMember';
 													$buttonParams['content'] = 'chess-knight';
-													$buttonParams['userId'] = $member->mixer_id;
+													$buttonParams['userId'] = $member->ID;
 
 													echo action_button($buttonParams);	
 												break;
@@ -220,7 +220,7 @@
 										$buttonParams['confirm'] = true;
 										$buttonParams['action'] = 'kickMember';
 										$buttonParams['content'] = 'trash';
-										$buttonParams['userId'] = $member->mixer_id;
+										$buttonParams['userId'] = $member->ID;
 
 										echo action_button($buttonParams); ?></td>
 
@@ -229,7 +229,7 @@
 										$buttonParams['confirm'] = true;
 										$buttonParams['action'] = 'banMember';
 										$buttonParams['content'] = 'ban';
-										$buttonParams['userId'] = $member->mixer_id;
+										$buttonParams['userId'] = $member->ID;
 
 										echo action_button($buttonParams); ?></td>
 								<?php } else { ?>
@@ -238,7 +238,7 @@
 										$buttonParams['action'] = 'kickMember';
 										$buttonParams['disabled'] = true;
 										$buttonParams['content'] = 'minus-circle';
-										$buttonParams['userId'] = $member->mixer_id;
+										$buttonParams['userId'] = $member->ID;
 
 										echo action_button($buttonParams); ?></td>
 
@@ -247,7 +247,7 @@
 										$buttonParams['action'] = 'banMember';
 										$buttonParams['disabled'] = true;
 										$buttonParams['content'] = 'minus-circle';
-										$buttonParams['userId'] = $member->mixer_id;
+										$buttonParams['userId'] = $member->ID;
 
 										echo action_button($buttonParams); ?></td>
 
@@ -280,14 +280,14 @@
 									$buttonParams['confirm'] = false;
 								?>
 								<tr>
-									<td><a href="/user/<?php echo $member->name_token; ?>"><?php echo $member->name_token; ?></a></td>
+									<td><a href="/user/<?php echo $member->Username; ?>"><?php echo $member->Username; ?></a></td>
 
 
 									<td><?php 
 										$buttonParams['state'] = 'success';
 										$buttonParams['action'] = 'approveMember';
 										$buttonParams['content'] = 'thumbs-up';
-										$buttonParams['userId'] = $member->mixer_id;
+										$buttonParams['userId'] = $member->ID;
 										$buttonParams['confirm'] = false;
 
 										echo action_button($buttonParams); ?></td>
@@ -296,7 +296,7 @@
 										$buttonParams['state'] = 'danger';
 										$buttonParams['action'] = 'denyMember';
 										$buttonParams['content'] = 'thumbs-down';
-										$buttonParams['userId'] = $member->mixer_id;
+										$buttonParams['userId'] = $member->ID;
 										$buttonParams['confirm'] = true;
 
 										echo action_button($buttonParams); ?></td>
@@ -305,7 +305,7 @@
 										$buttonParams['state'] = 'danger';
 										$buttonParams['action'] = 'banMember';
 										$buttonParams['content'] = 'ban';
-										$buttonParams['userId'] = $member->mixer_id;
+										$buttonParams['userId'] = $member->ID;
 										$buttonParams['confirm'] = true;
 
 										echo action_button($buttonParams); ?></td>
@@ -333,7 +333,7 @@
 									$buttonParams['disabled'] = false;
 									$buttonParams['confirm'] = false; ?>
 								<tr>
-									<td><a href="/user/<?php echo $member->name_token; ?>"><?php echo $member->name_token; ?></a></td>
+									<td><a href="/user/<?php echo $member->Username; ?>"><?php echo $member->Username; ?></a></td>
 
 									
 										<td><?php 
@@ -341,7 +341,7 @@
 										$buttonParams['confirm'] = true;
 										$buttonParams['action'] = 'unbanMember';
 										$buttonParams['content'] = 'backspace';
-										$buttonParams['userId'] = $member->mixer_id;
+										$buttonParams['userId'] = $member->ID;
 
 										echo action_button($buttonParams); ?></td>
 								</tr>

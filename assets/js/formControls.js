@@ -28,7 +28,7 @@ function setFormListeners() {
 	$("form#requestCommunity").submit(function (event) { requestCommunity(event, $(this))} );
 	
 	// set listeners for community approval form on admin panel
-	$("form.communityApproval").submit(function (event) { approveCommunity(event, $(this))} );
+	$("form.communityApproval").submit(function (event) { processCommunity(event, $(this))} );
 
 	// set listeners for founding community from community moderation pages
 	$("form#foundCommunity").submit(function (event) { foundCommunity(event, $(this))} );
@@ -36,47 +36,53 @@ function setFormListeners() {
 
 function applyUserRole(e, form) {
 	e.preventDefault();
-	actionUrl = baseActionUrl+"applyUserRole/";
 
-	submitButton = $( "form#applyRole button.applyRole" );
-	submitButton.attr('disabled', '');
-	submitButton.text("Applying");
-	submitButton.prepend('<i class="fas fa-sync fa-spin"></i> ');
+	actionData = form.serialize();
+	action = "applyUserRole";
 
-
-	console.log("actionUrl: "+ actionUrl);
-		$.ajax({
-			url: actionUrl,
-			type: "POST",
-			dataType: "json",
-			data: form.serialize()
-		})
-			.done(function (json){
-				console.log('applyUserRole - AJAX done');
-				submitButton = $( "form#applyRole button.applyRole" );
-
-				submitButton.removeAttr('disabled');
-				submitButton.remove("i");
-
-				if (json.success) {
-					submitButton.text("Apply Role");
-					displayAlert($( "form#applyRole"), json.message, 'success');
-				} else {
-					submitButton.text("Try Again");
-					displayAlert($( "form#applyRole"), json.message);
+	$.confirm({
+		title: 'Are you sure?',
+		content: "This user's role will be changed accordingly.",
+		theme: 'dark',
+		buttons: {
+			yes: {
+				text: "Change Role",
+				btnClass: 'btn-danger',
+				action: function () {
+					$.alert({
+						title: "Changing User's Site Role...",
+						theme: 'dark',
+						autoClose: 'ok|8000',
+						content: function(){
+							var self = this;
+							
+							return $.ajax({
+								url: baseActionUrl + action,
+								dataType: 'json',
+								method: 'post',
+								data: actionData
+							}).done(function (response) {
+								if (response.success) {
+									self.setContentAppend('<div>'+response.message+'</div>');
+									//updateButtonView(targetButton, response);
+								} else {
+									self.setContentAppend('<div>There was an issue with completing your requested action! <br><b>Server Message:</b> '+response.message+'</div>');
+								}
+							}).fail(function(){
+								self.setContentAppend('<div>There was a problem with communicating with the server.</div>');
+							}).always(function(response){
+								//self.setContentAppend('<div>Always!</div>');
+								console.log(response)
+							});
+						}
+					})
 				}
-
-			}) 
-
-			.fail(function (json){
-				console.log('applyUserRole - AJAX failed');
-			})
-
-			.always(function (json){
-				console.log('applyUserRole - AJAX always');
-				console.log(json);
-				//console.log(json.message);
-			});
+			},
+			no: {
+				text: "Nevermind"
+			}
+		}
+	});
 }
 
 // ----------------------------------------------------------
@@ -141,9 +147,83 @@ function requestCommunity(e, form) {
 			});
 }
 
-function approveCommunity(e, form) {
+function findFormDataItem(target, data) {
+	for( var i = 0, len = data.length; i < len; i++ ) {
+	    if( data[i]['name'] === target ) {
+	        return data[i]['value'];
+	    }
+	}
+} 
+function processCommunity(e, form) {
 	e.preventDefault();
-	actionUrl = baseActionUrl+"approveCommunity/";
+
+	actionData = form.serialize();
+	action = "processCommunity";
+
+	data = form.serializeArray();
+	var communityName = findFormDataItem('name', data);
+	var status = findFormDataItem('status', data);
+
+	if (status == 'approved') {
+		processingTitle = 'Approving Community...';
+		buttonClass = 'btn-success';
+		buttonText = "Approve";
+	} else {
+		processingTitle = 'Rejecting Community...';
+		buttonClass = 'btn-danger';
+		buttonText = "Deny";
+	}
+
+	$.confirm({
+		title: 'Are you sure?',
+		content: "By submitting this you will have "+status+" the <i>"+communityName+"</i> community.",
+		theme: 'dark',
+		buttons: {
+			yes: {
+				text: buttonText,
+				btnClass: buttonClass,
+				action: function () {
+					$.alert({
+						title: processingTitle,
+						theme: 'dark',
+						autoClose: 'ok|8000',
+						content: function(){
+							var self = this;
+							
+							return $.ajax({
+								url: baseActionUrl + action,
+								dataType: 'json',
+								method: 'post',
+								data: actionData
+							}).done(function (response) {
+								if (response.success) {
+									self.setContentAppend('<div>'+response.message+'</div>');
+									//updateButtonView(targetButton, response);
+
+									if (response.success) {
+										parent = form.closest("div.infoBox").children('.infoInterior').html(response.message);
+									}
+								} else {
+									self.setContentAppend('<div>There was an issue with completing your requested action! <br><b>Server Message:</b> '+response.message+'</div>');
+								}
+							}).fail(function(){
+								self.setContentAppend('<div>There was a problem with communicating with the server.</div>');
+							}).always(function(response){
+								//self.setContentAppend('<div>Always!</div>');
+								console.log(response)
+							});
+						}
+					})
+				}
+			},
+			no: {
+				text: "Nevermind"
+			}
+		}
+	});
+
+
+	/*actionUrl = baseActionUrl+"approveCommunity/";
 
 	submitButton = form.children("button.setApproval" );
 	submitButton.attr('disabled', '');
@@ -198,7 +278,7 @@ function approveCommunity(e, form) {
 				
 				//
 				//console.log(json.message);
-			});
+			});*/
 }
 
 function foundCommunity(e, form) {
@@ -854,6 +934,7 @@ function setRequestCommunityValidationListeners() {
 
 
 	$("input.name").on("change paste keyup", function() {
+		console.log( "input.name on change paste keyup" );
 		target = "#slug-"+$(this).attr('id').replace('name-', '');
 
 		slug = $(this).val().toLowerCase();

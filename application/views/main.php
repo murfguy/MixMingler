@@ -10,17 +10,24 @@
 
 	<div class="row">
 		<div class="col-3 userInfo">
-
-			<!--<div class="infoBox">
-				<h4 class="infoHeader bg-danger">Alerts</h4>
+			
+			<?php if (!empty($alerts)) { ?> 
+			<div class="infoBox">
+				<h4 class="infoHeader bg-danger">Alerts <i class="fas fa-bell"></i></h4>
 				<div class="infoInterior">
+					<?php if (!empty($alerts['pendingRequests'])) { ?>
 					<h6>Site Admin</h6>
-					<p><a href="/admin/">Pending Communities</a> <span class="badge badge-danger">1</span></p>
+					<p><a href="/admin/">Pending Communities</a> <span class="badge badge-danger"><?php echo $alerts['pendingRequests']; ?></span></p>
+					<?php } ?>
 
-					<h6>Community Mod</h6>
+					<!--<h6>Community Mod</h6>
 					<p><a href="/community/alphatest/mod">Alpha Testing Group</a> <span class="badge badge-danger">2</span></p>
+
+					<h6>Pending Communities</h6>
+					<p><a href="/community/alphatest/mod">Alpha Testing Group</a> <span class="badge badge-danger">2</span></p>-->
 				</div>
-			</div>--><!-- .infoBox -->
+			</div><!-- .infoBox -->
+			<?php } ?>
 
 
 			<div class="infoBox">
@@ -29,7 +36,7 @@
 					<?php
 						if (!empty($communitiesData->followed)) {
 							foreach ($communitiesData->followed as $community) {
-								echo "<p><a href=\"/community/$community->slug\">$community->long_name</a></p>";
+								echo "<p><a href=\"/community/$community->Slug\">$community->Name</a></p>";
 							}
 						} else {
 							echo "<p>You haven't followed any communities.</p>";
@@ -101,20 +108,20 @@
 						<?php foreach ($approvedCommunities as $community) { ?>
 							<table>
 								<tr>
-									<td><a href="/community/<?php echo $community->slug; ?>"><?php echo $community->long_name; ?></td></td>
-									<td>Approved by: <?php echo $community->adminName; ?></td>
+									<td><a href="/community/<?php echo $community->Slug; ?>"><?php echo $community->Name; ?></td></td>
+									<td>Approved by: <?php echo $community->AdminName; ?></td>
 								</tr>
 
 								<tr>
 									<td colspan="2">
-										<p>You may now visit your <a href="/community/<?php echo $community->slug; ?>/mod">Moderation Page</a> to finalize and publish your community!</p>
+										<p>You may now visit your <a href="/community/<?php echo $community->Slug; ?>/mod">Moderation Page</a> to finalize and publish your community!</p>
 									</td>
 								</tr>
 
-								<?php if (!empty($community->siteAdminNote)) { ?>
+								<?php if (!empty($community->AdminNote)) { ?>
 								<tr>
 									<td colspan="2">
-										<p>Admin Note: <?php echo $community->siteAdminNote; ?></p>
+										<p>Admin Note: <?php echo $community->AdminNote; ?></p>
 									</td>
 								</tr>
 								<?php } ?>
@@ -128,20 +135,20 @@
 						<?php foreach ($rejectedCommunities as $community) { ?>
 							<table class="table">
 								<tr>
-									<td><?php echo $community->long_name; ?></td>
-									<td>Admin: <?php echo $community->adminName; ?></td>
+									<td><?php echo $community->Name; ?></td>
+									<td>Admin: <?php echo $community->AdminName; ?></td>
 								</tr>
 
 								<?php if (!empty($community->siteAdminNote)) { ?>
 								<tr>
 									<td colspan="2">
-										<p>Admin Note: <?php echo $community->siteAdminNote; ?></p>
+										<p>Admin Note: <?php echo $community->AdminNote; ?></p>
 									</td>
 								</tr>
 								<?php } ?>
 								<tr>
 									<td colspan="2">
-										<button class="deleteCommunity btn btn-sm btn-danger" data-commId="<?php echo $community->id; ?>">Delete This Now (no warning)</button> You will be able to request again immediatly.
+										<!--<button class="deleteCommunity btn btn-sm btn-danger" data-commId="<?php echo $community->ID; ?>">Delete This Now (no warning)</button> You will be able to request again immediatly.-->delete button goes here.
 									</td>
 								</tr>
 							</table>
@@ -154,7 +161,7 @@
 						<?php foreach ($pendingCommunities as $community) { ?>
 							<table class="table">
 								<tr>
-									<td><?php echo $community->long_name; ?></td>
+									<td><?php echo $community->Name; ?></td>
 									<td>Requested on: <?php echo date('F. d, Y', strtotime($community->requestTime)); ?></td>
 								</tr>
 							</table>
@@ -226,7 +233,7 @@
 				<h6 class="infoHeader">Communities You Mod</h4>
 				<div class="infoInterior">
 						<?php	foreach ($modCommunities as $community) {
-								echo "<p><a href=\"/community/$community->slug/mod\">$community->long_name</a> ";
+								echo "<p><a href=\"/community/$community->Slug/mod\">$community->Name</a> ";
 								if ($community->admin == $_SESSION['mixer_id']) { ?>
 									<i class="fas fa-crown" style="color: gold; font-size: 70%"></i>
 								<?php }
@@ -243,7 +250,7 @@
 					<?php
 						if (!empty($communitiesData->core)) {
 							foreach ($communitiesData->core as $community) {
-								echo "<p><a href=\"/community/$community->slug\">$community->long_name</a></p>";
+								echo "<p><a href=\"/community/$community->Slug\">$community->Name</a></p>";
 							}
 						} else {
 							echo "<p>You haven't marked any core communities.</p>";
@@ -257,7 +264,7 @@
 					<?php
 						if (!empty($communitiesData->joined)) {
 							foreach ($communitiesData->joined as $community) {
-								echo "<p><a href=\"/community/$community->slug\">$community->long_name</a></p>";
+								echo "<p><a href=\"/community/$community->Slug\">$community->Name</a></p>";
 							}
 						} else {
 							echo "<p>You haven't joined any communities.</p>";
@@ -272,7 +279,7 @@
 					<?php
 					if (!empty($communitiesData->new)) {
 						foreach ($communitiesData->new as $community) {
-							echo "<p><a href=\"/community/$community->slug/\">$community->long_name</a></p>";
+							echo "<p><a href=\"/community/$community->Slug/\">$community->Name</a></p>";
 						}
 					} else {
 						echo "<p>No new communities.</p>";
@@ -282,24 +289,4 @@
 			</div><!-- .infoBox -->
 		</div>
 	</div><!-- .row -->
-
-	<!--<div class="plans">
-		<p><b>Plans/Ideas for this page:</b></p>
-		<ul>
-			<li>Feed should be broken down into followed Type and Community feeds</li>
-			<li>Events should be displayed for when a streamer:
-				<ul>
-					<li>Joined MixMingler</li>
-					<li>goes live</li>
-					<li>starts playing a new game</li>
-					<li>joins a community</li>
-					<li>Surpass certain view/follower milestones</li>
-					<li>Becomes a partner</li>
-					<li>Get featured</li>
-				</ul>
-			</li>
-			<li>Quick access to Communities that you follow</li>
-			<li>Tools to sync your Mixer data to MixMingler</li>
-		</ul>
-	</div>-->
 </main>

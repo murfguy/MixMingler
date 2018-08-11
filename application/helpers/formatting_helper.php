@@ -1,38 +1,17 @@
 <?php if ( ! defined('BASEPATH')) exit('No direct script access allowed');
 
 
-/*if ( ! function_exists('removeValueFromList')) {
-	function removeValueFromList($value, $list) {
-		//Convert list list to PHP array
-		$array = explode(",", $list);
-		
-		// Remove the value from the array
-		if (($key = array_search($value, $array)) !== false) { unset($array[$key]); }
-		
-		// Restore to string.list and return
-		return implode(',', $array);
-	}
-}
-
-if ( ! function_exists('valueIsInList')) {
-	function valueIsInList($value, $list) {
-		$array = explode(",", $list);
-		if (($key = array_search($value, $array)) !== false) { 
-			return true;
-		}
-		return false;
-	}
-}
-
 if ( ! function_exists('getElapsedTimeString')) {
 	function getElapsedTimeString($timestamp) {
-		$elapsedTime = time() - $timestamp;
+		$elapsedTime = time() - strtotime($timestamp);
+
+		// If under 10 seconds
+		if ($elapsedTime < 10) {
+			return "Just now!";
+		}
 
 		// If under one minute
 		if ($elapsedTime < 60) {
-			if ($elapsedTime == 1) {
-				return $elapsedTime." second ago";
-			}
 			return $elapsedTime." seconds ago";
 		}
 
@@ -60,4 +39,29 @@ if ( ! function_exists('getElapsedTimeString')) {
 			return number_format(ceil($elapsedTime/(60*60*24)))." days ago";
 		}
 	}
-}*/
+}
+
+/*if ( ! function_exists('removeValueFromList')) {
+	function removeValueFromList($value, $list) {
+		//Convert list list to PHP array
+		$array = explode(",", $list);
+		
+		// Remove the value from the array
+		if (($key = array_search($value, $array)) !== false) { unset($array[$key]); }
+		
+		// Restore to string.list and return
+		return implode(',', $array);
+	}
+}
+
+if ( ! function_exists('valueIsInList')) {
+	function valueIsInList($value, $list) {
+		$array = explode(",", $list);
+		if (($key = array_search($value, $array)) !== false) { 
+			return true;
+		}
+		return false;
+	}
+}
+
+*/

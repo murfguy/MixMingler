@@ -14,19 +14,19 @@ class News {
 		$this->CI->load->library('types');
 	}
 
-	public function addNews($mixer_id, $event, $eventType, $extraVars = array()) {
-		$eventText = $this->getEventString($event);
-
-		if (empty($extraVars)) {
-			$extraVars = array('TypeID' => null, 'CommunityID' => null);
+	public function addNews($mixer_id, $event, $eventType, $params = array()) {
+		if (empty($params)) {
+			$params = array('TypeID' => null, 'CommunityID' => null, 'MessageParams' => null);
 		} else {
-			$extraVars = array();
-			if (empty($extraVars['TypeID'])) { $extraVars['TypeID'] = null; };
-			if (empty($extraVars['CommunityID'])) { $extraVars['CommunityID'] = null; };
+			if (empty($params['TypeID'])) { $params['TypeID'] = null; };
+			if (empty($params['CommunityID'])) { $params['CommunityID'] = null; };
+			if (empty($params['MessageParams'])) { $params['messageParams'] = null; };
 		}
 
+		$eventText = $this->getEventString($event, $params['MessageParams']);
+
 		$sql_query = "INSERT INTO TimelineEvents (MixerID, Content, Type, TypeID, CommunityID) VALUES (?, ?, ?, ?, ?)";
-		$values = array($mixer_id, $eventText, $eventType, $extraVars['TypeID'], $extraVars['CommunityID']);
+		$values = array($mixer_id, $eventText, $eventType, $params['TypeID'], $params['CommunityID']);
 		$query = $this->CI->db->query($sql_query, $values);
 	}
 

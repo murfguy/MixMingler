@@ -11,25 +11,13 @@ class Admin extends CI_Controller {
 		
 		if (isset($_SESSION['mixer_id'])) {
 			$user = $this->users->getUserFromMingler($_SESSION['mixer_id']);
-			switch ($user->minglerRole) {
+			switch ($user->SiteRole) {
 				case "owner":
 				case "admin":
 				case "dev":	
-					$sql_query = "SELECT * FROM mixer_users WHERE lastLogin>'2017-12-21 00:00:00' ORDER BY lastLogin DESC LIMIT 0,10";
-					$query = $this->db->query($sql_query);
-					$logins = $query->result();
-
-					foreach($logins as $member) {
-						$member->loginTime = $this->news->displayPostTime($member->lastLogin);
-					}
-
-					$sql_query = "SELECT * FROM mixer_users WHERE registered=1 ORDER BY id DESC LIMIT 0,10";
-					$query = $this->db->query($sql_query);
-					$registrations = $query->result();
-
 					$viewData = new stdClass();
-					$viewData->logins = $logins;
-					$viewData->registrations = $registrations;
+					$viewData->logins = $this->users->getUsersByRecentActivityType('LastLogin'); 
+					$viewData->registrations = $this->users->getUsersByRecentActivityType('RegistrationTime');
 
 					$viewData->pendingCommunities = $this->communities->getCommunitiesByStatus('pending');
 

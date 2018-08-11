@@ -652,45 +652,72 @@ class Servlet extends CI_Controller {
 	// --- Site Admin Functions -------------------------------------- 
 	// ---------------------------------------------------------------
 
-	public function applyUserRole() {
-		$this->returnData->name_token = $_POST['name_token'];
-		$this->returnData->success = false;
+	/*private function verifyPermissionCriteria($criteriaType) {
+		switch ($criteriaType) {
+			case "loggedIn":
+				$this->returnData->message = "You are not logged in.";
+				return (isset($_SESSION['mixer_id']));
+				break;
 
-		$newRole = $_POST['roles'];
-		switch ($newRole) {
-			case 'dev':
-				$role = "Developer";
-				break;
-			case 'admin':
-				$role = "Admin";
-				break;
-			default: 
-				$role = "User";
+			case "isAdmin":
+				$this->returnData->message = "You do not have permission to perform this action."
+				return (in_array($_SESSION['site_role'], array('owner','admin','dev')));
 				break;
 		}
+	}*/
 
-		$streamer = $this->users->getUserFromMinglerByToken($_POST['name_token']);
-		if (!empty($streamer)) {
-			if ($newRole != $streamer->minglerRole) {
-				
-				$this->returnData->message = "Applied the $role Role to ".$_POST['name_token'];
+	public function applyUserRole() {
+		$this->returnData->requestAction = "applyUserRole";
 
-				$sql_query = "UPDATE mixer_users SET minglerRole = ? WHERE name_token=?";
-				$query = $this->db->query($sql_query, array($newRole, $_POST['name_token']));
+		if (isset($_SESSION['mixer_id'])) {
+			if (in_array($_SESSION['site_role'], array('owner','admin','dev'))) {
+				$this->returnData->username = $_POST['username'];
 
-				if ($newRole == "admin" || $newRole == "dev") {
-					$news_str = $this->news->getEventString('newSiteRole', array($role));
-					$this->news->addNews($streamer->mixer_id, $news_str, "mingler");
+				$newRole = $_POST['roles'];
+				switch ($newRole) {
+					case 'dev':
+						$role = "Developer";
+						break;
+					case 'admin':
+						$role = "Admin";
+						break;
+					default: 
+						$role = "User";
+						break;
 				}
 
-				$this->returnData->success = true;
+				$streamer = $this->users->getUserFromMinglerByToken($_POST['username']);
 
+				if (!empty($streamer)) {
+					if ($newRole != $streamer->SiteRole) {
+						
+
+						$this->users->setUserSiteRole($streamer->ID, $newRole);
+
+						if ($newRole == "admin" || $newRole == "dev") {
+							$params = array ('MessageParams' => array($role));
+							$this->news->addNews($streamer->ID, 'newSiteRole', "mingler", $params);
+						}
+
+						$this->returnData->success = true;
+						$this->returnData->message = "Applied the <i>$role</i> site role to ".$_POST['username'];
+
+					} else {
+						$this->returnData->message = $_POST['username']." is already assigned as $role.";
+					}
+				} else {
+					$this->returnData->message = $_POST['username']." isn't a valid user.";
+				}
 			} else {
-				$this->returnData->message = $_POST['name_token']." is already assigned as $role.";
+				// insufficient role
+				$this->returnData->message = "You do not have permission to perform this action.";
 			}
 		} else {
-			$this->returnData->message = $_POST['name_token']." isn't a valid user.";
+			//not logged in
+			$this->returnData->message = "You are not logged in.";
 		}
+
+		
 		
 		$this->returnData();
 	}
@@ -777,89 +804,98 @@ class Servlet extends CI_Controller {
 		$this->returnData();
 	}
 
-	public function approveCommunity() {
-		$status = $_POST['status'];
+	public function processCommunity() {
+		if (isset($_SESSION['mixer_id'])) {
+			if (in_array($_SESSION['site_role'], array('owner','admin','dev'))) {
+				$status = $_POST['status'];
 
-		$this->returnData->success = false;
-		$this->returnData->message = "Improper data received.";
+				$this->returnData->requestedAction = 'processCommunity';
+				$this->returnData->status = $status;
+				$this->returnData->name = $_POST['name'];
 
-		$this->returnData->status = $status;
-		$this->returnData->long_name = $_POST['long_name'];
+				$this->communities->setCommunityStatus($_POST['commId'], $_POST['status']);
 
-
-		switch ($status) {
-			// Rejected - Closes out a creation request, but must have a reason.
-			case "rejected":
-				$sql_query = "UPDATE communities SET long_name=?, slug=NULL, category_id=?, summary=?, description=?,  siteAdminApprover=?, siteAdminNote=?, status='rejected' WHERE id=?";
-				$inputData = array(
-					$_POST['long_name'], 
-					$_POST['category_id'], 
-					$_POST['summary'], 
-					$_POST['description'],
-					$_POST['siteAdmin'],
-					$_POST['adminNote'],
-					$_POST['commId']
-				);
-				$query = $this->db->query($sql_query, $inputData);
+				$details = array(
+					'Name' => $_POST['name'],
+					'CategoryID' => $_POST['category_id'],
+					'Summary' => $_POST['summary'],
+					'description' => $_POST['description'],
+					'AdminApprover' => $_POST['siteAdmin'],
+					'AdminNote' => $_POST['adminNote']
+					);
+				$this->communities->updateCommunityDetails($_POST['commId'], $details);
 
 				$this->returnData->success = true;
-				$this->returnData->message = $_POST['long_name']."'s status was changed to $status.";
-				break;
-
-			// Approved - A community is recently approved for going live. Allows community admin to make edits, and publish thier community.
-			case "approved":
-				$sql_query = "UPDATE communities SET long_name=?, slug=?, category_id=?, summary=?, description=?,  siteAdminApprover=?, siteAdminNote=?, status='approved' WHERE id=?";
-				$inputData = array(
-					$_POST['long_name'], 
-					$_POST['slug'], 
-					$_POST['category_id'], 
-					$_POST['summary'], 
-					$_POST['description'],
-					$_POST['siteAdmin'],
-					$_POST['adminNote'],
-					$_POST['commId']
-				);	
-				$query = $this->db->query($sql_query, $inputData);
-
-				$this->returnData->success = true;
-				$this->returnData->message = $_POST['long_name']."'s status was changed to $status.";
-				break;
+				$this->returnData->message = $_POST['name']."'s status was changed to $status.";
+			} else {
+				// insufficient role
+				$this->returnData->message = "You do not have permission to perform this action.";
+			}
+		} else {
+			//not logged in
+			$this->returnData->message = "You are not logged in.";
 		}
+
 		
 		$this->returnData();
 	}
 
 	public function foundCommunity() {
-		$this->returnData->success = true;
-		$this->returnData->message = "Community has been founded!";
+		if (isset($_SESSION['mixer_id'])) {
+			$mixerID = $_SESSION['mixer_id'];
 
-		$requireApproval = 0;
-		if ($_POST['requireApproval'] == "yes") {
-			$requireApproval = 1;
+			if (!empty($_POST)) {
+				$community = $this->communities->getCommunity($_POST['commId']);
+				if ($mixerID == $community->Admin) {
+					if (in_array($community->Status, array('open', 'closed', 'rejected'))) {
+						$this->returnData->success = true;
+						$this->returnData->message = "Community has been founded!";
+
+						$requireApproval = 0;
+						if ($_POST['requireApproval'] == "yes") {
+							$requireApproval = 1;
+						}
+
+						$this->returnData->status = $_POST['status'];
+						$this->returnData->requireApproval = $requireApproval;
+						$this->returnData->community_id = $_POST['commId'];
+
+						// Found community!
+						$sql_query = "UPDATE communities SET status=?, timeFounded=NOW(), approveMembers=? WHERE id=?";
+						$inputData = array(
+							$_POST['status'], 
+							$requireApproval, 
+							$_POST['commId']
+						);
+						//$query = $this->db->query($sql_query, $inputData);
+
+						// UPDATE mixer_users SET last_foundation WHERE mixer_id
+						$sql_query = "UPDATE mixer_users SET lastFoundation=NOW() WHERE mixer_id=?";
+						$inputData = array($_POST['mixerUser_id']);
+						//$query = $this->db->query($sql_query, $inputData);
+
+						// Add news item 
+						
+						//$newsText = $this->news->getEventString("foundedCommunity", array($_POST['commId']));
+						//$this->news->addNews($_POST['mixerUser_id'], $newsText, "community", $_POST['commId']);
+					} else {
+						$this->returnData->message = "Community is $community->Status and cannot be founded.";
+					}
+				} else {
+					// insufficient role
+					$this->returnData->message = "Form data was incomplete.";
+				}
+			
+			} else {
+				// insufficient role
+				$this->returnData->message = "You do not have permission to perform this action.";
+			}
+		} else {
+			//not logged in
+			$this->returnData->message = "You are not logged in.";			
 		}
 
-		$this->returnData->status = $_POST['status'];
-		$this->returnData->requireApproval = $requireApproval;
-		$this->returnData->mixer_id = $_POST['mixerUser_id'];
-		$this->returnData->community_id = $_POST['commId'];
-
-		// Found community!
-		$sql_query = "UPDATE communities SET status=?, timeFounded=NOW(), approveMembers=? WHERE id=?";
-		$inputData = array(
-			$_POST['status'], 
-			$requireApproval, 
-			$_POST['commId']
-		);
-		$query = $this->db->query($sql_query, $inputData);
-
-		// UPDATE mixer_users SET last_foundation WHERE mixer_id
-		$sql_query = "UPDATE mixer_users SET lastFoundation=NOW() WHERE mixer_id=?";
-		$inputData = array($_POST['mixerUser_id']);
-		$query = $this->db->query($sql_query, $inputData);
-
-		// Add news item 
-		$newsText = $this->news->getEventString("foundedCommunity", array($_POST['commId']));
-		$this->news->addNews($_POST['mixerUser_id'], $newsText, "community", $_POST['commId']);
+		
 
 		$this->returnData();
 	}

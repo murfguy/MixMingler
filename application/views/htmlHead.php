@@ -91,8 +91,8 @@
 							</a>
 							<div class="dropdown-menu  bg-dark" aria-labelledby="navbarDropdownMenuLink">
 								<a class="nav-link" href="/account/">Account Settings</a>
-								<?php if (isset($_SESSION['mingler_role'])) {
-							if (in_array($_SESSION['mingler_role'], array('owner','admin','dev'))) { ?>
+								<?php if (isset($_SESSION['site_role'])) {
+							if (in_array($_SESSION['site_role'], array('owner','admin','dev'))) { ?>
 								<a class="nav-link" href="/admin/" style="color: red;">Site Admin Panel</a>
 								<?php } } ?>
 								<a class="nav-link" onclick="logout()" style="cursor: pointer"><span class="mixBlue"><i class="fas fa-sign-out-alt"></i> Logout</span></a>

@@ -106,7 +106,7 @@ class Auth extends CI_Controller {
 					$_SESSION['mixer_user'] = $owner['username'];
 					$_SESSION['mixer_id'] = $owner['channel']['id'];
 					$_SESSION['mixer_userId'] = $owner['id'];
-					$_SESSION['mingler_role'] = $minglerData->SiteRole;
+					$_SESSION['site_role'] = $minglerData->SiteRole;
 				}
 
 				header('Location: /');

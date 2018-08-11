@@ -3,12 +3,12 @@
 		<h1>Account Management</h1>
 	</div>
 
-			<div class="btn-group d-flex" role="group">
-				<button type="button" class="btn btn-info displayToggle" target="summaryView" disabled>Summary</button>
-				<button type="button" class="btn btn-info displayToggle" target="settingsManager">Settings</button>
-				<button type="button" class="btn btn-info displayToggle" target="typeManager">Games/Types</button>
-				<button type="button" class="btn btn-info displayToggle" target="commManager">Communities</button>
-			</div>
+	<div class="btn-group d-flex" role="group">
+		<button type="button" class="btn btn-info displayToggle" target="summaryView" disabled>Summary</button>
+		<button type="button" class="btn btn-info displayToggle" target="settingsManager">Settings</button>
+		<button type="button" class="btn btn-info displayToggle" target="typeManager">Games/Types</button>
+		<button type="button" class="btn btn-info displayToggle" target="commManager">Communities</button>
+	</div>
 
 	<p class="devNote">Account Management features are planned to added/implemented alongside appropriate features. See the <a href="/alpha/">Alpha Information Page</a> for more info. Bugs or incomplete implementations are expected in this area if dev notes are present for associated tasks.</p>
 

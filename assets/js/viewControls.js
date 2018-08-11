@@ -17,11 +17,9 @@ function setViewToggleListeners() {
 
 
 	$("button.displayToggle").click(function () {
-		console.log("Display Toggle");
-
 		// Target is the element we are going to display
 		target = $('div#'+$(this).attr('target'));
-		console.log(" -- "+$(this).attr('target'));
+		console.log("button.displayToggle: "+$(this).attr('target'));
 
 		// Level : where we are focusing the toggle so we don't impact all buttons
 			// Panel: A top level display

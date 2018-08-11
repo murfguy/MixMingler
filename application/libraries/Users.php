@@ -32,7 +32,7 @@ class Users {
 			JOIN Users AS U ON U.ID = UC.MixerID
 			JOIN Communities AS C ON C.ID = UC.CommunityID
 			WHERE  UC.MixerID=?";
-		$query = $this->CI->db->query($sql_query, array($mixerId));
+		$query = $this->db->query($sql_query, array($mixerId));
 
 		if (!empty($query->result())) {
 			// User is on Mingler
@@ -45,9 +45,8 @@ class Users {
 
 	public function getUserFromMinglerByToken($mixerToken) {
 		// Let's get streamer data from Mingler based on the ID value we got from Mixer.
-		$data = new stdClass();
 		$sql_query = "SELECT * FROM Users WHERE Username=?";
-		$query = $this->CI->db->query($sql_query, array($mixerToken));
+		$query = $this->db->query($sql_query, array($mixerToken));
 
 		if (!empty($query->result())) {
 			// User is on Mingler
@@ -309,34 +308,56 @@ ORDER BY stream_count DESC";
 		return  $query->result();*/
 	}
 
-	public function getCommunitiesByStatus($mixerID, $status) {
-		$query = $this->db->get_where('Communities', array('status' => $status, 'Founder' => $mixerID));
-		return  $query->result();
-	}
-
-	public function getUsersPendingCommunities($mixer_id) {
-		/*$sql_query = "SELECT * FROM Communities WHERE status='pending' AND Founder=? ORDER BY ID DESC";
-		$query = $this->CI->db->query($sql_query, array($mixer_id));
-		return  $query->result();*/
+	public function getUsersCreatedCommunitiesByStatus($mixerID, $status) {
+		$this->db->select('Communities.*')
+			->from('Communities')
+			->where('Founder', $mixerID);
 		
-	}
+		switch ($status) {
+			case "unfounded":
+				// pending, approved or rejected
+				//$this->db->where("Founder=$mixerID AND (Status='pending' OR Status='approved' OR Status='rejected')");
+				$this->db->group_start()
+							->where('Status', 'pending')
+							->or_where('Status', 'approved')
+							->or_where('Status', 'rejected')
+						->group_end();
+				break;
 
-	public function getUsersApprovedCommunities($mixer_id) {
-		/*$sql_query = "SELECT *, mixer_users.name_token as adminName FROM `communities`
-		JOIN mixer_users ON mixer_users.mixer_id = communities.siteAdminApprover WHERE communities.status='approved' AND communities.founder=? ORDER BY communities.id DESC";
-		$query = $this->CI->db->query($sql_query, array($mixer_id));
-		return  $query->result();*/
+			case "processed":
+				$this->db->group_start()
+							->where('Status', 'approved')
+							->or_where('Status', 'rejected')
+						->group_end()
+						->select('Users.Username as AdminName')
+						->join('Users', 'Users.ID = Communities.AdminApprover');
+				break;
 
-		$query = $this->db->get_where('Communities', array('status' => 'approved', 'Founder' => $mixer_id));
+			case "founded":
+				//open or closed
+				//$this->db->where("Founder=$mixerID AND (Status='open' OR Status='closed')");
+				$this->db->group_start()
+							->where('Status', 'open')
+							->or_where('Status', 'closed')
+						->group_end();
+				break;
+
+			default:
+				// get by single type
+				$this->db->where('Status', $status);
+				break;
+		}
+
+		if ($status != 'pending' ||$status != "unfounded") {
+			$this->db->select('Users.Username as AdminName')
+			->join('Users', 'Users.ID = Communities.AdminApprover');
+		}
+
+
+		$query = $this->db->get();
+
+		//$query = $this->db->get('Communities', array('status' => $status, 'Founder' => $mixerID));
 		return  $query->result();
-	}
-
-
-	public function getUsersRejectedCommunities($mixer_id) {
-		/*$sql_query = "SELECT *, mixer_users.name_token as adminName FROM `communities`
-		JOIN mixer_users ON mixer_users.mixer_id = communities.siteAdminApprover WHERE communities.status='rejected' AND communities.founder=? ORDER BY communities.id DESC";
-		$query = $this->CI->db->query($sql_query, array($mixer_id));
-		return  $query->result();*/
 	}
 	
 	public function getUsersAdminedOrModeratedCommunities($mixer_id) {
@@ -355,6 +376,22 @@ ORDER BY stream_count DESC";
 		$sql_query = "SELECT *  FROM Users WHERE SiteRole in ('owner', 'admin') ORDER BY Username DESC";
 		$query = $this->CI->db->query($sql_query);
 		return  $query->result();
+	}
+
+	public function getUsersByRecentActivityType($activityType, $limit = 20) {
+		$this->db->order_by($activityType, 'DESC');
+		$query = $this->db->get('Users', $limit);
+		return $query->result();
+	}
+
+	public function setUserSiteRole($mixerID, $role) {
+		//$sql_query = "UPDATE mixer_users SET minglerRole = ? WHERE name_token=?";
+		//$query = $this->db->query($sql_query, array($newRole, $_POST['name_token']));
+
+		$data = array( 'SiteRole' => $role);
+		$this->db->where('ID', $mixerID);
+		$this->db->update('Users', $data);
+
 	}
 }
 ?>

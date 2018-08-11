@@ -45,7 +45,7 @@ class Communities {
 		// Check status of all members from Mixer API
 		$url = "https://mixer.com/api/v1/channels?limit=100&fields=id,userId,token,online,viewersTotal,viewersCurrent,numFollowers,type&where=token:in:";
 		foreach ($members as $member) { 
-			$url .= $member->name_token.";";
+			$url .= $member->Username.";";
 		}
 		$online_members = json_decode(file_get_contents($url));
 
@@ -63,7 +63,7 @@ class Communities {
 	}
 
 	public function getCommunitiesFromList($communityList) {
-		$sql_query = "SELECT * FROM Communities WHERE id IN ($communityList)";
+		$sql_query = "SELECT * FROM Communities WHERE ID IN ($communityList)";
 		$query = $this->CI->db->query($sql_query);
 		return $query->result();
 	}
@@ -95,11 +95,11 @@ class Communities {
 	}*/
 
 	// --- Junction Table Refactor for: getCommunityMembersFromList
-	public function getCommunityMembersByGroup($communityId, $group, $sortOn = 'name_token', $direction = 'ASC') {
-		$sql_query = "SELECT mixer_users.* 
+	public function getCommunityMembersByGroup($communityId, $group, $sortOn = 'Username', $direction = 'ASC') {
+		$sql_query = "SELECT Users.* 
 			FROM `UserCommunities` 
-			JOIN mixer_users ON mixer_users.mixer_id = UserCommunities.MixerID
-			JOIN communities ON communities.id = UserCommunities.CommunityID
+			JOIN Users ON Users.ID = UserCommunities.MixerID
+			JOIN Communities ON Communities.id = UserCommunities.CommunityID
 			WHERE CommunityID=? AND MemberState = ? 
 			ORDER BY $sortOn $direction";
 		$query = $this->CI->db->query($sql_query, array($communityId, $group));
@@ -109,7 +109,7 @@ class Communities {
 	public function getArrayOfMemberIDs($members) {
 		$memberIDs = array();
 		foreach ($members as $member) {
-			$memberIDs[] = $member->mixer_id;
+			$memberIDs[] = $member->ID;
 		}
 		return $memberIDs;
 	}
@@ -198,16 +198,27 @@ WHERE (MemberState = 'admin' OR MemberState='moderator') AND CommunityID=?";
 	}
 
 	public function getCommunitiesByStatus($status) {
-		$sql_query = "SELECT communities.*, mixer_users.name_token as founder_name, community_categories.name as category_name
-		FROM `communities` 
-		JOIN mixer_users ON communities.founder = mixer_users.mixer_id
-		JOIN community_categories ON communities.category_id = community_categories.id
-		WHERE communities.status = ?
-		ORDER BY id DESC";
-		
-		$query = $this->CI->db->query($sql_query, array($status));
+		$this->db->select('Communities.*');
+		$this->db->select('Users.Username AS FounderName');
+		$this->db->select('CommunityCategories.Name AS CategoryName');
+		$this->db->from('Communities');
+		$this->db->join('Users', 'Users.ID = Communities.Founder');
+		$this->db->join('CommunityCategories', 'Communities.CategoryID = CommunityCategories.ID');
+		$this->db->where('Communities.Status',$status);
+		$query = $this->db->get();
+
 		return $query->result();
 	}
 
+	public function setCommunityStatus($communityId, $status) {
+		$data = array( 'Status' => $status);
+		$this->db->where('ID', $communityId);
+		$this->db->update('Communities', $data);
+	}
+
+	public function updateCommunityDetails($communityId, $details) {
+		$this->db->where('ID', $communityId);
+		$this->db->update('Communities', $details);
+	}
 
 }?>

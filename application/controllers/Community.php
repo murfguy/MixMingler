@@ -44,14 +44,14 @@ class Community extends CI_Controller {
 			$data->community = $community;
 
 			// Get all Community Members by their groupings
-			$founder = $this->communities->getCommunityMembersByGroup($community->id, 'founder')[0];
-			$admin = $this->communities->getCommunityMembersByGroup($community->id, 'admin')[0];
-			$moderators = $this->communities->getCommunityMembersByGroup($community->id, 'moderator');
-			$coreMembers = $this->communities->getCommunityMembersByGroup($community->id, 'core');
-			$members = $this->communities->getCommunityMembersByGroup($community->id, 'member');
-			$followers = $this->communities->getCommunityMembersByGroup($community->id, 'follower');
-			$pendingMembers = $this->communities->getCommunityMembersByGroup($community->id, 'pending');
-			$bannedMembers = $this->communities->getCommunityMembersByGroup($community->id, 'banned');
+			$founder = $this->communities->getCommunityMembersByGroup($community->ID, 'founder')[0];
+			$admin = $this->communities->getCommunityMembersByGroup($community->ID, 'admin')[0];
+			$moderators = $this->communities->getCommunityMembersByGroup($community->ID, 'moderator');
+			$coreMembers = $this->communities->getCommunityMembersByGroup($community->ID, 'core');
+			$members = $this->communities->getCommunityMembersByGroup($community->ID, 'member');
+			$followers = $this->communities->getCommunityMembersByGroup($community->ID, 'follower');
+			$pendingMembers = $this->communities->getCommunityMembersByGroup($community->ID, 'pending');
+			$bannedMembers = $this->communities->getCommunityMembersByGroup($community->ID, 'banned');
 
 			$data->memberIdLists = array(
 				'moderators' => $this->communities->getArrayOfMemberIDs($moderators),
@@ -80,8 +80,8 @@ class Community extends CI_Controller {
 				$currentUser->isMod = false;
 				$currentUser->isBanned = false;
 
-				if ($_SESSION['mixer_id'] == $community->founder) {	$currentUser->isFounder = true;	}
-				if ($_SESSION['mixer_id'] == $community->admin) {$currentUser->isAdmin = true; }
+				if ($_SESSION['mixer_id'] == $community->Founder) {	$currentUser->isFounder = true;	}
+				if ($_SESSION['mixer_id'] == $community->Admin) {$currentUser->isAdmin = true; }
 				if (in_array($_SESSION['mixer_id'], $data->memberIdLists['moderators'])) { $currentUser->isMod = true; }				
 				if (in_array($_SESSION['mixer_id'], $data->memberIdLists['banned'])) { $currentUser->isBanned = true; }
 				if (in_array($_SESSION['mixer_id'], $data->memberIdLists['members'])) { $currentUser->isMember = true; }			
@@ -96,8 +96,8 @@ class Community extends CI_Controller {
 			$feedData = null;
 			$newsDisplayItems = null;
 
-			$sql_query = "SELECT *, (SELECT name_token AS username FROM mixer_users WHERE mixer_users.mixer_id=timeline_events.mixer_id) AS username, (SELECT avatarURL AS username FROM mixer_users WHERE mixer_users.mixer_id=timeline_events.mixer_id) AS avatar FROM `timeline_events` WHERE eventType=\"community\" AND extraVars=? ORDER BY eventTime DESC LIMIT 0,50";
-			$query = $this->db->query($sql_query, array($community->id));
+			/*$sql_query = "SELECT *, (SELECT name_token AS username FROM mixer_users WHERE mixer_users.mixer_id=timeline_events.mixer_id) AS username, (SELECT avatarURL AS username FROM mixer_users WHERE mixer_users.mixer_id=timeline_events.mixer_id) AS avatar FROM `timeline_events` WHERE eventType=\"community\" AND extraVars=? ORDER BY eventTime DESC LIMIT 0,50";
+			$query = $this->db->query($sql_query, array($community->ID));
 			$feedData = $query->result();
 
 			// We need to get the HTML version of these events so we can display them in the view.
@@ -109,7 +109,7 @@ class Community extends CI_Controller {
 			}
 
 			$data->feedData = $feedData;
-			$data->newsDisplayItems = $newsDisplayItems;
+			$data->newsDisplayItems = $newsDisplayItems;*/
 			$data->members = $members;
 			$data->followers = $followers;
 			$data->admin = $admin;
@@ -181,9 +181,9 @@ class Community extends CI_Controller {
 
 			$pending = null;
 			if ($user != null) {
-				$pending = $this->users->getCommunitiesByStatus($mixerID, 'pending');
-				$approved = $this->users->getCommunitiesByStatus($mixerID, 'approved');
-				$rejected = $this->users->getCommunitiesByStatus($mixerID, 'rejected');
+				$pending = $this->users->getUsersCreatedCommunitiesByStatus($mixerID, 'pending');
+				$approved = $this->users->getUsersCreatedCommunitiesByStatus($mixerID, 'approved');
+				$rejected = $this->users->getUsersCreatedCommunitiesByStatus($mixerID, 'rejected');
 				//$pending = $this->users->getUsersPendingCommunities($_SESSION['mixer_id']);
 				//$approved = $this->users->getUsersApprovedCommunities($_SESSION['mixer_id']);
 				//$rejected = $this->users->getUsersRejectedCommunities($_SESSION['mixer_id']);

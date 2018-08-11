@@ -34,7 +34,7 @@ class Tools {
 		return false;
 	}
 
-	public function getElapsedTimeString($timestamp) {
+	/*public function getElapsedTimeString($timestamp) {
 		$elapsedTime = time() - $timestamp;
 
 		// If under one minute
@@ -56,7 +56,7 @@ class Tools {
 		if ($elapsedTime >= 60 * 60 * 24) {
 			return number_format(ceil($elapsedTime/(60*60*24)))." days ago";
 		}
-	}
+	}*/
 
 	public function formatNumber($number, $dec = 0) {
 		return number_format($number, $dec, ".", ",");

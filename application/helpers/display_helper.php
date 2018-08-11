@@ -1,5 +1,18 @@
 <?php if ( ! defined('BASEPATH')) exit('No direct script access allowed');
 
+if ( ! function_exists('userListLink')) {
+	function userListLink($params = array()) {
+
+		$str = '<a href="/user/'.$params['Username'].'">';
+		$str .= '<img src="'.$params['AvatarURL'].'" '.imgBackup('streamer').' class="avatar thin-border" width="25px" />';
+		$str .= ' '.$params['Username'];
+		$str .= '</a>';
+
+		return $str;
+	}
+}
+
+
 if ( ! function_exists('card')) {
 	function card($params = array()) {
 			if (empty($params)) {
@@ -140,7 +153,7 @@ if ( ! function_exists('imgBackup')) {
 			'community' => "/assets/graphics/covers/blankCover.png"
 		);
 		;
-		return "this.src='".$backupCovers[$kind]."'";
+		return "onerror=\"this.src='".$backupCovers[$kind]."';\"";
 	}
 }
 
