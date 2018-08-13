@@ -369,6 +369,20 @@ class Servlet extends CI_Controller {
 						// --- Record Insertion ------------------------
 						// =============================================
 
+						case "followCommunity":
+							// Valid condition: not banned, not a member
+							if ($states['isMember']) {
+								$this->returnData->success = false; // reset success boolean as this fails.
+								$this->returnData->completedAction = null;
+								$this->returnData->message = "You are already a nember of $community->Name.";
+							} else {
+
+							}
+							break;
+
+						case "joinCommunity":
+							break;
+
 						case "setAsCore":
 							$coreCommunities = $this->users->getUserCoreCommunities($_SESSION['mixer_id']);
 							if ($states['isCore']) {
@@ -391,6 +405,61 @@ class Servlet extends CI_Controller {
 						// =============================================
 						// --- Record Deleteion ------------------------
 						// =============================================
+
+						case "leaveCommunity":
+							if ($states['isAdmin']) {
+								$this->returnData->success = false; // reset success boolean as this fails.
+								$this->returnData->completedAction = null;
+								$this->returnData->message = "You are the admin of $community->Name and cannot change your status.";
+							} else {
+								if (!$states['isMember']) {
+									$this->returnData->success = false; // reset success boolean as this fails.
+									$this->returnData->completedAction = null;
+									$this->returnData->message = "You are not currently a member of $community->Name.";
+								} else {
+									$data['MemberState'] = 'member';
+									$this->db->delete('UserCommunities', $data);
+									$this->returnData->message = "You have left $community->Name.";
+								}
+							}							
+							break;
+
+						case "unfollowCommunity":
+							if ($states['isAdmin']) {
+								$this->returnData->success = false; // reset success boolean as this fails.
+								$this->returnData->completedAction = null;
+								$this->returnData->message = "You are the admin of $community->Name and cannot change your status.";
+							} else {
+								if (!$states['isFollowing']) {
+									$this->returnData->success = false; // reset success boolean as this fails.
+									$this->returnData->completedAction = null;
+									$this->returnData->message = "You are not currently following $community->Name.";
+								} else {
+									$data['MemberState'] = 'following';
+									$this->db->delete('UserCommunities', $data);
+									$this->returnData->message = "You have unfollowed $community->Name.";
+								}
+							}
+							break;
+
+						case "unpendCommunity":
+							if ($states['isAdmin']) {
+									$this->returnData->success = false; // reset success boolean as this fails.
+									$this->returnData->completedAction = null;
+									$this->returnData->message = "You are the admin of $community->Name and cannot change your status.";
+							} else {
+								if (!$states['isPending']) {
+									$this->returnData->success = false; // reset success boolean as this fails.
+									$this->returnData->completedAction = null;
+									$this->returnData->message = "You are not currently pending approval to join $community->Name.";
+								} else {
+									$data['MemberState'] = 'pending';
+									$this->db->delete('UserCommunities', $data);
+									$this->returnData->message = "You have removed your request to join $community->Name.";
+								}
+							}
+							break;
+
 						case "removeAsCore":
 							if (!$states['isCore']) {
 								$this->returnData->success = false; // reset success boolean as this fails.
