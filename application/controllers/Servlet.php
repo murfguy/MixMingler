@@ -369,19 +369,14 @@ class Servlet extends CI_Controller {
 						// --- Record Insertion ------------------------
 						// =============================================
 
-						case "followCommunity":
-							// Valid condition: not banned, not a member
-							if ($states['isMember']) {
-								$this->returnData->success = false; // reset success boolean as this fails.
-								$this->returnData->completedAction = null;
-								$this->returnData->message = "You are already a nember of $community->Name.";
-							} else {
-
-							}
-							break;
-
 						case "joinCommunity":
+							// Valid condition: not banned, not a member, is not closed
 							break;
+
+						case "followCommunity":
+							// Valid condition: not following
+							break;
+
 
 						case "setAsCore":
 							$coreCommunities = $this->users->getUserCoreCommunities($_SESSION['mixer_id']);
