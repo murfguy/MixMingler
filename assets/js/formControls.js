@@ -360,6 +360,16 @@ function setConfirmationActions () {
 		action = $(this).attr('action');
 
 		switch ($(this).attr('action')) {
+			case "deleteCommunity":
+				message = "This will permanently delete this community! All members will be removed. It cannot be recovered. BE 100% CERTAIN BEFORE YOU CLICK THE DELETE BUTTON!";
+				alertTitle = "Deleting Community...";
+				confirmText = "DELETE (Cannot be undone)";
+				cancelText = "Nevermind";
+				actionData = {
+					communityId: $(this).attr('communityId')
+				}
+				break;
+
 			case "joinCommunity":
 				alertTitle = "Joining Community..."; 				
 				actionData = {
@@ -646,6 +656,15 @@ function setConfirmationActions () {
 
 function updateButtonView(tgt, serverData) {
 	switch (serverData.completedAction) {
+		case "deleteCommunity":
+			var pathname = window.location.pathname;
+			var modPage = "/community/"+serverData.slug+"/mod";
+			if (pathname == modPage) {
+				// redirect
+				window.location.replace('/');
+			}
+			break;
+
 		case "join":
 		case "addedToPending":
 			// Becomes "leave state"

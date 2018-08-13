@@ -20,7 +20,7 @@ class News {
 		} else {
 			if (empty($params['TypeID'])) { $params['TypeID'] = null; };
 			if (empty($params['CommunityID'])) { $params['CommunityID'] = null; };
-			if (empty($params['MessageParams'])) { $params['messageParams'] = null; };
+			if (empty($params['MessageParams'])) { $params['MessageParams'] = null; };
 		}
 
 		$eventText = $this->getEventString($event, $params['MessageParams']);
@@ -37,32 +37,32 @@ class News {
 		return $query->result();
 	}
 
-	public function getCommunityNewsFeed($max = 10) {
+	/*public function getCommunityNewsFeed($max = 10) {
 		$sql_query = "SELECT *, (SELECT name_token FROM mixer_users WHERE mixer_users.mixer_id=timeline_events.mixer_id) as username FROM timeline_events WHERE mixer_id IN (276998,265097,273268,205053,222346,255317,217203,2333,249896,534267,261799,280222,13163285,462135,35942,6114513) ORDER BY id DESC LIMIT 0,$max";
 		$query = $this->CI->db->query($sql_query);
 
 		return  $query->result();
-	}
+	}*/
 
-	public function getNewsInsertQueryDataArray ($mixer_id, $eventText, $eventType, $extraVars = array()) {
-		if (!empty($extraVars)) {
-			if (empty($extraVars['TypeID'])) { $extraVars['TypeID'] = null; }
-			if (empty($extraVars['CommunityID'])) { $extraVars['CommunityID'] = null; }
+	public function getNewsArray($mixer_id, $event, $eventType, $params = array()) {
+		if (empty($params)) {
+			$params = array('TypeID' => null, 'CommunityID' => null, 'MessageParams' => null);
 		} else {
-			$extraVars['TypeID'] = null;
-			$extraVars['CommunityID'] = null;
+			if (empty($params['TypeID'])) { $params['TypeID'] = null; };
+			if (empty($params['CommunityID'])) { $params['CommunityID'] = null; };
+			if (empty($params['MessageParams'])) { $params['MessageParams'] = null; };
 		}
 
+		$eventText = $this->getEventString($event, $params['MessageParams']);
 
 		$query_data = array(
 			'MixerID' => $mixer_id,
+			'TypeID' => $params['TypeID'],
+			'CommunityID' => $params['CommunityID'],
 			'EventTime' => date('Y-m-d H:i:s'),
 			'Content' => $eventText,
-			'Type' => $eventType,
-			'TypeID' => $extraVars['TypeID'],
-			'CommunityID' => $extraVars['CommunityID']
+			'Type' => $eventType
 		);
-
 		return $query_data;
 	}
 
@@ -113,7 +113,7 @@ class News {
 		return $newsContainer;
 	}
 
-	public function getEventString($event, $params = "") {
+	private function getEventString($event, $params = "") {
 		switch ($event) {
 			case "newSiteRole":
 				return "{username} became a MixMingler ".$params[0].".";

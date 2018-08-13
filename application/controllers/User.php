@@ -131,22 +131,22 @@ class User extends CI_Controller {
 	private function displayUsers() {
 			$displayData = new stdClass();
 
-			$sql_query = "SELECT *, (CHAR_LENGTH(joinedCommunities) - IF(joinedCommunities!='',(CHAR_LENGTH(REPLACE(joinedCommunities,',',''))-1),0)) as joinedCount, (CHAR_LENGTH(followedCommunities) - IF(followedCommunities!='',(CHAR_LENGTH(REPLACE(followedCommunities,',',''))-1),0)) as followedCount FROM mixer_users WHERE registered=1 AND lastSeenOnline>DATE_SUB(NOW(), INTERVAL 30 DAY) ORDER BY lastStreamStart DESC";
+			$sql_query = "SELECT * FROM Users WHERE isRegistered=1 AND LastSeenOnline>DATE_SUB(NOW(), INTERVAL 30 DAY) ORDER BY LastStreamStart DESC";
 			$query = $this->db->query($sql_query);
 			$displayData->regStreamers = $query->result();
 
 			foreach ($displayData->regStreamers as $streamer) { 
-				$streamer->lastStartElapsed = $this->tools->getElapsedTimeString(strtotime($streamer->lastStreamStart));
-				$streamer->lastSeenElapsed = $this->tools->getElapsedTimeString(strtotime($streamer->lastSeenOnline));
+				$streamer->lastStartElapsed = $this->tools->getElapsedTimeString(strtotime($streamer->LastStreamStart));
+				$streamer->lastSeenElapsed = $this->tools->getElapsedTimeString(strtotime($streamer->LastSeenOnline));
 			}
 
-			$sql_query = "SELECT * FROM mixer_users WHERE registered=0 AND lastSeenOnline>DATE_SUB(NOW(), INTERVAL 30 MINUTE) ORDER BY lastStreamStart DESC";
+			$sql_query = "SELECT * FROM Users WHERE isRegistered=0 AND LastSeenOnline>DATE_SUB(NOW(), INTERVAL 30 MINUTE) ORDER BY LastStreamStart DESC";
 			$query = $this->db->query($sql_query);
 			$displayData->nonRegStreamers = $query->result();
 
 			foreach ($displayData->nonRegStreamers as $streamer) { 
-				$streamer->lastStartElapsed = $this->tools->getElapsedTimeString(strtotime($streamer->lastStreamStart));
-				$streamer->lastSeenElapsed = $this->tools->getElapsedTimeString(strtotime($streamer->lastSeenOnline));
+				$streamer->LastStartElapsed = getElapsedTimeString($streamer->LastStreamStart);
+				$streamer->LastSeenElapsed = getElapsedTimeString($streamer->LastSeenOnline);
 			}
 
 			$this->load->view('htmlHead');

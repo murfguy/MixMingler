@@ -797,8 +797,11 @@ class Servlet extends CI_Controller {
 			// Send an email alert to site admins about new community request
 			$emailParams = array(
 				'requester'=>$_SESSION['mixer_user'],
-				'communityName'=>$_POST['name']);
+				'communityName'=>$_POST['name'],
+				'singleUserId' => $_SESSION['mixer_id']);
+
 			$this->communications->sendMessage('admins', 'newCommunityRequest', $emailParams);
+			$this->communications->sendMessage('user', 'communityRequestReceived', $emailParams);
 		}
 
 		$this->returnData();
@@ -806,6 +809,7 @@ class Servlet extends CI_Controller {
 
 	public function processCommunity() {
 		if (isset($_SESSION['mixer_id'])) {
+			$community = $this->communities->getCommunity($_POST['commId']);
 			if (in_array($_SESSION['site_role'], array('owner','admin','dev'))) {
 				$status = $_POST['status'];
 
@@ -819,7 +823,7 @@ class Servlet extends CI_Controller {
 					'Name' => $_POST['name'],
 					'CategoryID' => $_POST['category_id'],
 					'Summary' => $_POST['summary'],
-					'description' => $_POST['description'],
+					'Description' => $_POST['description'],
 					'AdminApprover' => $_POST['siteAdmin'],
 					'AdminNote' => $_POST['adminNote']
 					);
@@ -827,14 +831,20 @@ class Servlet extends CI_Controller {
 
 				$this->returnData->success = true;
 				$this->returnData->message = $_POST['name']."'s status was changed to $status.";
-			} else {
-				// insufficient role
-				$this->returnData->message = "You do not have permission to perform this action.";
-			}
-		} else {
-			//not logged in
-			$this->returnData->message = "You are not logged in.";
-		}
+
+
+				$emailParams = array(
+					'communityName'=>$_POST['name'],
+					'singleUserId' => $community->Admin);
+
+				if ($status == 'approved') {
+					$this->communications->sendMessage('user', 'communityApproved', $emailParams);
+				} elseif ($status == 'rejected') {
+					$emailParams['adminNote'] = $_POST['adminNote'];
+					$this->communications->sendMessage('user', 'communityDenied', $emailParams);
+				}
+			} else {$this->returnData->message = $this->getWarningText("insufficientRights"); } // insufficient role
+		} else { $this->returnData->message = $this->getWarningText("noLoggedIn"); } //not logged in
 
 		
 		$this->returnData();
@@ -847,7 +857,7 @@ class Servlet extends CI_Controller {
 			if (!empty($_POST)) {
 				$community = $this->communities->getCommunity($_POST['commId']);
 				if ($mixerID == $community->Admin) {
-					if (in_array($community->Status, array('open', 'closed', 'rejected'))) {
+					if (!in_array($community->Status, array('open', 'closed', 'rejected'))) {
 						$this->returnData->success = true;
 						$this->returnData->message = "Community has been founded!";
 
@@ -857,27 +867,26 @@ class Servlet extends CI_Controller {
 						}
 
 						$this->returnData->status = $_POST['status'];
-						$this->returnData->requireApproval = $requireApproval;
+						$this->returnData->isApprovalRequired = $requireApproval;
 						$this->returnData->community_id = $_POST['commId'];
 
 						// Found community!
-						$sql_query = "UPDATE communities SET status=?, timeFounded=NOW(), approveMembers=? WHERE id=?";
-						$inputData = array(
-							$_POST['status'], 
-							$requireApproval, 
-							$_POST['commId']
-						);
-						//$query = $this->db->query($sql_query, $inputData);
+						$data = array(
+							'Status' => $_POST['status'], 
+							'isApprovalRequired' => $requireApproval);
+						$this->db->where('ID', $_POST['commId']);
+						$this->db->update('Communities', $data);
 
-						// UPDATE mixer_users SET last_foundation WHERE mixer_id
-						$sql_query = "UPDATE mixer_users SET lastFoundation=NOW() WHERE mixer_id=?";
-						$inputData = array($_POST['mixerUser_id']);
-						//$query = $this->db->query($sql_query, $inputData);
+						// Set User's last foundation timestamp
+						$data = array('LastFoundationTime' => date("Y-m-d H:i:s"));
+						$this->db->where('ID', $_POST['mixerUser_id']);
+						$this->db->update('Users', $data);
 
 						// Add news item 
-						
-						//$newsText = $this->news->getEventString("foundedCommunity", array($_POST['commId']));
-						//$this->news->addNews($_POST['mixerUser_id'], $newsText, "community", $_POST['commId']);
+						$newsParams = array(
+							'CommunityID' => $_POST['commId'],
+							'MessageParams' => array($_POST['commId']));
+						$this->news->addNews($_POST['mixerUser_id'], "foundedCommunity", "community", $newsParams);
 					} else {
 						$this->returnData->message = "Community is $community->Status and cannot be founded.";
 					}
@@ -896,6 +905,37 @@ class Servlet extends CI_Controller {
 		}
 
 		
+		$this->returnData();
+
+	}
+
+	public function deleteCommunity() {
+		$this->returnData->requestedAction = "deleteCommunity";
+		// criteria
+		// logged in > data is valid > is site admin OR community owner > sucess
+		if (isset($_SESSION['mixer_id'])) {
+			$currentUserId = $_SESSION['mixer_id'];
+			$currentUserRole = $_SESSION['site_role'];
+			$this->returnData->currentUserId = $currentUserId;
+			$this->returnData->currentUserRole = $currentUserRole;
+
+			if (!empty($_POST['communityId'])) {
+				$communityID = $_POST['communityId'];
+				$this->returnData->communityID = $communityID;
+				$community = $this->communities->getCommunity($communityID);
+				$this->returnData->slug = $community->Slug;
+
+				if (!empty($community)) {
+					if ($community->Admin == $currentUserId || in_array($currentUserRole, array('admin', 'owner'))) {
+						$this->db->delete('Communities', array('ID' => $communityID));
+
+						$this->returnData->success = true;
+						$this->returnData->message = "Community was deleted.";
+						$this->returnData->completedAction = "deleteCommunity";
+					} else {  $this->getWarningText("insufficientRights"); } // user is not allowed to do this.
+				} else { $this->getWarningText("emptyResult"); }// server data is missing
+			} else { $this->getWarningText("badData"); } // provided data is bad
+		} else { $this->getWarningText("notLoggedIn"); }// not logged in
 
 		$this->returnData();
 	}
@@ -905,14 +945,6 @@ class Servlet extends CI_Controller {
 	// ---------------------------------------------------------------
 
 	public function editCommunityDetails() {
-		// Only for admins
-	}
-
-	public function addCommunityModerator() {
-		// Only for admins
-	}
-
-	public function removeCommunityModerator() {
 		// Only for admins
 	}
 
@@ -1194,6 +1226,34 @@ class Servlet extends CI_Controller {
 	// --- User Information Collection Functions ---------------------- 
 	// ---------------------------------------------------------------
 
+
+	// --------------------------------------------------------------- 
+	// --- Return Functions ------------------------------------------ 
+	// ---------------------------------------------------------------
+
+	private function getWarningText($criteria) {
+		switch ($criteria) {
+			case "notLoggedIn":
+				return "You are not currently logged in.";
+				break;
+
+			case "badData":
+				return "Incomplete data was provided.";
+				break;
+
+			case "emptyResult":
+				return "The database query came back empty.";
+				break;
+
+			case "insufficientRights":
+				return "You do not have sufficient access rights to perform this action.";
+				break;
+
+			default:
+				return "An unidentified issue occured.";
+				break;
+		}
+	}
 
 	// --------------------------------------------------------------- 
 	// --- Debug/Text Functions -------------------------------------- 

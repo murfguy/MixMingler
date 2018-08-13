@@ -18,8 +18,7 @@ class Users {
 
 	public function getUserFromMingler($mixerId) {
 		// Let's get streamer data from Mingler based on the ID value we got from Mixer.
-		$data = new stdClass();
-		//$sql_query = "SELECT * FROM mixer_users WHERE mixer_id=?";
+		
 		$sql_query = "SELECT U.*,
 			GROUP_CONCAT( CASE WHEN MemberState='admin' THEN UC.CommunityID ELSE NULL END) as AdminCommunities,
 			GROUP_CONCAT( CASE WHEN MemberState='moderator' THEN UC.CommunityID ELSE NULL END) as ModCommunities,
@@ -108,14 +107,28 @@ class Users {
 	// Takes Mixer API data and adds the user to the database
 	// User CANNOT exist in database. 
 	public function addUser($mixerApi_data) {
+		echo "<p>addUser(".$mixerApi_data['token'].")</p>";
+
 		if ($mixerApi_data['user']['avatarUrl'] == null) {
 			$mixerApi_data['user']['avatarUrl'] = "";
 		}
 
 		$timestamp = date('Y-m-d H:i:s');
 
-		$sql_query = "INSERT INTO Users (ID, UserID, Username, AvatarURL, LastSynced, JoinedMixer, isPartner, ViewersTotal, NumFollowers) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
-		$query = $this->CI->db->query($sql_query, array($mixerApi_data['id'], $mixerApi_data['userId'], $mixerApi_data['token'], $mixerApi_data['user']['avatarUrl'], $timestamp, substr($mixerApi_data['createdAt'], 0, 9), $mixerApi_data['partnered'], $mixerApi_data['viewersTotal'], $mixerApi_data['numFollowers']));
+		$data = array(
+			'ID' => $mixerApi_data['id'],
+			'UserID' => $mixerApi_data['userId'],
+			'Username' => $mixerApi_data['token'],
+			'AvatarURL' => $mixerApi_data['user']['avatarUrl'],
+			'LastSynced' => date('Y-m-d H:i:s'),
+			'JoinedMixer' => substr($mixerApi_data['createdAt'], 0, 9),
+			'isPartner' => $mixerApi_data['partnered'],
+			'ViewersTotal' => $mixerApi_data['viewersTotal'],
+			'NumFollowers' => $mixerApi_data['numFollowers']);
+		$query = $this->db->insert('Users', $data);
+
+		//$sql_query = "INSERT INTO Users (ID, UserID, Username, AvatarURL, LastSynced, JoinedMixer, isPartner, ViewersTotal, NumFollowers) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
+		//$query = $this->CI->db->query($sql_query, array($mixerApi_data['id'], $mixerApi_data['userId'], $mixerApi_data['token'], $mixerApi_data['user']['avatarUrl'], $timestamp, substr($mixerApi_data['createdAt'], 0, 9), $mixerApi_data['partnered'], $mixerApi_data['viewersTotal'], $mixerApi_data['numFollowers']));
 	}
 
 	// Takes Mixer API data and adds the user to the database
@@ -218,9 +231,7 @@ class Users {
 		);
 
 		if ($streamer['online']) { 
-			$query_data['lastSeenOnline'] = date('Y-m-d H:i:s');
-
-			//$this->setNewStreamTime($streamer['id']);
+			$query_data['LastSeenOnline'] = date('Y-m-d H:i:s');
 		}
 		return $query_data;
 	}
@@ -228,12 +239,9 @@ class Users {
 	// This returns a single set of data for when a new streamer is added.
 	// Primarly used in Scan/users in a batch UDPATE
 	public function getStartTimeQueryDataArray($streamer) {
-		$query_data = array(
-			'MixerID' => $streamer['id'],
-			'LastStreamStart' => date('Y-m-d H:i:s')
-		);
-
-		return $query_data;
+		return array(
+			'ID' => $streamer['id'],
+			'LastStreamStart' => date('Y-m-d H:i:s'));
 	}
 
 	// Marks this a current time in which the streamer was seen online

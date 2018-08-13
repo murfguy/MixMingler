@@ -18,7 +18,7 @@ class Communities {
 
 	public function getCommunity($communityID) {
 		//$sql_query = "SELECT * FROM Communities WHERE ID=$communityID";
-		$query = $this->db->query($sql_query, array($communityID));
+		//$query = $this->db->query($sql_query, array($communityID));
 
 		$query = $this->db->get_where('Communities', array('ID' => $communityID));
 

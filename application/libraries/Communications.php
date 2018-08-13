@@ -41,13 +41,13 @@ class Communications {
 				break;
 
 			case 'user':
-				$addressees = null;
+				$addressees = $this->getSingleUserEmailAddress($msgParams['singleUserId']);
 				break;
 		}
 
 		//$recipientAddressList = array();
 		foreach ($addressees as $recipient) {
-			$recipientAddressList[] = $recipient->Email;
+			//$recipientAddressList[] = $recipient->Email;
 
 			$this->email->to($recipient->Email);
 			$msg = $this->getMessage($recipient->Username, $messageType, $msgParams);
@@ -63,7 +63,7 @@ class Communications {
 		$msgData = new stdClass();
 		$msgData->subject = "[MixMingler Alert] ";
 
-		$msgData->message = "Hello $recipientName,\n\n ";
+		$msgData->message = "Hello $recipientName,\n\n";
 		$signOff = true;
 
 		switch ($type) {
@@ -87,6 +87,11 @@ class Communications {
 				$msgData->subject .= $params['communityName']." Was Denied!";
 				$msgData->message .= "We regret to inform you that your request for ".$params['communityName']." was denied! It could have been for a variety of reasons. Maybe there's a similar community. Maybe it included something inappropriate. Maybe the winds of fate are not in your favor. Either way, the Admin who processed your request left this note:\n\n".$params['adminNote']."\n\nYou won't be allowed to make a new community until you've deleted your current request. Please log in to MixMingler at your earliest convenience and do so. Once you do, you are free to try again. But please note that repeated efforts to request a community admins have denied can lead to being banned from creating communities.";
 				break;
+
+			case "pendingMember":
+				$msgData->subject .= $params['communityName']." has a new member request!";
+				$msgData->message .= "It would appear that someone named \"".$params['requester']."\" is trying to join ".$params['communityName']."! Since you're either the admin or a moderator of that community, you'll need to log in and approve or deny their membership from the Moderator page.";
+				break;
 		}
 		$msgData->message .= "\n\nHappy Streaming!\n- The MixMingler Team";				
 		$msgData->message .= "\n\n-- This is an automated email. Do not respond as no one will answer. --";
@@ -102,6 +107,17 @@ class Communications {
 
 	private function getCommunityModsEmailAddresses() {
 
+	}
+
+	private function getSingleUserEmailAddress($mixerID) {
+		//$sql_query = "SELECT Username, Email FROM Users WHERE ID IN ('owner', 'admin') ORDER BY id ASC";
+		//$query = $this->db->query($sql_query);
+
+		$this->db->select('Username, Email')
+					->from('Users')
+					->WHERE('ID', $mixerID);
+		$query = $this->db->get();
+		return $query->result();
 	}
 }
 ?>

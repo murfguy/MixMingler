@@ -44,12 +44,14 @@ class Scan extends CI_Controller {
 					'backgroundUrl' => ''
 				);
 			}
+
+			$newsParams = array(
+				'TypeID' => $streamer['type']['id'],
+				'MessageParams' => array($streamer['type']['id']));
 			
-			$newsVars = array('TypeID' => $streamer['type']['id']);
-			
-			if ($minglerData == null) {
+			if ($minglerData->ID == null) {
 				// If they don't exist, add them (addUser will ignore any duplicate streamers)
-				$this->users->addUser($streamer); 
+				$this->users->addNewUser($streamer); 
 
 				// They are now in, so let's recollect the local data from Mingler.
 				$minglerData = $this->users->getUserFromMingler($streamer['id']);
@@ -59,11 +61,10 @@ class Scan extends CI_Controller {
 				$lastStarted_data[] = $this->users->getStartTimeQueryDataArray($streamer);
 
 				// Let's note that they are now a newly synced person on MixMingler
-				$news_data[] = $this->news->getNewsInsertQueryDataArray($minglerData->MixerID, "{username} was first synced to MixMingler!", 'mingler');
+				$news_data[] = $this->news->getNewsArray($minglerData->ID, 'firstSync', 'mingler');
 
 				// So we also want to note for their activity feed that they started streaming something new.
-
-				$news_data[] = $this->news->getNewsInsertQueryDataArray($minglerData->MixerID, "{username} started streaming {typeId:".$streamer['type']['id']."}.", 'type', $newsVars);
+				$news_data[] = $this->news->getNewsArray($minglerData->ID, 'newStreamType', 'type', $newsParams);
 			} else {
 				// If we do have them in the local database, we want to see if we need to mark the start of a new stream time.
 
@@ -72,12 +73,12 @@ class Scan extends CI_Controller {
 					$lastStarted_data[] = $this->users->getStartTimeQueryDataArray($streamer);
 
 					// Since this is a new stream, we also want to note that they are starting to stream a game in their activity feed.
-					$news_data[] = $this->news->getNewsInsertQueryDataArray($minglerData->MixerID, "{username} started streaming {typeId:".$streamer['type']['id']."}.", 'type', $newsVars);
+					$news_data[] = $this->news->getNewsArray($minglerData->ID, 'newStreamType', 'type', $newsParams);
 				} else {
 					// In case we are mid-stream, we want to see if they maybe changed games.
 					if ($minglerData->LastTypeID != $streamer['type']['id']) {
 						// They changed type, so let's note they started streaming something new.
-						$news_data[] = $this->news->getNewsInsertQueryDataArray($minglerData->MixerID, "{username} started streaming {typeId:".$streamer['type']['id']."}.", 'type', $newsVars);
+						$news_data[] = $this->news->getNewsArray($minglerData->ID, 'newStreamType', 'type', $newsParams);
 					}
 				}
 			}
@@ -95,25 +96,22 @@ class Scan extends CI_Controller {
 
 		// If we have new stream time to note, let's UPDATE those now.
 		if (count($lastStarted_data) > 0) {
-			$this->db->update_batch('Users', $lastStarted_data, 'MixerID');
+			$this->db->update_batch('Users', $lastStarted_data, 'ID');
 		}
 
 		// Add we now batch insert all the tasty news items we collected.
 		$this->db->insert_batch('TimelineEvents', $news_data);
 
 		// And now we batch UPDATE every streamer we just collected data for.
-		$this->db->update_batch('Users', $update_data, 'MixerID');
+		$this->db->update_batch('Users', $update_data, 'ID');
 
 		// And lastly, a bit of data read out so if we're testing the page, we can make sure it's all working as planned.
 		$elapsed_time = time() - $starttime;
 		echo "<p>We've synced ".count($update_data)." streamers in $elapsed_time seconds.</p>";
-		if ($inserted_count>0) {
-			echo "<p>We also added in $inserted_count new streamers.</p>";
-		}
-
-		if (count($allNewTypes) > 0) {
-			echo "<p>We also added ".count($allNewTypes)." new types!</p>";
-		}
+		echo "<p>We created ".count($news_data)." timeline events.</p>";
+		echo "<p>We added in $inserted_count new streamers.</p>";
+		echo "<p>We added ".count($allNewTypes)." new types.</p>";
+		echo "<p>We noted ".count($lastStarted_data)." new streams.</p>";
 	}
 
 	public function types() {
@@ -130,9 +128,7 @@ class Scan extends CI_Controller {
 		$typesToUpdate = array();
 		$allUpdatedTypeIds = array();
 
-
 		foreach($allTypesLiveOnMixer as $type) {
-			// If 
 			if (!in_array($type['id'], $allKnownTypes)) {
 				$this->types->addNewType($type);
 				$allKnownTypes[] = $type['id'];
@@ -146,7 +142,7 @@ class Scan extends CI_Controller {
 		}
 
 		// And now we batch UPDATE every streamer we just collected data for.
-		$this->db->update_batch('stream_types', $typesToUpdate, 'typeId');
+		$this->db->update_batch('StreamTypes', $typesToUpdate, 'ID');
 
 		$elapsed_time = time() - $starttime;
 		echo "<p>We've found ".count($allTypesLiveOnMixer)." types in $elapsed_time seconds.</p>";

@@ -38,18 +38,10 @@ class Welcome extends CI_Controller {
 			}
 		}
 
-		// Unfouned Communities
-		/*$unfoundedCommunities = new stdClass();
-		$unfoundedCommunities->pending = $this->users->getUsersCreatedCommunitiesByStatus($mixerID, 'pending');
-		$unfoundedCommunities->approved = $this->users->getUsersCreatedCommunitiesByStatus($mixerID, 'approved');
-		$unfoundedCommunities->rejected= $this->users->getUsersCreatedCommunitiesByStatus($mixerID, 'rejected');
-
+		$unfoundedCommunities = $this->users->getUsersCreatedCommunitiesByStatus($mixerID, 'unfounded');
 		if (!empty($unfoundedCommunities)) {
-			$alerts['pendingCommunities'] = count($unfoundedCommunities->pending);
-			$alerts['approvedCommunities'] = count($unfoundedCommunities->approved);
-			$alerts['rejectedCommunities'] = count($unfoundedCommunities->rejected);
-		}*/
-
+			$alerts['unfoundedCommunities'] = $unfoundedCommunities;
+		}
 
 		$communitiesData = new stdClass();
 		$communitiesData->core = null;
@@ -80,12 +72,12 @@ class Welcome extends CI_Controller {
 		$viewData->user = $user;
 		$viewData->alerts = $alerts;
 		$viewData->communitiesData = $communitiesData;
-		$viewData->modCommunities = $this->users->getUsersAdminedOrModeratedCommunities($_SESSION['mixer_id']);
+		//$viewData->modCommunities = $this->users->getUsersAdminedOrModeratedCommunities($_SESSION['mixer_id']);
 
 
-		$viewData->pendingCommunities = $this->users->getUsersCreatedCommunitiesByStatus($_SESSION['mixer_id'], 'pending');
-		$viewData->approvedCommunities = $this->users->getUsersCreatedCommunitiesByStatus($_SESSION['mixer_id'], 'approved');
-		$viewData->rejectedCommunities = $this->users->getUsersCreatedCommunitiesByStatus($_SESSION['mixer_id'], 'rejected');
+		//$viewData->pendingCommunities = $this->users->getUsersCreatedCommunitiesByStatus($_SESSION['mixer_id'], 'pending');
+		//$viewData->approvedCommunities = $this->users->getUsersCreatedCommunitiesByStatus($_SESSION['mixer_id'], 'approved');
+		//$viewData->rejectedCommunities = $this->users->getUsersCreatedCommunitiesByStatus($_SESSION['mixer_id'], 'rejected');
 
 
 		$viewData->gameNews = $gameNews;

@@ -71,9 +71,23 @@
 				<h4>Sorry! Your community was rejected!</h4>
 				<p>Alas, there was something that made us decide that this community doesn't quite work right now.</p>
 				<p>The admin who rejected your community left this note:</p>
-					<blockquote><?php echo $community->siteAdminNote; ?></blockquote>
+					<blockquote><?php 
+						if (!empty( $community->AdminNote)) {
+							echo $community->AdminNote; 
+						} else {
+							echo "No note was left.";
+						}
+					?></blockquote>
 				<p>The only action you have right now is to delete this community. However, once you do, you are free to try and make a new commmunity again. Please note that repeat attempts to found a community in direct opposition to admin reasoning can result in being banned from making communities.</p>
-				<p><button class="btn btn-lg btn-danger">Delete Community</button></p>
+				<p><?php 
+					$buttonParams = [
+						'communityId' => $community->ID,
+						'confirm' => true,
+						'action' => 'deleteCommunity',
+						'content' => 'Delete Community',
+						'state' => 'danger'
+					];
+					echo action_button($buttonParams); ?></p>
 			</div>
 		<?php } ?>
 

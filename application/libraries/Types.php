@@ -15,7 +15,7 @@ class Types {
 
 	public function getTypeById($typeId) {
 		$data = new stdClass();
-		$sql_query = "SELECT * FROM stream_types WHERE typeId=?";
+		$sql_query = "SELECT * FROM StreamTypes WHERE ID=?";
 		$query = $this->CI->db->query($sql_query, array($typeId));
 
 		if (!empty($query->result())) {
@@ -29,7 +29,7 @@ class Types {
 
 	public function getTypeBySlug($slug) {
 		$data = new stdClass();
-		$sql_query = "SELECT * FROM stream_types WHERE slug=?";
+		$sql_query = "SELECT * FROM StreamTypes WHERE slug=?";
 		$query = $this->CI->db->query($sql_query, array($slug));
 
 		if (!empty($query->result())) {
@@ -42,7 +42,7 @@ class Types {
 	}
 
 	public function getAllTypesFromMingler() {
-		$sql_query = "SELECT * FROM stream_types ORDER BY typeName ASC";
+		$sql_query = "SELECT * FROM StreamTypes ORDER BY typeName ASC";
 		$query = $this->CI->db->query($sql_query);
 		$types = $query->result();
 
@@ -50,13 +50,13 @@ class Types {
 	}
 
 	public function getAllTypeIdsFromMingler() {
-		$sql_query = "SELECT TypeID FROM StreamTypes ORDER BY TypeID ASC";
+		$sql_query = "SELECT ID FROM StreamTypes ORDER BY ID ASC";
 		$query = $this->CI->db->query($sql_query);
 		$types = $query->result();
 
 		$typeIds = array();
 		foreach ($types as $type) {
-			$typeIds[] = $type->TypeID;
+			$typeIds[] = $type->ID;
 		}
 
 		return $typeIds;
@@ -67,7 +67,7 @@ class Types {
 
 			$typeIds = str_replace(";", ",", $typeIds);
 
-			$sql_query = "SELECT * FROM stream_types WHERE typeId IN ($typeIds) ORDER BY typeName ASC";
+			$sql_query = "SELECT * FROM StreamTypes WHERE typeId IN ($typeIds) ORDER BY typeName ASC";
 			$query = $this->CI->db->query($sql_query);
 			$types = $query->result();
 
@@ -213,7 +213,7 @@ LIMIT 0, 50";
 			$typeData = $this->getEmptyType();
 		}
 
-		$sql_query = "INSERT IGNORE INTO StreamTypes (TypeID, Name, Slug, CoverURL, BackgroundURL) VALUES (?, ?, ?, ?, ?)";
+		$sql_query = "INSERT IGNORE INTO StreamTypes (ID, Name, Slug, CoverURL, BackgroundURL) VALUES (?, ?, ?, ?, ?)";
 		$query = $this->CI->db->query($sql_query, array($typeData['id'], $typeData['name'], $this->createSlug($typeData['name']), $typeData['coverUrl'], $typeData['backgroundUrl']));
 	}
 
@@ -241,15 +241,15 @@ LIMIT 0, 50";
 
 	public function getSyncQueryDataArray($type) {
 		if ($type['coverUrl'] == null) {
-			$type['coverUrl']  = "https://mixer.com/_latest/assets/images/main/types/default.jpg";
+			$type['coverUrl']  = "";
 		}
 
 		$query_data = array(
-			'typeId' => $type['id'],
-			'typeName' => $type['name'],
-			'slug' => $this->createSlug($type['name']),
-			'coverUrl' => $type['coverUrl'],
-			'backgroundUrl' => $type['backgroundUrl']
+			'ID' => $type['id'],
+			'Name' => $type['name'],
+			'Slug' => $this->createSlug($type['name']),
+			'CoverUrl' => $type['coverUrl'],
+			'BackgroundUrl' => $type['backgroundUrl']
 		);
 
 		return $query_data;

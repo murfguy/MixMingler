@@ -21,36 +21,17 @@
 
 					echo "<tr>";
 
-					echo "<td><a href=\"/user/".$streamer->name_token."\"><img class=\"avatar thin-border\" src=\"".$streamer->avatarURL."\" width=\"30px\">".$streamer->name_token."</a></td>";
-					if (strtotime($streamer->lastSeenOnline) > (time()-(60*10)) ) {
-						echo "<td style=\"color: green\">Online! Started about ".$streamer->lastStartElapsed."</td>";
+					echo "<td><a href=\"/user/".$streamer->Username."\"><img class=\"avatar thin-border\" src=\"".$streamer->AvatarURL."\" width=\"30px\">".$streamer->Username."</a></td>";
+					if (strtotime($streamer->LastSeenOnline) > (time()-(60*10)) ) {
+						echo "<td style=\"color: green\">Online! Started about ".$streamer->LastStartElapsed."</td>";
 						//echo "Now Streaming: <span class=\"mixBlue\">".$streamer->lastType."</span><br>".$streamer->lastSeenElapsed;
 					} else {
 
-						echo "<td>Last online: ".$streamer->lastSeenElapsed."</td>";
+						echo "<td>Last online: ".$streamer->LastSeenElapsed."</td>";
 						//echo "Last Seen Streaming: <span class=\"mixBlue\">".$streamer->lastType."</span><br>".$streamer->lastSeenElapsed;
 					}
-					echo "<td>".$streamer->lastType."</td>";
+					echo "<td>".$streamer->LastType."</td>";
 					echo "</tr>";
-
-
-
-						/*echo "<div class=\"col-md streamerListing";
-						if (strtotime($streamer->lastSeenOnline) > (time()-(60*10)) ) {
-							echo " online";
-						}
-						echo "\">";						
-						echo "<h5><a href=\"/user/".$streamer->name_token."\">".$streamer->name_token."</a></h5>";
-						echo "<img class=\"avatar thin-border\" src=\"".$streamer->avatarURL."\" width=\"42px\" style=\"float: left\">";
-						echo "<p>";
-						//" In ".$streamer->joinedCount." Communities<br>Follows ".$streamer->followedCount." Communities";
-						if (strtotime($streamer->lastSeenOnline) > (time()-(60*10)) ) {
-							echo "Now Streaming: <span class=\"mixBlue\">".."</span><br>".$streamer->lastSeenElapsed;
-						} else {
-							echo "Last Seen Streaming: <span class=\"mixBlue\">".$streamer->lastType."</span><br>".$streamer->lastSeenElapsed;
-						}
-						echo "</p>";
-						echo "</div>";*/
 				 } 
 				 echo "</table>";
 			} else {
@@ -74,36 +55,17 @@
 
 					echo "<tr>";
 
-					echo "<td><a href=\"/user/".$streamer->name_token."\"><img class=\"avatar thin-border\" src=\"".$streamer->avatarURL."\" width=\"30px\">".$streamer->name_token."</a></td>";
-					if (strtotime($streamer->lastSeenOnline) > (time()-(60*10)) ) {
-						echo "<td style=\"color: green\">Online! Started about ".$streamer->lastStartElapsed."</td>";
+					echo "<td><a href=\"/user/".$streamer->Username."\"><img class=\"avatar thin-border\" src=\"".$streamer->AvatarURL."\" width=\"30px\">".$streamer->Username."</a></td>";
+					if (strtotime($streamer->LastSeenOnline) > (time()-(60*10)) ) {
+						echo "<td style=\"color: green\">Online! Started about ".$streamer->LastStartElapsed."</td>";
 						//echo "Now Streaming: <span class=\"mixBlue\">".$streamer->lastType."</span><br>".$streamer->lastSeenElapsed;
 					} else {
 
-						echo "<td>Last online: ".$streamer->lastSeenElapsed."</td>";
+						echo "<td>Last online: ".$streamer->LastSeenElapsed."</td>";
 						//echo "Last Seen Streaming: <span class=\"mixBlue\">".$streamer->lastType."</span><br>".$streamer->lastSeenElapsed;
 					}
-					echo "<td>".$streamer->lastType."</td>";
+					echo "<td>".$streamer->LastType."</td>";
 					echo "</tr>";
-
-
-
-						/*echo "<div class=\"col-md streamerListing";
-						if (strtotime($streamer->lastSeenOnline) > (time()-(60*10)) ) {
-							echo " online";
-						}
-						echo "\">";						
-						echo "<h5><a href=\"/user/".$streamer->name_token."\">".$streamer->name_token."</a></h5>";
-						echo "<img class=\"avatar thin-border\" src=\"".$streamer->avatarURL."\" width=\"42px\" style=\"float: left\">";
-						echo "<p>";
-						//" In ".$streamer->joinedCount." Communities<br>Follows ".$streamer->followedCount." Communities";
-						if (strtotime($streamer->lastSeenOnline) > (time()-(60*10)) ) {
-							echo "Now Streaming: <span class=\"mixBlue\">".."</span><br>".$streamer->lastSeenElapsed;
-						} else {
-							echo "Last Seen Streaming: <span class=\"mixBlue\">".$streamer->lastType."</span><br>".$streamer->lastSeenElapsed;
-						}
-						echo "</p>";
-						echo "</div>";*/
 				 } 
 				 echo "</table>";
 			} else {
@@ -111,11 +73,11 @@
 			} ?>
 		</div>
 
-	<div class="plans">
+	<!--<div class="plans">
 		<p><b>Plans/Ideas for this page:</b></p>
 		<ul>
 			<li>Show list of streamers you follow</li>
 			<li>Recommend new streamers based on communities and/or streamers you follow</li>
 		</ul>
-	</div>
+	</div>-->
 </main>

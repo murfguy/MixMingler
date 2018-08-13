@@ -11,20 +11,35 @@
 	<div class="row">
 		<div class="col-3 userInfo">
 			
-			<?php if (!empty($alerts)) { ?> 
+			<?php if (!empty($alerts)) { print_r($alerts); ?> 
+
 			<div class="infoBox">
 				<h4 class="infoHeader bg-danger">Alerts <i class="fas fa-bell"></i></h4>
 				<div class="infoInterior">
 					<?php if (!empty($alerts['pendingRequests'])) { ?>
-					<h6>Site Admin</h6>
-					<p><a href="/admin/">Pending Communities</a> <span class="badge badge-danger"><?php echo $alerts['pendingRequests']; ?></span></p>
+						<h6>Site Admin</h6>
+						<p><a href="/admin/">Community Requests</a> <span class="badge badge-danger"><?php echo $alerts['pendingRequests']; ?></span></p>
 					<?php } ?>
-
-					<!--<h6>Community Mod</h6>
-					<p><a href="/community/alphatest/mod">Alpha Testing Group</a> <span class="badge badge-danger">2</span></p>
-
-					<h6>Pending Communities</h6>
-					<p><a href="/community/alphatest/mod">Alpha Testing Group</a> <span class="badge badge-danger">2</span></p>-->
+					
+					<?php if (!empty($alerts['unfoundedCommunities'])) { ?>
+						<h6>Unfounded Communities</h6>
+						<?php foreach ($alerts['unfoundedCommunities'] as $community) { ?>
+							<p><a href="/community/<?php echo $community->Slug ?>/mod"><?php echo $community->Name ?></a>
+							<?php switch ($community->Status) {
+								case "approved":
+									echo ' <span class="badge badge-success"><i class="fas fa-check-circle"></i></span>';
+									break;
+								case "rejected":
+									echo ' <span class="badge badge-danger"><i class="fas fa-times-circle"></i></span>';
+									break;
+								case "pending":
+									echo ' <span class="badge badge-warning"><i class="fas fa-exclamation-circle"></i></span>';
+								default:
+									break;
+							} ?>
+							</p>
+						<?php } ?>
+					<?php } ?>
 				</div>
 			</div><!-- .infoBox -->
 			<?php } ?>
@@ -80,101 +95,6 @@
 		</div> <!-- #leftColumn -->
 	
 		<div class="col-7 userFeed" id="centerColumn">
-			
-			<div class="infoBox">
-				<h4 class="infoHeader">Site Admin Notices</h4>
-				<div class="infoInterior">
-					<p class="devNote">Shows list of pending communities that need approval.</p>
-				</div><!-- infoInterior -->
-			</div><!-- infoBox/Site Admin Notices -->
-
-
-			<?php 
-				$hasNotices = false;
-				if ($approvedCommunities != null) { $hasNotices = true; } 
-				if ($pendingCommunities != null) { $hasNotices = true; } 
-				if ($rejectedCommunities != null) { $hasNotices = true; } 
-
-				if ($hasNotices) { ?>
-
-
-				<div class="infoBox">
-					<h4 class="infoHeader">Moderator Notices</h4>
-					<div class="infoInterior">
-
-					<?php if ($approvedCommunities != null) { ?>
-						<h4>Your community has been approved.</h4>
-
-						<?php foreach ($approvedCommunities as $community) { ?>
-							<table>
-								<tr>
-									<td><a href="/community/<?php echo $community->Slug; ?>"><?php echo $community->Name; ?></td></td>
-									<td>Approved by: <?php echo $community->AdminName; ?></td>
-								</tr>
-
-								<tr>
-									<td colspan="2">
-										<p>You may now visit your <a href="/community/<?php echo $community->Slug; ?>/mod">Moderation Page</a> to finalize and publish your community!</p>
-									</td>
-								</tr>
-
-								<?php if (!empty($community->AdminNote)) { ?>
-								<tr>
-									<td colspan="2">
-										<p>Admin Note: <?php echo $community->AdminNote; ?></p>
-									</td>
-								</tr>
-								<?php } ?>
-							</table>
-						<?php } ?>
-					<?php } // if (approvedCommunites) ?>
-
-					<?php if ($rejectedCommunities != null) { ?>
-						<h4>Your community has been denied approval.</h4>
-
-						<?php foreach ($rejectedCommunities as $community) { ?>
-							<table class="table">
-								<tr>
-									<td><?php echo $community->Name; ?></td>
-									<td>Admin: <?php echo $community->AdminName; ?></td>
-								</tr>
-
-								<?php if (!empty($community->siteAdminNote)) { ?>
-								<tr>
-									<td colspan="2">
-										<p>Admin Note: <?php echo $community->AdminNote; ?></p>
-									</td>
-								</tr>
-								<?php } ?>
-								<tr>
-									<td colspan="2">
-										<!--<button class="deleteCommunity btn btn-sm btn-danger" data-commId="<?php echo $community->ID; ?>">Delete This Now (no warning)</button> You will be able to request again immediatly.-->delete button goes here.
-									</td>
-								</tr>
-							</table>
-						<?php } ?>
-					<?php } // if (approvedCommunites) ?>
-
-					<?php if ($pendingCommunities != null) { ?>
-						<h4>Your new community pending approval.</h4>
-
-						<?php foreach ($pendingCommunities as $community) { ?>
-							<table class="table">
-								<tr>
-									<td><?php echo $community->Name; ?></td>
-									<td>Requested on: <?php echo date('F. d, Y', strtotime($community->requestTime)); ?></td>
-								</tr>
-							</table>
-						<?php } ?>
-
-					<?php } ?>
-
-
-					</div> <!-- .infoInterior -->
-				</div><!-- .infoBox/Community Notices -->
-
-			<?php } // if (hasNotices) ?>
-			
 			<div class="infoBox">
 				<h4 class="infoHeader">News Feed</h4>
 				<div class="infoInterior">
