@@ -3,12 +3,43 @@
 if ( ! function_exists('userListLink')) {
 	function userListLink($params = array()) {
 
-		$str = '<a href="/user/'.$params['Username'].'">';
+		$str = '<a href="/user/'.$params['Username'].'"';
+		if (!empty($params['Tooltip'])) {
+			$str .= 'data-toggle="tooltip" title="'.$params['Tooltip'].'"';	}
+		$str .= '>';
+
+
 		$str .= '<img src="'.$params['AvatarURL'].'" '.imgBackup('streamer').' class="avatar thin-border" width="25px" />';
 		$str .= ' '.$params['Username'];
 		$str .= '</a>';
 
 		return $str;
+	}
+}
+
+if ( ! function_exists('roleBadge')) {
+	function roleBadge($role, $isRole) {
+		$str = "";
+		switch ($role) {
+			case "founder";
+				$str = ' <i class="fas fa-star" style="color: gold"></i>';
+				break;
+			case "admin";
+				$str = ' <i class="fas fa-crown" style="color: gold"></i>';
+				break;
+			case "moderator":
+				$str = ' <i class="fas fa-chess-knight" style="color: silver"></i>';
+				break;
+			case "core":
+				$str = ' <i class="fas fa-user-astronaut"></i>';
+				break;
+			case "banned":
+				$str = ' <i class="fas fa-ban" style="color: red"></i>';
+				break;
+		}
+
+		if ($isRole) { return $str; }
+		return null;
 	}
 }
 

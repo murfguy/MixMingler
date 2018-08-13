@@ -21,6 +21,7 @@ var baseActionUrl = baseURL+"/servlet/";
 		$("#follow").attr('title','Stop getting updates about this game.');
 
 
+		$("#follow").attr('action','unfollowType');
 		$("#follow").attr('id','unfollow');
 	}
 
@@ -34,7 +35,7 @@ var baseActionUrl = baseURL+"/servlet/";
 		$("#ignore").text('Unignore');
 		$("#ignore").attr('title','Have this game show up in lists again.');
 
-
+		$("#follow").attr('action','unignoreType');
 		$("#ignore").attr('id','unignore');
 	}
 

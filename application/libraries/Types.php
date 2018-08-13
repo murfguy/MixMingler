@@ -9,8 +9,8 @@ class Types {
 		$this->CI =& get_instance();
 
 		// Load Database
-		$this->CI->load->database();
-		$this->CI->load->library('tools');
+		$this->CI->load->database(); $this->db = $this->CI->db;
+		$this->CI->load->library('tools'); $this->tools = $this->CI->tools;
 	}
 
 	public function getTypeById($typeId) {
@@ -126,7 +126,7 @@ class Types {
 			$urlParameters = "?limit=$totalLimit";
 			$maxPage = 1;
 		} else {
-			$urlParameters = "?limit=100";
+			$urlParameters = "?limit=50";
 		}
 		
 		$urlParameters .="&order=viewersCurrent:DESC,numFollowers:DESC,token:ASC";
@@ -182,30 +182,51 @@ class Types {
 	}
 
 	public function getRecentStreamsForType($typeId) {
-		$sql_query = "SELECT *, (SELECT name_token FROM mixer_users WHERE mixer_users.mixer_id=timeline_events.mixer_id) as username, (SELECT avatarUrl FROM mixer_users WHERE mixer_users.mixer_id=timeline_events.mixer_id) as avatarUrl, MAX(eventTime) as eventTime FROM timeline_events WHERE eventType='type' AND extraVars=? AND eventTime > DATE_SUB(NOW(), INTERVAL 7 DAY) GROUP BY timeline_events.mixer_id ORDER BY eventTime DESC LIMIT 0, 50";
-		$query = $this->CI->db->query($sql_query, array($typeId));
-		$feedData = $query->result();
+		/*$sql_query = "SELECT *, 
+		(SELECT name_token FROM mixer_users WHERE mixer_users.mixer_id=timeline_events.mixer_id) as username, 
+		(SELECT avatarUrl FROM mixer_users WHERE mixer_users.mixer_id=timeline_events.mixer_id) as avatarUrl, 
+		MAX(eventTime) as eventTime 
+		FROM timeline_events 
+		WHERE eventType='type' AND extraVars=? AND eventTime > DATE_SUB(NOW(), INTERVAL 7 DAY) GROUP BY timeline_events.mixer_id ORDER BY eventTime DESC LIMIT 0, 50";*/
+		//$query = $this->CI->db->query($sql_query, array($typeId));
+		//$feedData = $query->result();
 
-		return $feedData;
+		$query = $this->db
+			->select('TimelineEvents.*')
+			->select('Users.Username as Username')
+			->select('Users.AvatarUrl as AvatarURL')
+			->select('MAX(EventTime) as EventTime')
+			->from('TimelineEvents')
+			->join('Users', 'Users.ID = TimelineEvents.MixerID')
+			->where('Type', 'type')
+			->where('TypeID', $typeId)
+			->where('EventTime > DATE_SUB(NOW(), INTERVAL 7 DAY)')
+			->group_by('MixerID')
+			->get();
+
+
+		return $query->result();
 	}
 
 	public function getLastMonthsMostFrequentStreamersForType($typeId) {
+		$query = $this->db
+			->select('MixerID')
+			->select('Users.Username AS Username')
+			->select('Users.NumFollowers AS NumFollowers')
+			->select('Users.AvatarURL AS AvatarURL')
+			->select('COUNT(DISTINCT DATE(eventTime)) as StreamCount')
+			->from('TimelineEvents')
+			->join('Users', 'Users.ID = TimelineEvents.MixerID')
+			->where('Type', 'type')
+			->where('TypeID', $typeId)
+			->where('EventTime>DATE_SUB(NOW(), INTERVAL 30 DAY) ')
+			->group_by('MixerID')
+			->order_by('StreamCount', 'DESC')
+			->order_by('NumFollowers', 'DESC')
+			->limit(50)
+			->get();
 
-		$sql_query = "SELECT mixer_id, 
-(SELECT name_token FROM mixer_users WHERE mixer_users.mixer_id = timeline_events.mixer_id) as username, 
-(SELECT numFollowers FROM mixer_users WHERE mixer_users.mixer_id = timeline_events.mixer_id) as numFollowers, 
-(SELECT avatarUrl FROM mixer_users WHERE mixer_users.mixer_id = timeline_events.mixer_id) as avatarUrl, 
-COUNT(DISTINCT DATE(eventTime)) as stream_count
-FROM `timeline_events` 
-WHERE eventType='type' AND extraVars=? AND eventTime>DATE_SUB(NOW(), INTERVAL 30 DAY) 
-GROUP BY mixer_id 
-ORDER BY `stream_count` DESC, numFollowers DESC 
-LIMIT 0, 50";
-
-		$query = $this->CI->db->query($sql_query, array($typeId));
-		$feedData = $query->result();
-
-		return $feedData;
+		return $query->result();
 	}
 
 	public function addNewType($typeData) {

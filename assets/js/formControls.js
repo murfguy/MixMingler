@@ -360,6 +360,9 @@ function setConfirmationActions () {
 		action = $(this).attr('action');
 
 		switch ($(this).attr('action')) {
+			// ==============================================================
+			// --- Community Related Actions --------------------------------
+			// ==============================================================
 			case "deleteCommunity":
 				message = "This will permanently delete this community! All members will be removed. It cannot be recovered. BE 100% CERTAIN BEFORE YOU CLICK THE DELETE BUTTON!";
 				alertTitle = "Deleting Community...";
@@ -371,112 +374,138 @@ function setConfirmationActions () {
 				break;
 
 			case "joinCommunity":
+				action = "changeCommunityStatus/";
 				alertTitle = "Joining Community..."; 				
 				actionData = {
+					action: $(this).attr('action'),
 					communityId: $(this).attr('communityId'),
 					userId: $(this).attr('userId')
 				}
 				break;
 
 			case "leaveCommunity":
+				action = "changeCommunityStatus/";
 				message = "You will no longer be a member of this community!";
 				confirmText = "Leave";
 				cancelText = "Stay";
 				alertTitle = "Leaving Community..."; 
 				actionData = {
+					action: $(this).attr('action'),
 					communityId: $(this).attr('communityId'),
 					userId: $(this).attr('userId')
 				}
 				break;
 
 			case "unpendCommunity":
+				action = "changeCommunityStatus/";
 				message = "Your request to join this community will be cancelled.";
 				confirmText = "Cancel Join";
 				cancelText = "Keep Waiting";
 				alertTitle = "Removing Join Request..."; 
 				actionData = {
+					action: $(this).attr('action'),
 					communityId: $(this).attr('communityId'),
 					userId: $(this).attr('userId')
 				}
 				break;
 
 			case "followCommunity":
+				action = "changeCommunityStatus/";
 				alertTitle = "Following Community..."; 				
 				actionData = {
+					action: $(this).attr('action'),
 					communityId: $(this).attr('communityId'),
 					userId: $(this).attr('userId')
 				}
 				break;
 
 			case "unfollowCommunity":
+				action = "changeCommunityStatus/";
 				message = "You won't see this community in your preferred listings!";
 				confirmText = "Unfollow";
 				cancelText = "Keep Following";
 				alertTitle = "Unfollowing Community..."; 				
 				actionData = {
+					action: $(this).attr('action'),
 					communityId: $(this).attr('communityId'),
 					userId: $(this).attr('userId')
 				}
 				break;
 
 			case "setAsCore":
+				action = "changeCommunityStatus/";
 				alertTitle = "Setting as a Core Community..."; 				
 				actionData = {
+					action: $(this).attr('action'),
 					communityId: $(this).attr('communityId'),
 					userId: $(this).attr('userId')
 				}
 				break;
 
 			case "removeAsCore":
+				action = "changeCommunityStatus/";
 				message = "This will no longer be one of your core communities!";
 				confirmText = "Do it!";
 				cancelText = "Keep as Core";
 				alertTitle = "Removing as a Core Community...";
 				actionData = {
+					action: $(this).attr('action'),
 					communityId: $(this).attr('communityId'),
 					userId: $(this).attr('userId')
 				}
 				break;
 
+			// ==============================================================
+			// --- Type Related Actions -------------------------------------
+			// ==============================================================
+
 			case "followType":
+				action = 'changeTypeStatus/';
 				alertTitle = "Following Stream Type..."; 
 				actionData = {
-					typeId: $(this).attr('typeId'),
-					userId: $(this).attr('userId')
+					action: 'followType',
+					typeId: $(this).attr('typeId')
 				}
 				break;
 
 			case "unfollowType":
+				action = 'changeTypeStatus/';
 				message = "This will no longer show up as a preferred type.";
 				confirmText = "Unfollow Type";
 				cancelText = "Keep Following";
 				alertTitle = "Following Stream Type..."; 
 				actionData = {
-					typeId: $(this).attr('typeId'),
-					userId: $(this).attr('userId')
+					action: 'unfollowType',
+					typeId: $(this).attr('typeId')
 				}
 				break;
 
 			case "ignoreType":
+				action = 'changeTypeStatus/';
 				message = "This will be hidden from any large lists of stream types.";
 				confirmText = "Ignore it!";
 				cancelText = "Nevermind";
 				alertTitle = "Ignoring Stream Type..."; 
 				actionData = {
-					typeId: $(this).attr('typeId'),
-					userId: $(this).attr('userId')
+					action: 'ignoreType',
+					typeId: $(this).attr('typeId')
 				}
 				break;
 
 			case "unignoreType":
+				action = 'changeTypeStatus/';
 				alertTitle = "Unignoring Stream Type..."; 
 				actionData = {
-					typeId: $(this).attr('typeId'),
-					userId: $(this).attr('userId')
+					action: 'unignoreType',
+					typeId: $(this).attr('typeId')
 				}
 				break;
 
 			
+			// ==============================================================
+			// --- Community Moderation Actions -----------------------------
+			// ==============================================================
+
 			case "promoteMember":
 				action = 'changeMemberStatus/';
 				message = "This will make the target member a moderator of this community.";
@@ -769,6 +798,7 @@ function updateButtonView(tgt, serverData) {
 			tgt.html('Unfollow');
 
 			$("div.actionButtons button#ignore").hide();
+			tgt.closest('tr').children('td.followState').text('Followed');
 			break;
 
 		case "unfollowType":
@@ -778,6 +808,7 @@ function updateButtonView(tgt, serverData) {
 			tgt.html('Follow');
 
 			$("div.actionButtons button#ignore").show();
+			tgt.closest('tr').children('td.followState').text('n/a');
 			break;
 
 		case "ignoreType":
@@ -786,6 +817,7 @@ function updateButtonView(tgt, serverData) {
 			tgt.addClass('btn-danger');
 			tgt.html('Unignore');
 			$("div.actionButtons button#follow").hide();
+			tgt.closest('tr').children('td.followState').text('Ignored');
 			break;
 
 		case "unignoreType":
@@ -794,6 +826,7 @@ function updateButtonView(tgt, serverData) {
 			tgt.addClass('btn-warning confirm');
 			tgt.html('Ignore');
 			$("div.actionButtons button#follow").show();
+			tgt.closest('tr').children('td.followState').text('n/a');
 			break;
 
 

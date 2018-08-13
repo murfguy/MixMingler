@@ -3,48 +3,44 @@
 		<h1>Stream Types</h1>
 	</div>
 
-	<!--<p class="devNote" data-toggle="tooltip" title="Not yet roadmapped" data-placement="left">Add type search tool</p>
-
-	<p class="devNote" data-toggle="tooltip" title="Not yet roadmapped" data-placement="left">Be able to add missing types</p>-->
-
-	<!---->
-
 	<?php
-		$followingGames = false;
-		if ($currentUser != null) {
-			echo "<nav id=\"categoryNav\">";
-				echo "<a class=\"typeToggle\" category=\"followed\">Followed Types</a> | <a class=\"typeToggle\" category=\"active\">Active Types</a>";
-			echo "</nav>";
+	$followingGames = false;
+	if ($currentUser != null) {
+		$followingGames = (!empty($currentUser->followedTypeList) || !empty($currentUser->offlineFollowedTypeList)); }
+		?>
+	<div class="btn-group d-flex" role="group">
+		<button type="button" class="btn btn-info displayToggle" target="followed"<?php if ($followingGames) { echo " disabled"; }?>>Following</button>
+		<button type="button" class="btn btn-info displayToggle" target="allActive"<?php if (!$followingGames) { echo " disabled"; }?>>All Online Games</button>
+	</div>
 
-			$followingGames = !empty($currentUser->followedTypeList);
-	
-			// followed games
-			if ($followingGames) {
-				echo "<div id=\"followed\" class=\"typeView activeView\">";
-			} else { echo "<div id=\"followed\" class=\"typeView inactiveView\">"; }
-			
+	<div class="row">
+		<div class="col">
+			<?php if ($followingGames) { ?>
+			<div id="followed" class="typeView activeView">
+				<h2>Followed Games</h2>
+				<div class="typeList"> 
+					<div class="streamerList row">
+						<?php if (!empty($currentUser->followedTypeList)) {
+							foreach ($currentUser->followedTypeList as $type) {
+								echo card(array(
+									'id' => $type['id'],
+									'name' => $type['name'],
+									'kind' => 'type',
+									'url' => "/type/".$type['id']."/".$type['slug'],
+									'stats' => array(
+										'online' => $type['online'],
+										'viewers' => $type['viewersCurrent']
+									),
+									'cover' => $type['coverUrl']));
+							}
+						} else {
+							echo "<p>None of the types you follow are online. Sorry about that.</p>";
+						} ?>
+					</div> <!-- online types -->
 
-				echo "<h2>Followed Games</h2>";
-				if (!empty($currentUser->followedTypeList)) {
-					echo "<div class=\"typeList\">"; 
-						echo "<div class=\"streamerList row\">";
-						foreach ($currentUser->followedTypeList as $type) {
-
-							echo card(array(
-								'id' => $type['id'],
-								'name' => $type['name'],
-								'kind' => 'type',
-								'url' => "/type/".$type['id']."/".$type['slug'],
-								'stats' => array(
-									'online' => $type['online'],
-									'viewers' => $type['viewersCurrent']
-								),
-								'cover' => $type['coverUrl']));
-						}
-						echo "</div>";
-
-						echo "<h2>Followed Games with no online streams</h2>";
-						echo "<div class=\"row\">";
+					<h2>Offline Followed Games</h2>
+					<div class="row">
+						<?php if (!empty($currentUser->offlineFollowedTypeList)) {
 							foreach ($currentUser->offlineFollowedTypeList as $type) {
 								echo card(array(
 									'id' => $type['id'],
@@ -57,52 +53,40 @@
 										'viewers' => $type['viewersCurrent']
 									),
 									'cover' => $type['coverUrl']));
-
-
-								/*if (empty($type['coverUrl'])) {
-									$type['coverUrl'] = "https://mixer.com/_latest/assets/images/main/types/default.jpg";
-								}
-								echo "<div class=\"typeInfo sml offline\">";
-								echo "<a href=\"/type/".$type['id']."/".$type['slug']."\"><img src=\"".$type['coverUrl']."\" class=\"coverArt\" /></a>";
-
-									echo "<p class=\"typeName\"><a href=\"/type/".$type['id']."/".$type['slug']."\">".$type['name']."</a></p>";
-									//echo "<p class=\"stats\"><span class=\"onlineStat\" data-toggle=\"tooltip\" data-placement=\"bottom\" title=\"Current Streams\"><i class=\"fas fa-play-circle\"></i>  ".$type['online']."</span>&nbsp;&nbsp;&nbsp;&nbsp;<span class=\"onlineStat\" data-placement=\"bottom\"data-toggle=\"tooltip\" title=\"Current Viewers\"><i class=\"fas fa-eye\"></i> ".$type['viewersCurrent']."</span></p>";
-								echo "</div>";*/
 							}
-						echo "</div>";
-					} else {
-						echo "<h4>You haven't followed any games yet!</h4>";
-						echo "<p>Visit any game to follow them!</p>";
-					}
-					
+						} else {
+							echo "<p>All your followed types are online! Go watch some!</p>";
+						}?>
+					</div><!-- offline types -->
 
-					
-				echo "</div>";
-			echo "</div>";
-		}
-	?>
+				</div> <!-- type list -->
+			</div> <!-- followed -->
+			<?php } else { ?>
+			<div id="followed" class="typeView inactiveView"> 
+				<h4>You haven't followed any games yet!</h4>
+				<p>Visit any game to follow them!</p>
+			</div> <!-- followed -->
+			<?php } ?>
 
-	<div id="allActive" class="typeView<?php if ($followingGames) { echo " inactiveView"; } else {
-		echo " activeView"; }; ?>">
-	
-		<h2>Active Types</h2>
-			<div class="streamerList row">
-				<?php
-					
-					foreach ($allTypes as $type) {
-						echo card(array(
-							'id' => $type['id'],
-							'name' => $type['name'],
-							'size' => 'med',
-							'kind' => 'type',
-							'url' => "/type/".$type['id']."/".$type['slug'],
-							'stats' => array(
-								'online' => $type['online'],
-								'viewers' => $type['viewersCurrent']
-							),
-							'cover' => $type['coverUrl']));
-					}
-				?>
-		</div>
-	</div>
+			<div id="allActive" class="typeView<?php if ($followingGames) { echo " inactiveView"; } else { echo " activeView"; }; ?>">
+				<h2>Active Types</h2>
+				<div class="streamerList row">
+					<?php foreach ($allTypes as $type) {
+					echo card(array(
+						'id' => $type['id'],
+						'name' => $type['name'],
+						'size' => 'med',
+						'kind' => 'type',
+						'url' => "/type/".$type['id']."/".$type['slug'],
+						'stats' => array(
+							'online' => $type['online'],
+							'viewers' => $type['viewersCurrent']
+						),
+						'cover' => $type['coverUrl']));
+					}?>
+				</div> <!-- online list -->
+			</div> <!-- all active -->
+
+		</div><!-- col --> 
+	</div><!-- row -->
 </main>

@@ -41,7 +41,7 @@
 						<?php } ?>
 					<?php } ?>
 				</div>
-			</div><!-- .infoBox -->
+			</div><!-- .infoBox Alerts -->
 			<?php } ?>
 
 
@@ -49,13 +49,13 @@
 				<h4 class="infoHeader">Communities You Follow</h4>
 				<div class="infoInterior">
 					<?php
-						if (!empty($communitiesData->followed)) {
+						/*if (!empty($communitiesData->followed)) {
 							foreach ($communitiesData->followed as $community) {
 								echo "<p><a href=\"/community/$community->Slug\">$community->Name</a></p>";
 							}
 						} else {
 							echo "<p>You haven't followed any communities.</p>";
-						}
+						}*/
 					?>
 					<p class="devNote" data-toggle="tooltip" title="Planned for v0.3" data-placement="left">[Planned Feature] Toggleable views of "Community" based news.</p>
 				</div>
@@ -65,7 +65,7 @@
 				<h4 class="infoHeader">Games You Follow</h4>
 				<div class="infoInterior">
 					<?php 
-						if (!empty($followedTypes)) {	
+						/*if (!empty($followedTypes)) {	
 						echo "<p>Click icons to show news for that game.</p>";	
 						echo "<div class=\"icons row\">";
 							foreach ($followedTypes as $type) {
@@ -81,7 +81,7 @@
 							echo "</div>";
 						} else {
 							echo "<p>You haven't followed any games yet!</p>";
-						}
+						}*/
 					?>
 				</div><!-- .infoInterior -->
 			</div><!-- .infoBox -->

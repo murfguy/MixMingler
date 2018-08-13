@@ -330,6 +330,89 @@ class Servlet extends CI_Controller {
 		$this->returnData();
 	}
 
+	public function changeCommunityStatus() {
+		$this->returnData->requestedAction = "changeCommunityStatus";
+		if (isset($_SESSION['mixer_id'])) {
+			$currentUserId = $_SESSION['mixer_id'];
+			$this->returnData->currentUserId = $currentUserId; 
+
+			if (!empty($_POST['communityId']) && !empty($_POST['action'])) {
+				$communityID = $_POST['communityId'];
+				$this->returnData->communityID = $communityID;
+				$community = $this->communities->getCommunity($communityID);
+				$memberData = $this->users->getUsersCommunitiesInformation($currentUserId, $communityID);
+				//echo json_encode($memberData);
+				//$this->returnData->MemberStates = $memberData[0]->MemberStates;
+				$states = getMemberStateBooleans($memberData[0]->MemberStates);
+
+
+				if (!empty($community)) {
+					$this->returnData->success = true; // all are succesful actions, except the default
+					$this->returnData->completedAction = $_POST['action'];
+
+					$data = array(
+						'MixerID' => $currentUserId,
+						'CommunityID' => $communityID);
+
+					switch ($_POST['action']) {
+						// =============================================
+						// --- Safety Catch ----------------------------
+						// =============================================
+
+						default:
+							$this->returnData->success = false; // reset success boolean as this fails.
+							$this->returnData->completedAction = null;
+							$this->returnData->message = "An unknown server action request was provided.";
+							break;
+
+						// =============================================
+						// --- Record Insertion ------------------------
+						// =============================================
+
+						case "setAsCore":
+							$coreCommunities = $this->users->getUserCoreCommunities($_SESSION['mixer_id']);
+							if ($states['isCore']) {
+								$this->returnData->success = false; // reset success boolean as this fails.
+								$this->returnData->completedAction = null;
+								$this->returnData->message = "You are already a Core Member of $community->Name.";
+							} else {
+								if (count($coreCommunities) >= 4) {
+									$this->returnData->success = false; // reset success boolean as this fails.
+									$this->returnData->completedAction = null;
+									$this->returnData->message = "You are at the maximum number of Core Communities (4). Please unmark a different Core Community and try again.";
+								} else {
+									$data['MemberState'] = 'core';
+									$this->db->insert('UserCommunities', $data);
+									$this->returnData->message = "You are now a Core Member of $community->Name.";
+								}
+							}
+							break;
+
+						// =============================================
+						// --- Record Deleteion ------------------------
+						// =============================================
+						case "removeAsCore":
+							if (!$states['isCore']) {
+								$this->returnData->success = false; // reset success boolean as this fails.
+								$this->returnData->completedAction = null;
+								$this->returnData->message = "You are not currently a Core Member of $community->Name.";
+							} else {
+								$data['MemberState'] = 'core';
+								$this->db->delete('UserCommunities', $data);
+								$this->returnData->message = "You have been removed as a Core Member of $community->Name.";
+							}
+							break;
+					}
+
+
+				} else { $this->getWarningText("emptyResult"); }// server data is missing
+			} else { $this->getWarningText("badData"); } // provided data is bad 
+		} else { $this->getWarningText("notLoggedIn"); }// not logged in
+
+		$this->returnData();
+	}
+
+
 	// --------------------------------------------------------------- 
 	// --- Core Community Functions ---------------------------------- 
 	// ---------------------------------------------------------------
@@ -459,7 +542,7 @@ class Servlet extends CI_Controller {
 	// --- Follow/Ignore Type Functions ------------------------------ 
 	// ---------------------------------------------------------------
 
-	public function followType() {
+	/*public function followType() {
 		$this->returnData->requestedAction = "followType";
 		
 		// If user is logged in
@@ -645,6 +728,64 @@ class Servlet extends CI_Controller {
 		} else {
 			$this->returnData->message = "You are not logged in.";
 		}
+		$this->returnData();
+	}*/
+
+	public function changeTypeStatus() {
+		$this->returnData->requestedAction = "changeTypeStatus";
+		if (isset($_SESSION['mixer_id'])) {
+			$currentUserId = $_SESSION['mixer_id'];
+			$this->returnData->currentUserId = $currentUserId;
+
+			if (!empty($_POST['typeId']) || !empty($_POST['action'])) {
+				$typeID = $_POST['typeId'];
+				$this->returnData->typeID = $typeID;
+				$type = $this->types->getTypeById($typeID);
+
+				if (!empty($type)) {
+					// execute community action
+
+					$this->returnData->success = true; // all are succesful actions, except the default
+					$this->returnData->completedAction = $_POST['action'];
+					$data = array(
+						'MixerID' => $currentUserId,
+						'TypeID' => $typeID);
+
+					switch ($_POST['action']) {
+
+						default:
+							$this->returnData->success = false; // reset success boolean as this fails.
+							$this->returnData->completedAction = null;
+							$this->returnData->message = "An unknown server action request was provided.";
+							break;
+
+						case "followType":
+							$data['FollowState'] = 'followed';
+							$this->db->insert('UserTypes', $data);
+							$this->returnData->message = "You are now following $type->Name streams.";
+							break;
+						case "ignoreType":
+							$data['FollowState'] = 'ignored';
+							$this->db->insert('UserTypes', $data);
+							$this->returnData->message = "You are now ignoring $type->Name streams.";
+							break;
+
+						case "unfollowType":
+							$data['FollowState'] = 'followed';
+							$this->db->delete('UserTypes', $data);
+							$this->returnData->message = "You are no longer following $type->Name streams.";
+							break;
+						case "unignoreType":
+							$data['FollowState'] = 'ignored';
+							$this->db->delete('UserTypes', $data);
+							$this->returnData->message = "You are no longer ignoring $type->Name streams.";
+							break;
+
+					}
+
+				} else { $this->getWarningText("emptyResult"); }// server data is missing
+			} else { $this->getWarningText("badData"); } // provided data is bad
+		} else { $this->getWarningText("notLoggedIn"); }// not logged in
 		$this->returnData();
 	}
 
@@ -1234,23 +1375,23 @@ class Servlet extends CI_Controller {
 	private function getWarningText($criteria) {
 		switch ($criteria) {
 			case "notLoggedIn":
-				return "You are not currently logged in.";
+				$this->returnData->message = "You are not currently logged in.";
 				break;
 
 			case "badData":
-				return "Incomplete data was provided.";
+				$this->returnData->message = "Incomplete data was provided.";
 				break;
 
 			case "emptyResult":
-				return "The database query came back empty.";
+				$this->returnData->message = "The database query came back empty.";
 				break;
 
 			case "insufficientRights":
-				return "You do not have sufficient access rights to perform this action.";
+				$this->returnData->message = "You do not have sufficient access rights to perform this action.";
 				break;
 
 			default:
-				return "An unidentified issue occured.";
+				$this->returnData->message = "An unidentified issue occured.";
 				break;
 		}
 	}

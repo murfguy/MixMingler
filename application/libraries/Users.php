@@ -17,21 +17,26 @@ class Users {
 	}
 
 	public function getUserFromMingler($mixerId) {
-		// Let's get streamer data from Mingler based on the ID value we got from Mixer.
-		
-		$sql_query = "SELECT U.*,
+		/*$sql_query = "SELECT U.*,
 			GROUP_CONCAT( CASE WHEN MemberState='admin' THEN UC.CommunityID ELSE NULL END) as AdminCommunities,
 			GROUP_CONCAT( CASE WHEN MemberState='moderator' THEN UC.CommunityID ELSE NULL END) as ModCommunities,
 			GROUP_CONCAT( CASE WHEN MemberState='core' THEN UC.CommunityID ELSE NULL END) as CoreCommunities,
 			GROUP_CONCAT( CASE WHEN MemberState='member' THEN UC.CommunityID ELSE NULL END) as JoinedCommunities,
 			GROUP_CONCAT( CASE WHEN MemberState='follower' THEN UC.CommunityID ELSE NULL END) as FollowedCommunities,
 			GROUP_CONCAT( CASE WHEN MemberState='pending' THEN UC.CommunityID ELSE NULL END) as PendingCommunities,
-			GROUP_CONCAT( CASE WHEN MemberState='banned' THEN UC.CommunityID ELSE NULL END) as BannedCommunities
-			FROM `UserCommunities` as UC
-			JOIN Users AS U ON U.ID = UC.MixerID
+			GROUP_CONCAT( CASE WHEN MemberState='banned' THEN UC.CommunityID ELSE NULL END) as BannedCommunities,
+			GROUP_CONCAT( CASE WHEN FollowState='followed' THEN UT.TypeID ELSE NULL END) as FollowedTypes,
+			GROUP_CONCAT( CASE WHEN FollowState='ignored' THEN UT.TypeID ELSE NULL END) as IgnoredTypes
+			FROM Users as U
+			JOIN UserCommunities AS UC ON U.ID = UC.MixerID
 			JOIN Communities AS C ON C.ID = UC.CommunityID
+			JOIN UserTypes AS UT ON U.ID = UT.MixerID
+			JOIN StreamTypes AS T ON T.ID = UT.TypeID
 			WHERE  UC.MixerID=?";
-		$query = $this->db->query($sql_query, array($mixerId));
+		$query = $this->db->query($sql_query, array($mixerId));*/
+
+		// Let's get streamer data from Mingler based on the ID value we got from Mixer.
+		$query = $this->db->select('*')->from('Users')->where('ID', $mixerId)->get();
 
 		if (!empty($query->result())) {
 			// User is on Mingler
@@ -103,33 +108,6 @@ class Users {
 		$sql_query = "UPDATE Users SET followedChannels=? WHERE user_id=?";
 		$query = $this->CI->db->query($sql_query, array($followList, $userId));*/
 	} 
-
-	// Takes Mixer API data and adds the user to the database
-	// User CANNOT exist in database. 
-	public function addUser($mixerApi_data) {
-		echo "<p>addUser(".$mixerApi_data['token'].")</p>";
-
-		if ($mixerApi_data['user']['avatarUrl'] == null) {
-			$mixerApi_data['user']['avatarUrl'] = "";
-		}
-
-		$timestamp = date('Y-m-d H:i:s');
-
-		$data = array(
-			'ID' => $mixerApi_data['id'],
-			'UserID' => $mixerApi_data['userId'],
-			'Username' => $mixerApi_data['token'],
-			'AvatarURL' => $mixerApi_data['user']['avatarUrl'],
-			'LastSynced' => date('Y-m-d H:i:s'),
-			'JoinedMixer' => substr($mixerApi_data['createdAt'], 0, 9),
-			'isPartner' => $mixerApi_data['partnered'],
-			'ViewersTotal' => $mixerApi_data['viewersTotal'],
-			'NumFollowers' => $mixerApi_data['numFollowers']);
-		$query = $this->db->insert('Users', $data);
-
-		//$sql_query = "INSERT INTO Users (ID, UserID, Username, AvatarURL, LastSynced, JoinedMixer, isPartner, ViewersTotal, NumFollowers) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
-		//$query = $this->CI->db->query($sql_query, array($mixerApi_data['id'], $mixerApi_data['userId'], $mixerApi_data['token'], $mixerApi_data['user']['avatarUrl'], $timestamp, substr($mixerApi_data['createdAt'], 0, 9), $mixerApi_data['partnered'], $mixerApi_data['viewersTotal'], $mixerApi_data['numFollowers']));
-	}
 
 	// Takes Mixer API data and adds the user to the database
 	// User CANNOT exist in database. 
@@ -316,6 +294,43 @@ ORDER BY stream_count DESC";
 		return  $query->result();*/
 	}
 
+	public function getUserTypesInformation($mixerId) {
+		$query = $this->db
+			->select('*')
+			->from('UserTypes')
+			->join('StreamTypes', 'StreamTypes.ID=UserTypes.TypeID')
+			->where('UserTypes.MixerID', $mixerId)
+			->order_by('StreamTypes.Name', 'ASC')
+			->get();
+		return $query->result();
+	}
+
+	public function getUserCoreCommunities($mixerId) {
+		$query = $this->db
+			->select('*')
+			->from('UserCommunities')
+			->where('MixerID', $mixerId)
+			->where('MemberState', 'core')
+			->get();
+		return $query->result();
+	}
+
+	public function getUsersCommunitiesInformation($mixerId, $communityID = null) {
+		if ($communityID != null) { $this->db->where('UserCommunities.CommunityID', $communityID); }
+
+		$query = $this->db
+			->select('*')
+			->select('GROUP_CONCAT( UserCommunities.MemberState) as MemberStates')
+			->from('UserCommunities')
+			->join('Communities', 'Communities.ID = UserCommunities.CommunityID')
+			->where('UserCommunities.MixerID', $mixerId)
+			->group_by('UserCommunities.CommunityID')
+			->order_by('Communities.Name', 'ASC')
+			->get();
+		return $query->result();
+
+	}
+
 	public function getUsersCreatedCommunitiesByStatus($mixerID, $status) {
 		$this->db->select('Communities.*')
 			->from('Communities')
@@ -386,7 +401,8 @@ ORDER BY stream_count DESC";
 		return  $query->result();
 	}
 
-	public function getUsersByRecentActivityType($activityType, $limit = 20) {
+	public function getUsersByRecentActivityType($activityType, $limit = 20, $registeredOnly = false) {
+		if ($registeredOnly) {$this->db->where('isRegistered', 1);}
 		$this->db->order_by($activityType, 'DESC');
 		$query = $this->db->get('Users', $limit);
 		return $query->result();

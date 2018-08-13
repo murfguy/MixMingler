@@ -16,8 +16,8 @@ class Admin extends CI_Controller {
 				case "admin":
 				case "dev":	
 					$viewData = new stdClass();
-					$viewData->logins = $this->users->getUsersByRecentActivityType('LastLogin'); 
-					$viewData->registrations = $this->users->getUsersByRecentActivityType('RegistrationTime');
+					$viewData->logins = $this->users->getUsersByRecentActivityType('LastLogin', 20, true); 
+					$viewData->registrations = $this->users->getUsersByRecentActivityType('RegistrationTime', 20, true);
 
 					$viewData->pendingCommunities = $this->communities->getCommunitiesByStatus('pending');
 

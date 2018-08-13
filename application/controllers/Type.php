@@ -16,6 +16,22 @@ class Type extends CI_Controller {
 		$this->load->library('tools');
 		$this->load->library('types');
 
+		// if user is logged in
+		if (isset($_SESSION['mixer_user'])) {
+			$currentUser = new stdClass();
+			$currentUser->username = $_SESSION['mixer_user'];
+			$currentUser->followsType = false;
+			$currentUser->ignoresType = false;
+
+			$user = $this->users->getUserFromMingler($_SESSION['mixer_id']);
+			$currentUser->followedTypesIds = explode(",", $user->FollowedTypes);
+			$currentUser->ignoredTypesIds = explode(",", $user->IgnoredTypes);
+
+			$currentUser = $currentUser;
+		} else {
+			$currentUser = null;
+		}
+
 
 		if ($method != "index") {
 			// use type slug to find display type
@@ -29,76 +45,46 @@ class Type extends CI_Controller {
 				if (!empty($params)) {
 					$slug = $params[0];
 				} else {
-					$slug = $this->types->createSlug($typeData->typeName);
+					$slug = $this->types->createSlug($typeData->Name);
 				}
 
 			} else {
 				// This is a slug input
 				$typeData = $this->types->getTypeBySlug($method);
 				if (!empty($typeData)) {
-					$typeId = $typeData->typeId;
+					$typeId = $typeData->ID;
 					$slug = $method;
 				}
 			}
 
 			if ($typeData == null) {
-				echo "<p>Display for types is pending, but sadly, we don't think we've seen this game you're looking for.</p>";
+				echo "<p>We couldn't find the Stream Type you were looking for.</p>";
 			} else {
-
-				// if user is logged in
-				if (isset($_SESSION['mixer_user'])) {
-					$currentUser = new stdClass();
-					$currentUser->token = $_SESSION['mixer_user'];
-					$currentUser->followsType = false;
-					$currentUser->ignoresType = false;
-
-					$sql_query = "SELECT followedTypes,ignoredTypes FROM mixer_users WHERE name_token=?";
-					$query = $this->db->query($sql_query, array($_SESSION['mixer_user']));
-
-					$followedTypes = explode(";", $query->result()[0]->followedTypes);
-					if (array_search($typeData->typeId, $followedTypes) > - 1) { $currentUser->followsType = true; }
-
-					$ignoredTypes = explode(",", $query->result()[0]->ignoredTypes);
-					if (array_search($typeData->typeId, $ignoredTypes) > - 1) { $currentUser->ignoresType = true; }
-
-					$currentUser = $currentUser;
-				} else {
-					$currentUser = null;
+				// If logged in
+				if (!empty($currentUser)) {
+					// See if user follows the current type
+					if (array_search($typeData->ID, $currentUser->followedTypesIds) > - 1) { $currentUser->followsType = true; }
+					if (array_search($typeData->ID, $currentUser->ignoredTypesIds) > - 1) { $currentUser->ignoresType = true; }
 				}
 
 				$displayData = new stdClass();
 				$displayData->currentUser = $currentUser;
-				$displayData->mixerData = $this->types->getTypeFromMixer($typeData->typeId);
+				$displayData->mixerData = $this->types->getTypeFromMixer($typeData->ID);
 				$displayData->typeData = $typeData;
-				$displayData->recentStreams = $this->types->getRecentStreamsForType($typeData->typeId);;
-				$displayData->activeStreams = $this->types->getActiveStreamsFromMixerByTypeId($typeData->typeId);
-				$displayData->frequentStreamers = $this->types->getLastMonthsMostFrequentStreamersForType($typeData->typeId);
+				$displayData->recentStreams = $this->types->getRecentStreamsForType($typeData->ID);
+				$displayData->activeStreams = $this->types->getActiveStreamsFromMixerByTypeId($typeData->ID);
+				$displayData->frequentStreamers = $this->types->getLastMonthsMostFrequentStreamersForType($typeData->ID);
 				
 				$this->displayType($displayData);
 			}
-			
-
 		} else {
 			// default action
 			$allKnownTypes = $this->types->getAllTypeIdsFromMingler();
 			$allActiveTypes = $this->types->getAllActiveTypesFromMixer();
 
 			// if user is logged in
-			if (isset($_SESSION['mixer_user'])) {
-				$currentUser = new stdClass();
-				$currentUser->token = $_SESSION['mixer_user'];
-				$currentUser->followsType = false;
-				$currentUser->ignoresType = false;
-
-				$sql_query = "SELECT followedTypes,ignoredTypes FROM mixer_users WHERE name_token=?";
-				$query = $this->db->query($sql_query, array($_SESSION['mixer_user']));
-
-				$currentUser->followedTypesIds = explode(";", $query->result()[0]->followedTypes);
-				$currentUser->ignoredTypesIds = explode(",", $query->result()[0]->ignoredTypes);
-
-				$followedTypes_str = str_replace(";", ",", $query->result()[0]->followedTypes);
-
-				$followedTypesData = $this->types->getSpecifiedTypesFromMixer($query->result()[0]->followedTypes);
+			if (!empty($currentUser)) {
+				$followedTypesData = $this->types->getSpecifiedTypesFromMixer(implode(";",$currentUser->followedTypesIds));
 
 				$followedTypeList = array();
 				$offlineFollowedTypeList = array();
@@ -113,7 +99,6 @@ class Type extends CI_Controller {
 
 				$currentUser->followedTypeList = $followedTypeList;
 				$currentUser->offlineFollowedTypeList = $offlineFollowedTypeList;
-		
 			} else {
 				$currentUser = null;
 			}
@@ -138,18 +123,6 @@ class Type extends CI_Controller {
 
 				if ($displayType) {
 					$fullTypeList[] = $this->types->formatTypeDataFromMixer($type);
-					/*if (empty($type['coverUrl'])) {
-						$type['coverUrl'] == "https://mixer.com/_latest/assets/images/main/types/default.jpg";
-					}
-
-					$fullTypeList[] = array(
-						'coverUrl' => $type['coverUrl'],
-						'slug' => $this->types->createSlug($type['name']),
-						'name' => $type['name'],
-						'online' => $this->tools->formatNumber($type['online']),
-						'viewersCurrent' => $this->tools->formatNumber($type['viewersCurrent']),
-						'id' => $type['id']
-					);*/
 				}
 			}
 

@@ -43,7 +43,7 @@ class Welcome extends CI_Controller {
 			$alerts['unfoundedCommunities'] = $unfoundedCommunities;
 		}
 
-		$communitiesData = new stdClass();
+		/*$communitiesData = new stdClass();
 		$communitiesData->core = null;
 		$communitiesData->joined = null;
 		$communitiesData->followed = null;
@@ -57,10 +57,10 @@ class Welcome extends CI_Controller {
 		} 
 		if (!empty($user->FollowedCommunities)) {
 			$communitiesData->followed = $this->communities->getCommunitiesFromList($user->FollowedCommunities);
-		} 
+		} */
 
 		$followedTypes = $this->types->getSpecifiedTypesFromMixer($user->FollowedTypes);
-		//$followedTypes = array();
+
 		$gameNews = array();
 		$typeData = array();
 		$slugs = array();
@@ -71,13 +71,6 @@ class Welcome extends CI_Controller {
 		
 		$viewData->user = $user;
 		$viewData->alerts = $alerts;
-		$viewData->communitiesData = $communitiesData;
-		//$viewData->modCommunities = $this->users->getUsersAdminedOrModeratedCommunities($_SESSION['mixer_id']);
-
-
-		//$viewData->pendingCommunities = $this->users->getUsersCreatedCommunitiesByStatus($_SESSION['mixer_id'], 'pending');
-		//$viewData->approvedCommunities = $this->users->getUsersCreatedCommunitiesByStatus($_SESSION['mixer_id'], 'approved');
-		//$viewData->rejectedCommunities = $this->users->getUsersCreatedCommunitiesByStatus($_SESSION['mixer_id'], 'rejected');
 
 
 		$viewData->gameNews = $gameNews;
