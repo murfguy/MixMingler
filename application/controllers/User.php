@@ -48,8 +48,8 @@ class User extends CI_Controller {
 				}
 			} else {
 				// We found this user, so let's see if they are eligible to do a basic sync with Mixer.
-				$syncThreshold = time() - (1);
-				$lastSync = strtotime($minglerData->lastSynced);
+				$syncThreshold = time() - (60);
+				$lastSync = strtotime($minglerData->LastSynced);
 
 				if ($lastSync <= $syncThreshold) {
 					// User can sync with Mixer now.
@@ -61,30 +61,31 @@ class User extends CI_Controller {
 				}
 			}
 
-			$minglerData->lastTypeSlug = $this->types->createSlug($minglerData->lastType);
+			$minglerData->LastTypeSlug = $this->types->createSlug($minglerData->LastType);
 
-			$minglerData->lastStartElapsed = $this->tools->getElapsedTimeString(strtotime($minglerData->lastStreamStart));
-			$minglerData->lastSeenElapsed = $this->tools->getElapsedTimeString(strtotime($minglerData->lastSeenOnline));		
+			$minglerData->LastStartElapsed = getElapsedTimeString(strtotime($minglerData->LastStreamStart));
+			$minglerData->LastSeenElapsed = getElapsedTimeString(strtotime($minglerData->LastSeenOnline));		
 
-			if (!empty($minglerData->followedTypes)) {
-				$minglerData->followedTypesData = $this->types->getTypesByIdsFromMingler($minglerData->followedTypes);
-			}
+			//if (!empty($minglerData->followedTypes)) {
+				//$minglerData->followedTypesData = $this->types->getTypesByIdsFromMingler($minglerData->followedTypes);
+			//}
 
 
 			// --------------------------------------------------------------------------------
 			// Portion #2: Get Timeline Events for the current user using data from Mingler.
 			// --------------------------------------------------------------------------------
+
 			$feedData = null;
 			$newsDisplayItems = null;
-			$sql_query = "SELECT *, (SELECT name_token FROM mixer_users WHERE mixer_id=?) as username FROM `timeline_events` WHERE mixer_id=? ORDER BY id DESC, eventTime DESC LIMIT 0,100";
-			$query = $this->db->query($sql_query, array($minglerData->mixer_id, $minglerData->mixer_id));
+			$sql_query = "SELECT *, (SELECT Username FROM Users WHERE ID=?) as Username FROM `TimelineEvents` WHERE MixerID=? ORDER BY ID DESC, EventTime DESC LIMIT 0,100";
+			$query = $this->db->query($sql_query, array($minglerData->ID, $minglerData->ID));
 			$feedData = $query->result();
 
 			// We need to get the HTML version of these events so we can display them in the view.
 			if ($feedData != null) {
 				$newsDisplayItems = array();
 				foreach($feedData as $event) {
-					$newsDisplayItems[] = $this->news->getNewsDisplay($event, $minglerData->avatarURL, "condensed");
+					$newsDisplayItems[] = $this->news->getNewsDisplay($event, $minglerData->AvatarURL, "condensed");
 				}
 			}
 
@@ -119,7 +120,7 @@ class User extends CI_Controller {
 			$displayData->communitiesData = $communitiesData;
 			$displayData->feedData = $feedData;
 			$displayData->newsItems = $newsDisplayItems;
-			$displayData->recentTypes = $this->users->getUsersRecentStreamTypes($minglerData->mixer_id);
+			$displayData->recentTypes = $this->users->getUsersRecentStreamTypes($minglerData->ID);
 			$this->displayUser($displayData);
 
 

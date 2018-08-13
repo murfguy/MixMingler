@@ -125,21 +125,21 @@ class Community extends CI_Controller {
 			if (empty($params[0]) || $data->currentUser == null) {
 				// If not trying to access mod page, OR user isn't logged in:
 				// Load the community view
-				if ($community->status == 'open' || $community->status == 'closed' ) {
+				if ($community->Status == 'open' || $community->Status == 'closed' ) {
 					$this->load->view('community', $data);
 				} else {
 					?> 
 					<main role="main" class="container">
 						<div class="pageHeader">
-							<h1><?php echo $community->long_name; ?></h1>
+							<h1><?php echo $community->Name; ?></h1>
 						</div>
-						<?php if ($community->status == 'pending')  { ?>
+						<?php if ($community->Status == 'pending')  { ?>
 							<div class="alert alert-warning"><h3>This community has been recently requested, and is pending approval.</h3></div>
 						<?php } ?>
-						<?php if ($community->status == 'approved')  { ?>
+						<?php if ($community->Status == 'approved')  { ?>
 							<div class="alert alert-success"><h3>This community has been approved by site mods, but is waiting for public release by the community owner.</h3></div>
 						<?php } ?>
-						<?php if ($community->status == 'rejected')  { ?>
+						<?php if ($community->Status == 'rejected')  { ?>
 							<div class="alert alert-danger"><h3>This community was denied approval by site administrators and is awaiting deletion.</h3></div>
 						<?php } ?>
 						</main>
@@ -233,9 +233,9 @@ class Community extends CI_Controller {
 	// Returns data for all communites, with member counts
 	private function loadAllCommunities() {
 		$sql_query = "SELECT C.*,
-			CC.name as category_name,
-			CC.slug as category_slug,
-			count(UC.MixerID) as memberCount
+			CC.name as CategoryName,
+			CC.slug as CategorySlug,
+			count(UC.MixerID) as MemberCount
 			FROM `Communities` as C
 			JOIN CommunityCategories as CC ON C.CategoryID = CC.ID
 			JOIN UserCommunities as UC ON C.ID = UC.CommunityID AND UC.MemberState = 'member'

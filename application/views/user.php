@@ -1,16 +1,16 @@
 <main role="main" class="container">
 	<div id="userHeader" class="pageHeader">
-		<h1><?php echo $minglerData->name_token; ?></h1>
+		<h1><?php echo $minglerData->Username; ?></h1>
 	</div>
 
 	
 
 	<div class="row">
 		<div class="col userInfo">
-			<p><img src="<?php echo $avatarUrl = $minglerData->avatarURL; ?>" class="avatar" width="200" /></p>
+			<p><img src="<?php echo $avatarUrl = $minglerData->AvatarURL; ?>" class="avatar" width="200" /></p>
 
 			<?php 
-				switch($minglerData->minglerRole) {
+				switch($minglerData->SiteRole) {
 					case "owner":
 						echo "<p>MixMingler Owner/Creator</p>";
 						break;
@@ -32,38 +32,36 @@
 				<div class="infoInterior">
 				<?php 
 					$isOnline = false; 
-					if (strtotime($minglerData->lastSeenOnline) > (time()-(60*10)) ) {
+					if (strtotime($minglerData->LastSeenOnline) > (time()-(60*10)) ) {
 						$isOnline = true;
 					}
 
 					if ($isOnline) {
 						echo "<span style='color:#1bf160'>Streaming Now!</span><br>";
-						echo "<a href=\"https://mixer.com/".$minglerData->name_token."\" target=\"_blank\"><img class=\"live-thumb\" src=\"https://thumbs.mixer.com/channel/".$minglerData->mixer_id.".small.jpg\" onerror=\"this.src='/assets/graphics/blankThumb.jpg'\" width=\"200\"/></a><br>";
+						echo "<a href=\"https://mixer.com/".$minglerData->Username."\" target=\"_blank\"><img class=\"live-thumb\" src=\"https://thumbs.mixer.com/channel/".$minglerData->ID.".small.jpg\" onerror=\"this.src='/assets/graphics/blankThumb.jpg'\" width=\"200\"/></a><br>";
 					} else {
 						echo "<span style='color:#ff5454'>Currently Offline</span><br>";
 					}
-					echo "<a href=\"/type/".$minglerData->lastTypeId."/".$minglerData->lastTypeSlug."\">".$minglerData->lastType."</a>";
+					echo "<a href=\"/type/".$minglerData->LastTypeID."/".$minglerData->LastTypeSlug."\">".$minglerData->LastType."</a>";
 
 
 					// We don't auto-track any under 25 users, and we also don't want to show this for anyone never online
-					if ($minglerData->numFollowers >= 25) {
+					if ($minglerData->NumFollowers >= 25) {
 
-						if ($minglerData->lastSeenOnline == "0000-00-00 00:00:00") {
+						if ($minglerData->LastSeenOnline == "0000-00-00 00:00:00") {
 							echo "<br>Never seen online";
 						} else {
 							if ($isOnline) {
 								// show "streaming for x time"
-								echo "<br>Started streaming: ".$minglerData->lastStartElapsed;
+								echo "<br>Started streaming: ".$minglerData->LastStartElapsed;
 							} else {
-								echo "<br>Last Online: ".$minglerData->lastSeenElapsed;
+								echo "<br>Last Online: ".$minglerData->LastSeenElapsed;
 							}
 						}
 					} else {
 							
 					}
 				?>
-				<!--<p class="devNote" data-toggle="tooltip" title="Planned for v0.2" data-placement="left">Planned Tweak: 'last online' should be in elapsed time format (ie: 4 hours ago)</p>
-				<p class="devNote" data-toggle="tooltip" title="Planned for v0.2" data-placement="left">Planned Tweak: If user has less than 25 follows, do not show "last online"</p>-->
 				</div>
 			</div>
 
@@ -71,18 +69,18 @@
 			<div class="infoBox">
 				<h4 class="infoHeader">Info</h4>
 				<div class="infoInterior">
-					<p><a href="https://mixer.com/<?php echo $minglerData->name_token; ?>">mixer.com/<?php echo $minglerData->name_token; ?></a></p>
+					<p><a href="https://mixer.com/<?php echo $minglerData->Username; ?>">mixer.com/<?php echo $minglerData->Username; ?></a></p>
 
-					<p>Followers: <?php echo number_format($minglerData->numFollowers); ?>
-					<br>Views: <?php echo number_format($minglerData->viewersTotal); ?></p>
-					<p>Joined Mixer: <?php echo date("M. d, Y", strtotime($minglerData->joinedMixer)); ?>			
+					<p>Followers: <?php echo number_format($minglerData->NumFollowers); ?>
+					<br>Views: <?php echo number_format($minglerData->ViewersTotal); ?></p>
+					<p>Joined Mixer: <?php echo date("M. d, Y", strtotime($minglerData->JoinedMixer)); ?>			
 
 				<?php 
-					if ($minglerData->partner) {
+					if ($minglerData->isPartner) {
 						echo "<br><span class=\"mixerPartner\">Mixer Partner</span>";
 					} 
 
-					if (strtotime($minglerData->joinedMixer) < strtotime("2017-05-25")) {
+					if (strtotime($minglerData->JoinedMixer) < strtotime("2017-05-25")) {
 						echo "<br><span class=\"beamLove\" data-toggle=\"tooltip\" title=\"Member of Original Beam Community\">#BeamLove</span>";
 					}
 					?></p>
@@ -99,7 +97,7 @@
 
 		<div class="col-7 userFeed">
 
-			<?php if ($minglerData->numFollowers >= 25) {
+			<?php if ($minglerData->NumFollowers >= 25) {
 				echo "<div class=\"infoBox\">";
 					echo "<h2 class=\"infoHeader\">Common Streams</h2>";
 					echo "<div class=\"infoInterior\">";
@@ -149,7 +147,7 @@
 		</div>
 		<div class="col communities">
 			<?php 
-				if ($minglerData->registered > 0) {
+				if ($minglerData->isRegistered > 0) {
 					// User is a registered Mingler Member!
 
 					if ($communitiesData->core != null) {
@@ -221,7 +219,7 @@
 					echo "<div class=\"infoBox\">";
 						echo "<h4 class=\"infoHeader\">Communities</h4>";
 						echo "<div class=\"infoInterior\">";
-							echo "<p>".$minglerData->name_token."  hasn't joined MixMingler, and therefore has no community information.</p>";
+							echo "<p>".$minglerData->Username."  hasn't joined MixMingler, and therefore has no community information.</p>";
 						echo "</div>";
 					echo "</div>";
 				}

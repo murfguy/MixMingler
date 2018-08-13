@@ -70,7 +70,7 @@ class News {
 		// Convert string bits
 
 		// Add username link to item.
-		$eventText = str_replace("{username}", "<a href=\"/user/$newsEvent->username\">$newsEvent->username</a>", $newsEvent->eventText); 
+		$eventText = str_replace("{username}", "<a href=\"/user/$newsEvent->Username\">$newsEvent->Username</a>", $newsEvent->Content); 
 		// Convert a {commId} string
 		$eventText = $this->convertCommunityString($eventText);
 		// Convert a {typeId} string
@@ -94,7 +94,7 @@ class News {
 			case "condensed":
 				$newsContainer = "<div class=\"userFeedItem condensedNews\">";
 					$newsContainer .= "<p class=\"post\">$eventText</p>";
-					$newsContainer .=  "<p class=\"postHead\"><span class=\"postTime\">".$this->displayPostTime($newsEvent->eventTime)."</span></p>";
+					$newsContainer .=  "<p class=\"postHead\"><span class=\"postTime\">".$this->displayPostTime($newsEvent->EventTime)."</span></p>";
 				$newsContainer .= "</div>";
 				break;
 
@@ -196,7 +196,7 @@ class News {
 			$community = $this->CI->communities->getCommunity($id);
 
 			if ($community != null) {
-				$communityLink = "<a href=\"/community/$community->slug\">".$community->long_name."</a>";
+				$communityLink = "<a href=\"/community/$community->Slug\">".$community->Name."</a>";
 			} else {
 				$communityLink = "<span style='color:red'>{UNKNOWN}</span>";
 			}
@@ -219,7 +219,7 @@ class News {
 
 			if ($type != null) {
 				//$typeLink = "<a href=\"/type/$type->slug\">".$type->name."</a>";
-				$typeLink = "<a href=\"/type/$type->typeId/$type->slug\">".$type->typeName."</a>";
+				$typeLink = "<a href=\"/type/$type->ID/$type->Slug\">".$type->Name."</a>";
 
 				$eventText = str_replace("{typeId:".$id."}", $typeLink, $eventText);
 			} else {

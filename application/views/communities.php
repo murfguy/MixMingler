@@ -27,18 +27,12 @@
 					foreach ($communities as $community) { ?>
 
 						<div class="typeInfo med">
-							<a href="/community/<? echo $community->slug; ?>"><img src="/assets/graphics/covers/<? echo $community->slug; ?>.jpg" onerror="this.src='/assets/graphics/covers/blankCover.png';" class="coverArt"></a>
-							<p class="typeName"><a href="/community/<? echo $community->slug; ?>"><? echo $community->long_name; ?></a></p>
+							<a href="/community/<? echo $community->Slug; ?>"><img src="/assets/graphics/covers/<? echo $community->Slug; ?>.jpg" onerror="this.src='/assets/graphics/covers/blankCover.png';" class="coverArt"></a>
+							<p class="typeName"><a href="/community/<? echo $community->Slug; ?>"><? echo $community->Name; ?></a></p>
 							<p class="stats">
-								<span class="onlineStat" data-toggle="tooltip" data-placement="bottom" title="Members"><i class="fas fa-users"></i>  <? echo $community->memberCount; ?></span>
+								<span class="onlineStat" data-toggle="tooltip" data-placement="bottom" title="Members"><i class="fas fa-users"></i>  <? echo $community->MemberCount; ?></span>
 							</p>
 						</div>
-
-
-						<!--<div class="col-sm communityListing <? echo $community->category_slug; ?>">
-						<h3><a href="/community/<? echo $community->slug; ?>"><? echo $community->long_name; ?></a></h3>
-						<p><? echo $community->summary; ?><br><span class="muted-text"><? echo $community->memberCount; ?> members</span></p>
-						</div>-->
 					<?php }
 				} else {
 					echo "<p>No communities. Odd.</p>";
@@ -49,12 +43,5 @@
 </div>
 
 
-	<div class="plans">
-		<p><b>Plans/Ideas for this page:</b></p>
-		<ul>
-			<li>Toggle visible communities based on navigation</li>
-			<li>Include links to request a new community</li>
-			<li>Include online counts? (API research)</li>
-		</ul>
-	</div>
+	
 </main>
