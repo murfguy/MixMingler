@@ -87,6 +87,9 @@ tr {
 	vertical-align: middle !important;
 }
 
+table.adminTable tbody {
+	font-size: 14px;
+}
 
 /* ---------------------------------------
 -- OLDER STYLES - Refactor These ---------

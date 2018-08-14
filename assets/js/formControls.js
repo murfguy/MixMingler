@@ -93,12 +93,48 @@ function requestCommunity(e, form) {
 	e.preventDefault();
 	actionUrl = baseActionUrl+"requestCommunity/";
 
-	submitButton = $( "form#requestCommunity button.requestCommunity" );
-	submitButton.attr('disabled', '');
-	submitButton.text("Submitting Request");
-	submitButton.prepend('<i class="fas fa-sync fa-spin"></i> ');
+	//submitButton = $( "form#requestCommunity button.requestCommunity" );
+	//submitButton.attr('disabled', '');
+	//submitButton.text("Submitting Request");
+	//submitButton.prepend('<i class="fas fa-sync fa-spin"></i> ');
 
-	console.log("actionUrl: "+ actionUrl);
+
+	$.alert({
+		title: "Submitting Request...",
+		theme: 'dark',
+		autoClose: 'ok|8000',
+		content: function(){
+			var self = this;
+			
+			return $.ajax({
+				url: actionUrl,
+				dataType: 'json',
+				method: 'post',
+				data: form.serialize()
+			}).done(function (response) {
+				if (response.success) {
+					self.setContentAppend('<div>'+response.message+'</div>');
+					//updateButtonView(targetButton, response);
+
+					if (response.success) {
+						//parent = form.closest("div.infoBox").children('.infoInterior').html(response.message);
+						$("form#requestCommunity").after('<div class="alert alert-success">Your commmunity request has been submitted. You will need to wait for it to be processed by a site admin before you can proceed or request another community.</div>');
+						$("form#requestCommunity").hide();
+					}
+				} else {
+					self.setContentAppend('<div>There was an issue with completing your requested action! <br><b>Server Message:</b> '+response.message+'</div>');
+				}
+			}).fail(function(){
+				self.setContentAppend('<div>There was a problem with communicating with the server.</div>');
+			}).always(function(response){
+				//self.setContentAppend('<div>Always!</div>');
+				console.log(response)
+			});
+		}
+	})
+	
+
+	/*console.log("actionUrl: "+ actionUrl);
 		$.ajax({
 			url: actionUrl,
 			type: "POST",
@@ -144,7 +180,7 @@ function requestCommunity(e, form) {
 				
 				//
 				//console.log(json.message);
-			});
+			});*/
 }
 
 function findFormDataItem(target, data) {
@@ -202,6 +238,7 @@ function processCommunity(e, form) {
 
 									if (response.success) {
 										parent = form.closest("div.infoBox").children('.infoInterior').html(response.message);
+										$("tr#notice-"+response.originalSlug).html('<td colspan="8">'+response.Name+" was approved.</td>")
 									}
 								} else {
 									self.setContentAppend('<div>There was an issue with completing your requested action! <br><b>Server Message:</b> '+response.message+'</div>');
@@ -311,6 +348,20 @@ function setConfirmationActions () {
 				confirmText = "DELETE (Cannot be undone)";
 				cancelText = "Nevermind";
 				actionData = {
+					communityId: $(this).attr('communityId')
+				}
+				break;
+
+			case "approveCommunity":
+				action = "processCommunity/";
+				message = "This will approve this community with no adjustments. Once confirmed: Name, URL and Category cannot be edited. Please be 100% certain before quick approving.";
+				alertTitle = "Approving Community...";
+				confirmText = "Approve";
+				cancelText = "Nevermind";
+				actionData = {
+					status: 'approved',
+					isQuickApprove: true,
+					userId: $(this).attr('communityId'),
 					communityId: $(this).attr('communityId')
 				}
 				break;
@@ -636,14 +687,19 @@ function updateButtonView(tgt, serverData) {
 			}
 			break;
 
-		case "join":
+		case "quickApproveCommunity":
+			tgt.closest("tr").html('<td colspan="8">'+serverData.message+'</td>');
+			$("div#process-"+serverData.originalSlug).children('.infoInterior').html(serverData.message);
+			break;
+
+		case "joinCommunity":
 		case "addedToPending":
 			// Becomes "leave state"
 			tgt.removeClass('btn-primary btn-success');
 			tgt.addClass('confirm');
 			tgt.attr('action', 'leaveCommunity');
 			
-			if (serverData.approveMembers) {
+			if (serverData.isApprovalRequired) {
 				tgt.addClass('btn-info');
 				tgt.attr('action', 'unpendCommunity');
 
@@ -660,15 +716,40 @@ function updateButtonView(tgt, serverData) {
 					tgt.addClass('btn-danger');
 					tgt.html('Leave');
 				}
+
+				
+
+				coreTgt = $("button[communityid='"+serverData.communityID+"'][action='setAsCore']");
+				coreTgt.removeClass('confirm btn-success btn-danger');
+				//coreTgt.attr('action', 'setAsCore');
+				coreTgt.addClass('btn-primary');
+				coreTgt.removeAttr('disabled');
+				coreTgt.html('<i class="fas fa-thumbs-up"></i>');
+			}
+
+			if (serverData.alsoFollowed) {
+				followTgt = $("button[communityid='"+serverData.communityID+"'][action='followCommunity']");
+				
+				followTgt.removeClass('btn-primary btn-success');
+				followTgt.attr('action', 'unfollowCommunity');
+				followTgt.addClass('confirm');
+
+				if (followTgt.attr('btnType') == 'mini') {
+					followTgt.addClass('btn-success');
+					followTgt.html('<i class="fas fa-check"></i>');
+				} else {
+					followTgt.addClass('btn-danger');
+					followTgt.html('Unfollow');
+				}
 			}
 			break;
 
-		case "leave":
+		case "leaveCommunity":
 		case "removedFromPending":
 			tgt.removeClass('confirm btn-danger btn-success btn-info');
 			tgt.attr('action', 'joinCommunity');
 
-			if (serverData.communityStatus == 'closed') {
+			if (serverData.Status == 'closed') {
 				// community is closed. Button should revert to non-interactive state.
 				tgt.removeClass('action');
 				tgt.attr('disabled', '');
@@ -681,18 +762,35 @@ function updateButtonView(tgt, serverData) {
 				}
 			} else {
 				// user succesfully left community. Revert to "join" status.
-				if (tgt.attr('btnType') == 'mini') {
-					tgt.addClass('btn-primary');
-					tgt.html('<i class="fas fa-times"></i>');
+				if (serverData.isApprovalRequired) {
+					if (tgt.attr('btnType') == 'mini') {
+						tgt.addClass('btn-info');
+						tgt.html('<i class="fas fa-question-circle"></i>');
+					} else {
+						tgt.addClass('btn-info');
+						tgt.html('Ask to Join');
+					}
 				} else {
-					tgt.addClass('btn-primary');
-					tgt.html('Join');
+					if (tgt.attr('btnType') == 'mini') {
+						tgt.addClass('btn-primary');
+						tgt.html('<i class="fas fa-times"></i>');
+					} else {
+						tgt.addClass('btn-primary');
+						tgt.html('Join');
+					}
 				}
 
+
+				coreTgt = $("button[communityid='"+serverData.communityID+"'][action='setAsCore'],[action='removeAsCore']");
+				coreTgt.removeClass('confirm btn-success btn-danger btn-primary');
+				coreTgt.attr('action', 'setAsCore');
+				coreTgt.attr('disabled', '');
+				coreTgt.addClass('btn-danger');
+				coreTgt.html('<i class="fas fa-minus-circle"></i>');
 			}
 			break;
 
-		case "follow":
+		case "followCommunity":
 			tgt.removeClass('btn-primary btn-success');
 			tgt.attr('action', 'unfollowCommunity');
 			tgt.addClass('confirm');
@@ -706,7 +804,7 @@ function updateButtonView(tgt, serverData) {
 			}
 			break;
 
-		case "unfollow":
+		case "unfollowCommunity":
 			tgt.removeClass('confirm btn-danger btn-success');
 			tgt.attr('action', 'followCommunity');
 
@@ -1013,129 +1111,3 @@ function setCommunityActionButtonListeners() {
 		submitCommunityAction(actionUrl, $(this).attr('commId'));
 	});
 }
-/*
-function submitCommunityAction(actionUrl, communityId) {
-	console.log("submitCommunityAction("+actionUrl+","+communityId+")");
-
-	$.ajax({
-		url: actionUrl,
-		type: "POST",
-		dataType: "json",
-		data: { 
-			communityId: communityId
-		}
-	})
-		.done(function (json){
-			console.log('commAction - AJAX done');
-
-			if (json.success) {
-				targetButton = $("button#"+json.completedAction)
-				targetButton.removeAttr('disabled');
-				targetButton.remove("i");
-
-				switch(json.completedAction) {
-					case "join": 						
-						targetButton.removeClass('btn-primary');
-						targetButton.addClass('btn-danger');
-						targetButton.text('Leave');
-						targetButton.attr('id','leave');
-						targetButton.attr('title','Leave this community.');
-						targetButton.attr('data-original-title','Leave this community.');
-
-						if (!json.followsCommunity) {
-							submitCommunityAction(baseActionUrl+"followCommunity/", json.communityID);
-						}
-						break;
-
-					case "addedToPending":
-						targetButton = $("button#join");
-						targetButton.removeAttr('disabled');
-						targetButton.removeClass('btn-primary');
-						targetButton.addClass('btn-info');
-						targetButton.text('Pending');
-						targetButton.attr('id','unpend');
-						targetButton.attr('title','Your membership is pending approval. Click to undo.');
-						targetButton.attr('data-original-title','Your membership is pending approval. Click to undo.');
-
-						if (!json.followsCommunity) {
-							submitCommunityAction(baseActionUrl+"followCommunity/", json.communityID);
-						}
-						break;
-
-					case "removedFromPending":
-						targetButton = $("button#unpend");
-						targetButton.removeAttr('disabled');
-						targetButton.removeClass('btn-info');
-
-						if (json.communityStatus == 'open') {
-							targetButton.addClass('btn-primary');
-							targetButton.text('Join');
-							targetButton.attr('id','join');
-							targetButton.attr('title','Become a member of this community so viewers can find you.');
-							targetButton.attr('data-original-title','Become a member of this community so viewers can find you.');
-						} else {
-							targetButton.addClass('btn-secondary');
-							targetButton.text('Closed');
-							targetButton.attr('disabled', '');
-							//targetButton.attr('id','join');
-							targetButton.attr('title','Community is closed to new members.');
-							targetButton.attr('data-original-title','Community is closed to new members.');
-						}
-						break;
-
-					case "leave": 
-						targetButton.removeClass('btn-danger');
-							
-						if (json.communityStatus == 'open') {
-							targetButton.addClass('btn-primary');
-							targetButton.text('Join');
-							targetButton.attr('id','join');
-							targetButton.attr('title','Become a member of this community so viewers can find you.');
-							targetButton.attr('data-original-title','Become a member of this community so viewers can find you.');
-						} else {
-							targetButton.addClass('btn-secondary');
-							targetButton.text('Closed');
-							targetButton.attr('disabled', '');
-							//targetButton.attr('id','join');
-							targetButton.attr('title','Community is closed to new members.');
-							targetButton.attr('data-original-title','Community is closed to new members.');
-						}
-						$("button#moderateLink").remove();
-						break;
-
-					case "follow": 						
-						targetButton.removeClass('btn-primary');
-						targetButton.addClass('btn-danger');
-						targetButton.text('Unfollow');
-						targetButton.attr('id','unfollow');
-						targetButton.attr('title','Stop getting updates from this community on your profile.');
-						targetButton.attr('data-original-title','Stop getting updates from this community on your profile.');
-						break;
-					case "unfollow": 
-						targetButton.removeClass('btn-danger');
-						targetButton.addClass('btn-primary');
-						targetButton.text('Follow');
-						targetButton.attr('id','follow');
-						targetButton.attr('title','Track streamers in this community from your profile page.');
-						targetButton.attr('data-original-title','Track streamers in this community from your profile page.');
-						break;
-				}
-			}
-
-			
-
-
-		}) 
-
-		.fail(function (json){
-			console.log('commAction - AJAX failed');
-			displayAlert($("#userHeader"), "There was an issue communicating with the server. Reload and try again.", "danger", 0)
-		})
-
-		.always(function (json){
-			console.log('commAction - AJAX always');
-			console.log(json);
-			//console.log(json.message);
-
-		});
-}*/

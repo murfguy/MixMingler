@@ -67,27 +67,43 @@
 						<h4 class="infoHeader">Pending Community Requests</h4>
 						<div class="infoInterior">
 							<?php if (!empty($pendingCommunities)) { ?>
-							<table class="table table-bordered table-hover table-dark table-sm">
+								<p style="font-size: 17px">Here are all pending requests. You can quick approve from here, but if you need to edit details, leave a note or request the request, please go to the Communities tab.</p>
+							<table class="table table-bordered table-hover table-dark table-sm adminTable">
 								<thead class="thead-dark">						
 									<tr>
-										<th scope="col">Community Name</th>
-										<th scope="col">URL Slug</th>
-										<th scope="col">Requested By</th>
-										<th scope="col">Category</th>
-										<th scope="col">Requested on</th>
-										<th scope="col">Summary</th>
+										<th scope="col" width="15%">Community Name</th>
+										<th scope="col" width="15%">URL</th>
+										<th scope="col" width="10%">Requester</th>
+										<th scope="col" width="8%">Category</th>
+										<th scope="col" width="10%">Requested on</th>
+										<th scope="col" width="10%">Summary</th>
+										<th scope="col">Description</th>
+										<th scope="col" width="8%">Quick Approve</th>
 									</tr>
 								</thead>
 								<tbody>
 								<?php
+								$baseParams = array(
+										'userId' => $_SESSION['mixer_id'],
+										'btnType' => 'mini',
+										'displayType' => 'icon',
+										'action'=>'approveCommunity', 
+										'content'=>'thumbs-up', 
+										'state'=>'primary', 
+										'confirm' => true);
+
 								foreach ($pendingCommunities as $community) {
-									echo "<tr>";
+									echo "<tr id=\"notice-".$community->Slug."\">";
 										echo "<th scope=\"row\">$community->Name</th>";
 										echo "<td>$community->Slug</td>";
 										echo "<td>$community->FounderName</td>";
 										echo "<td>$community->CategoryName</td>";
 										echo "<td>".date('M. d, Y', strtotime($community->RequestTime))."</td>";
 										echo "<td>$community->Summary</td>";
+										echo "<td>$community->Description</td>";
+										echo "<td>";
+										echo action_button(array_merge($baseParams, array('communityId'=>$community->ID)));
+										echo "</td>";
 									echo "</tr>";
 								} ?>
 								</tbody>
@@ -157,7 +173,7 @@
 					<?php 
 						$itemCount = 0;
 						foreach ($pendingCommunities as $community) { ?>
-						<div class="infoBox">
+						<div class="infoBox" id="process-<?php echo $community->Slug; ?>">
 							<h4 class="infoHeader"><?php echo $community->Name; ?></h4>
 							<div class="infoInterior">
 								<p>Requested By: <a href="/user/<?php echo $community->FounderName; ?>" target="_blank"><?php echo $community->FounderName; ?></a> on <?php echo date('F d, Y', strtotime($community->RequestTime)); ?></p>
@@ -167,7 +183,7 @@
 										'class' => 'communityApproval'
 									);
 									$hidden = array(
-										'commId' => $community->ID,
+										'communityId' => $community->ID,
 										'siteAdmin' => $_SESSION['mixer_id']
 									);
 									echo form_open('servlet/communityApproval', $attributes, $hidden);

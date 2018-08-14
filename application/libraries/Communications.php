@@ -37,7 +37,7 @@ class Communications {
 				break;
 
 			case 'mods':
-				$addressees = null;
+				$addressees = $this->getCommunityModsEmailAddresses($msgParams['communityId']);
 				break;
 
 			case 'user':
@@ -88,9 +88,34 @@ class Communications {
 				$msgData->message .= "We regret to inform you that your request for ".$params['communityName']." was denied! It could have been for a variety of reasons. Maybe there's a similar community. Maybe it included something inappropriate. Maybe the winds of fate are not in your favor. Either way, the Admin who processed your request left this note:\n\n".$params['adminNote']."\n\nYou won't be allowed to make a new community until you've deleted your current request. Please log in to MixMingler at your earliest convenience and do so. Once you do, you are free to try again. But please note that repeated efforts to request a community admins have denied can lead to being banned from creating communities.";
 				break;
 
+			case "newMember":
+				$msgData->subject .= $params['requester']." has joined ".$params['communityName'];
+				$msgData->message .= "Look out ".$params['communityName']."! It would appear that a wild \"".$params['requester']."\" appeared. It used Join Community! It's super effective!";
+				break;
+
 			case "pendingMember":
 				$msgData->subject .= $params['communityName']." has a new member request!";
 				$msgData->message .= "It would appear that someone named \"".$params['requester']."\" is trying to join ".$params['communityName']."! Since you're either the admin or a moderator of that community, you'll need to log in and approve or deny their membership from the Moderator page.";
+				break;
+
+			case 'approvedMembership':
+				$msgData->subject .= "You have been approved to join ".$params['communityName'];
+				$msgData->message .= "It would seem that your request to join ".$params['communityName']." has been accepted! You are now a full-fledged member of that community. Go and have fun with your new stream crew!";
+				break;
+
+			case 'deniedMembership':
+				$msgData->subject .= "Your request to join ".$params['communityName']. "has been denied";
+				$msgData->message .= "Alas, your request to join ".$params['communityName']." has been denied! We're sorry that the community didn't accept you. BUT HEY! There are still plenty of awesome communities on MixMingler to explore and join. Heck, you could even create your own and reject the snobs who thought you weren't good enough!";
+				break;
+
+			case 'newMod':
+				$msgData->subject .= $params['requester']." is now a Moderator of ".$params['communityName'];
+				$msgData->message .= $params['communityName']."'s Moderation Team is now a bit bigger now that ".$params['requester']." has joined the crew! Good luck out there Mod Squad!";
+				break;
+
+			case "removedMod":
+				$msgData->subject .= $params['requester']." has been removed as Moderator of ".$params['communityName'];
+				$msgData->message .= $params['requester']." has been excised as a member of the moderation team for ".$params['communityName'].". We hope it was mutual, but if you have any issues, please let the Site Admins know.";
 				break;
 		}
 		$msgData->message .= "\n\nHappy Streaming!\n- The MixMingler Team";				
@@ -105,8 +130,18 @@ class Communications {
 		return $query->result();
 	}
 
-	private function getCommunityModsEmailAddresses() {
-
+	private function getCommunityModsEmailAddresses($communityId) {
+		$query = $this->db
+			->select('Username, Email')
+			->from('Users')
+			->join('UserCommunities', 'UserCommunities.MixerID=Users.ID')
+			->where('UserCommunities.CommunityID', $communityId)
+			 	->group_start()
+					->where('UserCommunities.MemberState', 'mod')
+					->or_where('UserCommunities.MemberState', 'admin')
+				->group_end()
+			->get();
+		return $query->result();
 	}
 
 	private function getSingleUserEmailAddress($mixerID) {

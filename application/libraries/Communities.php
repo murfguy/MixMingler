@@ -40,7 +40,6 @@ class Communities {
 	}
 
 
-
 	public function getOnlineMembersFromMixer($members) {
 		// Check status of all members from Mixer API
 		$url = "https://mixer.com/api/v1/channels?limit=100&fields=id,userId,token,online,viewersTotal,viewersCurrent,numFollowers,type&where=token:in:";
@@ -108,6 +107,19 @@ class Communities {
 			WHERE CommunityID=? AND MemberState = ? 
 			ORDER BY $sortOn $direction";
 		$query = $this->CI->db->query($sql_query, array($communityId, $group));
+		return $query->result();
+	}
+
+	public function getAllCommunityMemberStates($communityId) {
+		$query = $this->db
+			->select('*')
+			->select('GROUP_CONCAT(UserCommunities.MemberState) as MemberStates')
+			->from('UserCommunities')
+			->join('Users', 'Users.ID = UserCommunities.MixerID')
+			->where('UserCommunities.CommunityID', $communityId)
+			->group_by('UserCommunities.MixerID')
+			->order_by('Users.Username', 'ASC')
+			->get();
 		return $query->result();
 	}
 

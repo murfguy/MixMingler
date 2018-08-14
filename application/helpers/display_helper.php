@@ -158,10 +158,9 @@ if ( ! function_exists('action_button')) {
 
 			$str = '<button';
 				if ($params['disabled']) { 
-					$str .=' disabled class="btn'; 
-				} else {
-					$str.= ' class="action btn';
+					$str .=' disabled'; 
 				}
+				$str.= ' class="action btn';
 
 				if ($params['confirm']) { $str .=' confirm'; }
 				if (!empty($params['size'])) { $str .=' btn-'.$params['size']; }
@@ -174,6 +173,9 @@ if ( ! function_exists('action_button')) {
 			if (!empty($params['userId'])) { $str .=' userId="'.$params['userId'].'"'; }
 			if (!empty($params['typeId'])) { $str .=' typeId="'.$params['typeId'].'"'; }
 			if (!empty($params['btnType'])) { $str .=' btnType="'.$params['btnType'].'"'; }
+
+			if (!empty($params['tooltip'])) {
+			$str .= ' data-toggle="tooltip" title="'.$params['tooltip'].'"';	}
 
 
 			$str .= '>'; // end of <button>

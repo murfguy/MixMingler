@@ -39,7 +39,10 @@
 
 				foreach ($members as $member) {
 					echo "<div class=\"\">";
-					echo "<a href=\"/user/".$member->Username."\" data-toggle=\"tooltip\" title=\"Followers: ".number_format($member->NumFollowers)."\"><img class=\"avatar thin-border\" src=\"".$member->AvatarURL."\" width=\"25px\">".$member->Username."</a>";
+					echo userListLink(['Username'=>$member->Username, 'AvatarURL'=>$member->AvatarURL]);
+
+
+					//echo "<a href=\"/user/".$member->Username."\" data-toggle=\"tooltip\" title=\"Followers: ".number_format($member->NumFollowers)."\"><img class=\"avatar thin-border\" src=\"".$member->AvatarURL."\" width=\"25px\">".$member->Username."</a>";
 					
 					if ($member->ID == $community->Founder) {
 						echo ' <i class="fas fa-star" style="color: gold"></i>';
@@ -66,63 +69,49 @@
 
 		<div class="col-3">
 			<div>
-
+				<p>
 				<?php 
 					if ($currentUser != null) {
 
+						$baseParams = ['displayType' => 'text','size' => 'sm','communityId'=>$community->ID, 'userId'=> $_SESSION['mixer_id']];
+
 						if ($community->Admin != $_SESSION['mixer_id']) {
 							if ($currentUser->isMod) { ?>
-								<button type="button" data-toggle="tooltip" id="moderateLink" title="Moderate this community." onclick="window.location.href = '/community/<?php echo $community->slug; ?>/mod';" class="btn btn-sm btn-primary">Moderate Community</a>
+								<button type="button" data-toggle="tooltip"  title="Moderate this community." onclick="window.location.href = '/community/<?php echo $community->Slug; ?>/mod';" class="btn btn-sm btn-primary">Moderate Community</button><br>
 							<?php }
 
-								if ($currentUser->isMember) { ?>
-									<button type="button" class="action confirm btn btn-sm btn-danger" action="leaveCommunity" communityId="<?php echo $community->ID; ?>" userId="<?php echo $_SESSION['mixer_id']; ?>">Leave</button>
-									<?php
-								} else { 
-									if ($currentUser->isBanned) {
-										$params = [
-											'displayType' => 'text',
-											'content' => 'Banned',
-											'state' => 'dark',
-											'disabled' => true,
-											'size' => 'sm'
-										];
-										echo action_button($params);
-									} else {
-										if ($community->status == 'closed') {
-											//echo "secondary\" disabled>Closed</button>";
-											?><button type="button" class="btn btn-sm btn-secondary" action="joinCommunity" communityId="<?php echo $community->ID; ?>" userId="<?php echo $_SESSION['mixer_id']; ?>" disabled>Closed</button><?php
-										} else {
-											if ($currentUser->isPending) {
-												//echo "info\" id=\"unpend\">Pending</button>";
-												?><button type="button" class="action confirm btn btn-sm btn-info" action="unpendCommunity" communityId="<?php echo $community->ID; ?>" userId="<?php echo $_SESSION['mixer_id']; ?>"><i class="fas fa-circle-notch fa-spin"></i> Pending</button><?php
-											} else {
-												//echo "primary\" id=\"join\" >Join</button>";
-												?><button type="button" class="action btn btn-sm btn-primary" action="joinCommunity" communityId="<?php echo $community->ID; ?>" userId="<?php echo $_SESSION['mixer_id']; ?>">Join</button><?php
-											}
-										}
-									}
-									
+								if ($currentUser->isMember) { 
+									$buttonParams = ['content' => 'Leave', 'state' => 'danger', 'confirm' => true, 'action' => 'leaveCommunity'];} 
+								elseif ($currentUser->isBanned) {
+									$buttonParams = ['content' => 'Banned', 'state' => 'dark', 'disabled' => true]; } 
+								elseif ($community->Status == 'closed') {
+									$buttonParams = ['content' => 'Closed','state' => 'secondary','disabled' => true];} 
+								elseif ($currentUser->isPending) {
+									$buttonParams = ['content' => '<i class="fas fa-circle-notch fa-spin"></i> Pending','state' => 'info','confirm' => true, 'action' => 'unpendCommunity'];} 
+								elseif ($community->isApprovalRequired) {
+									$buttonParams = ['content' => 'Ask to Join','state' => 'info','confirm' => false, 'action' => 'joinCommunity'];}
+								else {
+									$buttonParams = ['content' => 'Join','state' => 'primary','confirm' => false, 'action' => 'joinCommunity'];} 
 
-								}
+								echo action_button(array_merge($baseParams, $buttonParams));
 							 
 
-							if ($currentUser->isFollower) { ?>
-								<button type="button" class="action confirm btn btn-sm btn-danger" action="unfollowCommunity" communityId="<?php echo $community->ID; ?>" userId="<?php echo $_SESSION['mixer_id']; ?>">Unfollow</button><?php
-							} else {?>
-								<button type="button" class="action btn btn-sm btn-primary" action="followCommunity" communityId="<?php echo $community->ID; ?>" userId="<?php echo $_SESSION['mixer_id']; ?>">Follow</button><?php
-							
-							}
+							if ($currentUser->isFollower) { 
+								$buttonParams = ['content' => 'Unfollow','state' => 'danger','confirm' => true, 'action' => 'unfollowCommunity'];}
+								else { $buttonParams = ['content' => 'Follow','state' => 'primary','confirm' => false, 'action' => 'followCommunity']; }
+
+							echo action_button(array_merge($baseParams, $buttonParams));
 
 							
 						} else { ?>
-							<button type="button" data-toggle="tooltip" id="moderateLink" title="Moderate this community." onclick="window.location.href = '/community/<?php echo $community->Slug; ?>/mod';" class="btn btn-sm btn-primary">Moderate Community</button>
+							<br><button type="button" data-toggle="tooltip" id="moderateLink" title="Moderate this community." onclick="window.location.href = '/community/<?php echo $community->Slug; ?>/mod';" class="btn btn-sm btn-primary">Moderate Community</button>
 						<?php }
 
 						
 					}
 
 				?>
+				</p>
 			</div>
 
 			<div class="infoBox">

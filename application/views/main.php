@@ -1,6 +1,6 @@
 <main role="main" class="container">
 	<div class="pageHeader">
-		<h1><img src="<?php echo $user->AvatarURL; ?>" onerror="<?php echo imgBackup('streamer'); ?>" class="avatar thin-border" width="60" />Welcome <?php echo $user->Username; ?></h1>
+		<h1><img src="<?php echo $user->AvatarURL; ?>" <?php echo imgBackup('streamer'); ?> class="avatar thin-border" width="60" />Welcome <?php echo $user->Username; ?></h1>
 	</div>
 
 	<div class="alert alert-success">
@@ -11,7 +11,7 @@
 	<div class="row">
 		<div class="col-3 userInfo">
 			
-			<?php if (!empty($alerts)) { print_r($alerts); ?> 
+			<?php if (!empty($alerts)) { ?> 
 
 			<div class="infoBox">
 				<h4 class="infoHeader bg-danger">Alerts <i class="fas fa-bell"></i></h4>

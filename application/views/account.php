@@ -183,14 +183,16 @@
 										if ($states['isBanned']) { $joinParams = [
 											'disabled'=>true,'content'=>'ban','state'=>'dark'];}  
 										// Or community is closed?
-										elseif ($community->status == 'closed') { $joinParams = [
-											'disabled'=>true,'content'=>'minus-circle','state'=>'danger']; }
+										elseif ($community->Status == 'closed') { $joinParams = [
+											'disabled'=>true,'content'=>'minus-circle','state'=>'danger', 'tooltip'=>'Community is Closed']; }
 										// Of membership is pending?
 										elseif ($states['isPending']) { $joinParams = [
-											'disabled'=>false,'content'=>'circle-notch fa-spin','state'=>'info','action'=>'unpendCommunity','confirm'=>true]; }
+											'disabled'=>false,'content'=>'circle-notch fa-spin','state'=>'info','action'=>'unpendCommunity','confirm'=>true, 'tooltip'=>'Your Request is Pending']; }
+										elseif ($community->isApprovalRequired) { $joinParams = [
+											'disabled'=>false,'content'=>'question-circle','state'=>'info','action'=>'joinCommunity', 'tooltip'=>'Requires Approval']; }	
 										// Or nothing getting in the way, so user can join?
 										else {$joinParams = [
-											'disabled'=>false,'content'=>'times','state'=>'primary','action'=>'joinCommunity'];}
+											'disabled'=>false,'content'=>'times','state'=>'primary','action'=>'joinCommunity', 'tooltip'=>'Join Community'];}
 									}
 
 									// Get parameters for followed state button
@@ -213,7 +215,7 @@
 											$coreParams = ['disabled'=>false,'confirm'=>false,'state'=>'primary','content'=>'thumbs-up','action'=>'setAsCore'];
 										}
 									} else {
-										$coreParams = ['disabled'=>true,'confirm'=>false,'state'=>'danger','content'=>'minus-circle','action'=>null];
+										$coreParams = ['disabled'=>true,'confirm'=>false,'state'=>'danger','content'=>'minus-circle','action'=>'setAsCore'];
 									}
 
 									?>
