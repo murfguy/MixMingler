@@ -145,19 +145,20 @@ class Version {
 		$patch = new stdClass();
 		$patch->version = "0.2.2";
 		$patch->date = date($date_string, strtotime('2018-08-01'));
-		$patch->notes = array();
-		$patch->notes[] = "UX tweak: Shows active type list if user is not following any types.";
-		$patch->notes[] = "UX tweak: Alerts and Confirmations occur when users interact with server operations.";
-		$patch->notes[] = "Backend: refactored server operations to better align with alert/confirm prompts";
-		$patch->notes[] = "Account Page: UI adjustments";
-		$patch->notes[] = "Account Page: Manage communities";
-		$patch->notes[] = "Account Page: Set/Unset Core Communities";
-		$patch->notes[] = "Login: Mixer email address synced upon login.";
-		$patch->notes[] = "Community Moderation: Manage Users (approve/deny/kick/ban/promote)"; // NOTE: need to restrict promotion to admins only.
-		//$patch->notes[] = "Email Notices: Site Admins - New Community Request Received";
-		//$patch->notes[] = "Email Notices: Community Mods - New Community Request Submitted";
-		//$patch->notes[] = "Email Notices: Community Mods - New Community Request Approved";
-		//$patch->notes[] = "Email Notices: Community Mods - New Community Request Deniued";
+		$patch->notes = array(
+			"General/Backend: Complete overhaul to database structure and refactoring of associated server communication functions. (AKA: why this update took 3 weeks)",
+			"Types List: UX tweak: Shows active type list if user is not following any types.",
+			"General UX Update: Alerts and Confirmation prompts appear when communicating with backend.",
+			"General: UI adjustments for sub page navigation",
+			"General UI: icons may appear next to community lists to indicate your role in that community.",
+			"Home Page: Panel with alerts related to pending community requests now appears.",
+			"Account Page: Manage communities + Set/Unset Core Communities",
+			"Community Moderation: Manage Users (approve/deny/kick/ban/promote)",
+			"Login: Mixer email address synced upon login.",
+			"Email Notice: Site Admins - New Community Request Received",
+			"Email Notice: Community Mods - New Community Request Submitted",
+			"Email Notice: Community Mods - New Community Request Approved",
+			"Email Notice: Community Mods - New Community Request Denied");
 		//$patch->notes[] = "Email Notices: Community Mods - New Member Request Received";
 		$patchNotes[] = $patch;
 

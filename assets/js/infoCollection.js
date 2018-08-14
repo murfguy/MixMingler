@@ -76,10 +76,10 @@ function getTypeNewsFeed(target) {
 
 					if(json.success) {
 						//newsDiv.prepend("<>Collected news!</p>");
-						newsCount = json.newsFeed.length;
+						newsCount = json.displayItems.length;
 
 						for (i = 0; i<newsCount; i++) {
-							newsDiv.append(json.newsFeed[i]);
+							newsDiv.append(json.displayItems[i]);
 						}
 
 					} else {

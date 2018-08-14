@@ -29,7 +29,7 @@ class Servlet extends CI_Controller {
 	// --- Join/Follow Community Functions --------------------------- 
 	// ---------------------------------------------------------------
 
-	public function joinCommunity() {
+	/*public function joinCommunity() {
 		$this->returnData->requestedAction = "joinCommunity";
 
 		if (!empty($_POST['userId']) && !empty($_POST['communityId'])) {
@@ -328,7 +328,7 @@ class Servlet extends CI_Controller {
 			$this->returnData->message = "No user or community id was provided.";
 		}
 		$this->returnData();
-	}
+	}*/
 
 	public function changeCommunityStatus() {
 		$this->returnData->requestedAction = "changeCommunityStatus";
@@ -481,7 +481,7 @@ class Servlet extends CI_Controller {
 	// --- Core Community Functions ---------------------------------- 
 	// ---------------------------------------------------------------
 
-	public function setAsCore() {
+	/*public function setAsCore() {
 		$this->returnData->requestedAction = "setAsCore";
 
  		// If user is logged in
@@ -501,7 +501,7 @@ class Servlet extends CI_Controller {
 				// And now we collect relevant data to our target user.
 				$sql_query = "SELECT name_token, coreCommunities FROM mixer_users WHERE mixer_id=?";
 				$query = $this->db->query($sql_query, array($mixer_id));
-				$member = null; if (!empty($query->result())) { $member = $query->result()[0]; };*/
+				$member = null; if (!empty($query->result())) { $member = $query->result()[0]; };*
 
 
 				$sql_query = "SELECT C.admin, C.long_name, M.name_token, M.email, GROUP_CONCAT(UC.MemberState) as states
@@ -600,7 +600,7 @@ class Servlet extends CI_Controller {
 			$this->returnData->message = "User must be logged in.";
 		}
 		$this->returnData();
-	}
+	}*/
 
 	// --------------------------------------------------------------- 
 	// --- Follow/Ignore Type Functions ------------------------------ 
@@ -857,20 +857,6 @@ class Servlet extends CI_Controller {
 	// --- Site Admin Functions -------------------------------------- 
 	// ---------------------------------------------------------------
 
-	/*private function verifyPermissionCriteria($criteriaType) {
-		switch ($criteriaType) {
-			case "loggedIn":
-				$this->returnData->message = "You are not logged in.";
-				return (isset($_SESSION['mixer_id']));
-				break;
-
-			case "isAdmin":
-				$this->returnData->message = "You do not have permission to perform this action."
-				return (in_array($_SESSION['site_role'], array('owner','admin','dev')));
-				break;
-		}
-	}*/
-
 	public function applyUserRole() {
 		$this->returnData->requestAction = "applyUserRole";
 
@@ -1078,7 +1064,8 @@ class Servlet extends CI_Controller {
 						// Found community!
 						$data = array(
 							'Status' => $_POST['status'], 
-							'isApprovalRequired' => $requireApproval);
+							'isApprovalRequired' => $requireApproval,
+							'FoundationTime' => date("Y-m-d H:i:s"));
 						$this->db->where('ID', $_POST['commId']);
 						$this->db->update('Communities', $data);
 
@@ -1093,7 +1080,7 @@ class Servlet extends CI_Controller {
 							'MessageParams' => array($_POST['commId']));
 						$this->news->addNews($_POST['mixerUser_id'], "foundedCommunity", "community", $newsParams);
 					} else {
-						$this->returnData->message = "Community is $community->Status and cannot be founded.";
+						$this->returnData->message = "Community's status is '$community->Status' and cannot be founded.";
 					}
 				} else {
 					// insufficient role
@@ -1409,12 +1396,14 @@ class Servlet extends CI_Controller {
 		$typeNews = $this->news->getTypeNewsFeed($typeId);
 
 		if (!empty($typeNews)) {
-			$gameNewsDisplayItems = array();
+			$displayItems = array();
 			foreach($typeNews as $event) {
-				$gameNewsDisplayItems[] = $this->news->getNewsDisplay($event, "", "condensed");
+				$eventText = $this->news->getFormattedEventText($event);
+				$displayItems[] = newsDisplay($event, $eventText);
 			}
 			$this->returnData->success = true;
-			$this->returnData->newsFeed = $gameNewsDisplayItems;
+			$this->returnData->newsFeed = $typeNews;
+			$this->returnData->displayItems = $displayItems;
 			$this->returnData->message = "News was collected!";
 		} else {
 			$this->returnData->message = "There was no news to collect.";

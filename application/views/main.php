@@ -49,13 +49,13 @@
 				<h4 class="infoHeader">Communities You Follow</h4>
 				<div class="infoInterior">
 					<?php
-						/*if (!empty($communitiesData->followed)) {
-							foreach ($communitiesData->followed as $community) {
-								echo "<p><a href=\"/community/$community->Slug\">$community->Name</a></p>";
+						if (!empty($communities->follower)) {
+							foreach ($communities->follower as $community) {
+								echo '<p>'.communityListLink($community).'</p>';
 							}
 						} else {
 							echo "<p>You haven't followed any communities.</p>";
-						}*/
+						}
 					?>
 					<p class="devNote" data-toggle="tooltip" title="Planned for v0.3" data-placement="left">[Planned Feature] Toggleable views of "Community" based news.</p>
 				</div>
@@ -65,10 +65,10 @@
 				<h4 class="infoHeader">Games You Follow</h4>
 				<div class="infoInterior">
 					<?php 
-						/*if (!empty($followedTypes)) {	
+						if (!empty($mixerTypeData)) {	
 						echo "<p>Click icons to show news for that game.</p>";	
 						echo "<div class=\"icons row\">";
-							foreach ($followedTypes as $type) {
+							foreach ($mixerTypeData as $type) {
 								if (empty($type['coverUrl'])) { $type['coverUrl'] = 'https://mixer.com/_latest/assets/images/main/types/default.jpg'; }
 								echo "<div class=\"miniTypeInfo \"><a class=\"newsToggle\" data-newstype=\"typeNews\" data-typeid=\"".$type['id']."\"><img class=\"miniCover";
 
@@ -81,9 +81,24 @@
 							echo "</div>";
 						} else {
 							echo "<p>You haven't followed any games yet!</p>";
-						}*/
+						}
 					?>
 				</div><!-- .infoInterior -->
+			</div><!-- .infoBox -->
+
+			<div class="infoBox">
+				<h6 class="infoHeader">New Communities!</h6>
+				<div class="infoInterior">
+					<?php
+					if (!empty($newCommunities)) {
+						foreach ($newCommunities as $community) {
+								echo '<p>'.communityListLink($community).'</p>';
+						}
+					} else {
+						echo "<p>No new communities.</p>";
+					}
+					?>
+				</div> <!-- .infoInterior -->
 			</div><!-- .infoBox -->
 
 			<div class="infoBox">
@@ -103,16 +118,16 @@
 						if (!empty($followedTypes)) {	
 							foreach ($followedTypes as $type) { ?>
 								
-								<div class="newsFeed gamesFeed" id="typeNews-<?php echo $type['id']; ?>">
-									<h3><a href="/type/<?php echo $type['id']."/".$slugs[$type['id']]; ?>"><?php echo $type['name']; ?></a></h3>
-									<div class="topStreams" id="type-<?php echo $type['id']; ?>">
+								<div class="newsFeed gamesFeed" id="typeNews-<?php echo $type->ID; ?>">
+									<h3><a href="/type/<?php echo $type->ID."/". $type->Slug; ?>"><?php echo $type->Name; ?></a></h3>
+									<div class="topStreams" id="type-<?php echo $type->ID; ?>">
 										<div class="spinner type alert alert-warning">
 											<p><i class="fas fa-circle-notch fa-spin"></i> Checking Mixer for top streams. One moment please.</p>
 										</div><!-- alert -->
 									</div><!-- .topStreams -->
 
 									<h3>Recent Activity</h3>
-									<div class="typeNews" id="news-<?php echo $type['id']; ?>">
+									<div class="typeNews" id="news-<?php echo $type->ID; ?>">
 										<div class="spinner news alert alert-warning">
 											<p><i class="fas fa-circle-notch fa-spin"></i> Checking MixMingler for recent news. One moment please.</p>
 										</div><!-- alert -->
@@ -148,16 +163,13 @@
 			
 			<?php
 			//$modCommunities = null;
-			if (!empty($modCommunities)) { ?>
+			if (!empty($communities->manager)) { ?>
 			<div class="infoBox">
-				<h6 class="infoHeader">Communities You Mod</h4>
+				<h6 class="infoHeader">Communities You Manage</h6>
 				<div class="infoInterior">
-						<?php	foreach ($modCommunities as $community) {
-								echo "<p><a href=\"/community/$community->Slug/mod\">$community->Name</a> ";
-								if ($community->admin == $_SESSION['mixer_id']) { ?>
-									<i class="fas fa-crown" style="color: gold; font-size: 70%"></i>
-								<?php }
-								echo "</p>";
+						<?php	foreach ($communities->manager as $community) {
+								echo '<p>'.communityListLink($community, true).'</p>';
+							
 							}
 					?>
 				</div>
@@ -168,9 +180,9 @@
 				<h6 class="infoHeader">Core Communities</h4>
 				<div class="infoInterior">
 					<?php
-						if (!empty($communitiesData->core)) {
-							foreach ($communitiesData->core as $community) {
-								echo "<p><a href=\"/community/$community->Slug\">$community->Name</a></p>";
+						if (!empty($communities->core)) {
+							foreach ($communities->core as $community) {
+								echo '<p>'.communityListLink($community).'</p>';
 							}
 						} else {
 							echo "<p>You haven't marked any core communities.</p>";
@@ -182,9 +194,9 @@
 				<h6 class="infoHeader">Your Communities</h4>
 				<div class="infoInterior">
 					<?php
-						if (!empty($communitiesData->joined)) {
-							foreach ($communitiesData->joined as $community) {
-								echo "<p><a href=\"/community/$community->Slug\">$community->Name</a></p>";
+						if (!empty($communities->member)) {
+							foreach ($communities->member as $community) {
+								echo '<p>'.communityListLink($community).'</p>';
 							}
 						} else {
 							echo "<p>You haven't joined any communities.</p>";
@@ -193,20 +205,7 @@
 				</div>
 			</div>
 
-			<div class="infoBox">
-				<h6 class="infoHeader">New Communities!</h6>
-				<div class="infoInterior">
-					<?php
-					if (!empty($communitiesData->new)) {
-						foreach ($communitiesData->new as $community) {
-							echo "<p><a href=\"/community/$community->Slug/\">$community->Name</a></p>";
-						}
-					} else {
-						echo "<p>No new communities.</p>";
-					}
-					?>
-				</div> <!-- .infoInterior -->
-			</div><!-- .infoBox -->
+			
 		</div>
 	</div><!-- .row -->
 </main>

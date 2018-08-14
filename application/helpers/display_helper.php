@@ -17,6 +17,28 @@ if ( ! function_exists('userListLink')) {
 	}
 }
 
+if ( ! function_exists('communityListLink')) {
+	function communityListLink($community, $mod=false) {
+		$str = '<a href="/community/'.$community->Slug;
+		if ($mod) { $str.="/mod/"; }
+		$str .= '"> '.$community->Name;
+		$str .= '</a>';
+
+		if (!empty($community->MemberStates)) {
+
+			$states = getMemberStateBooleans($community->MemberStates);
+				$str .= roleBadge('banned', $states['isBanned']);
+				$str .= roleBadge('founder', $states['isFounder']);
+				$str .= roleBadge('admin', $states['isAdmin']);
+				$str .= roleBadge('moderator', $states['isModerator']);
+				$str .= roleBadge('core', $states['isCore']);
+		} 
+
+
+		return $str;
+	}
+}
+
 if ( ! function_exists('roleBadge')) {
 	function roleBadge($role, $isRole) {
 		$str = "";
@@ -189,11 +211,7 @@ if ( ! function_exists('imgBackup')) {
 }
 
 if ( ! function_exists('newsDisplay')) {
-	function newsDisplay($params = array()) {
-		if (!empty($params)) {
-
-		} else {
-			return '<p class="display-error">Bad news data.</p>';
-		}
+	function newsDisplay($newsData, $eventText, $size = 'med') {
+		return "<p>$eventText</p>";
 	}
 }

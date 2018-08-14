@@ -165,9 +165,9 @@ class Types {
 			$content = file_get_contents($url.$urlParameters."&page=".$currentPage);
 			$newList = json_decode($content, true);
 
-			/*foreach ($newList as $type) {
-				$type['slug'] = $this->createSlug($type['name']);
-			}*/
+			foreach ($newList as $type) {
+				$type['slug'] = createSlug($type['name']);
+			}
 
 			$allTypes = array_merge($allTypes, $newList);
 
@@ -182,15 +182,6 @@ class Types {
 	}
 
 	public function getRecentStreamsForType($typeId) {
-		/*$sql_query = "SELECT *, 
-		(SELECT name_token FROM mixer_users WHERE mixer_users.mixer_id=timeline_events.mixer_id) as username, 
-		(SELECT avatarUrl FROM mixer_users WHERE mixer_users.mixer_id=timeline_events.mixer_id) as avatarUrl, 
-		MAX(eventTime) as eventTime 
-		FROM timeline_events 
-		WHERE eventType='type' AND extraVars=? AND eventTime > DATE_SUB(NOW(), INTERVAL 7 DAY) GROUP BY timeline_events.mixer_id ORDER BY eventTime DESC LIMIT 0, 50";*/
-		//$query = $this->CI->db->query($sql_query, array($typeId));
-		//$feedData = $query->result();
-
 		$query = $this->db
 			->select('TimelineEvents.*')
 			->select('Users.Username as Username')
@@ -203,8 +194,6 @@ class Types {
 			->where('EventTime > DATE_SUB(NOW(), INTERVAL 7 DAY)')
 			->group_by('MixerID')
 			->get();
-
-
 		return $query->result();
 	}
 
@@ -235,7 +224,7 @@ class Types {
 		}
 
 		$sql_query = "INSERT IGNORE INTO StreamTypes (ID, Name, Slug, CoverURL, BackgroundURL) VALUES (?, ?, ?, ?, ?)";
-		$query = $this->CI->db->query($sql_query, array($typeData['id'], $typeData['name'], $this->createSlug($typeData['name']), $typeData['coverUrl'], $typeData['backgroundUrl']));
+		$query = $this->CI->db->query($sql_query, array($typeData['id'], $typeData['name'], createSlug($typeData['name']), $typeData['coverUrl'], $typeData['backgroundUrl']));
 	}
 
 	public function getEmptyType() {
@@ -250,11 +239,11 @@ class Types {
 	}
 	
 
-	public function createSlug($typeName) {
+	/*public function createSlug($typeName) {
 		$typeName = preg_replace('/[^a-zA-Z0-9\-\s]/', '', $typeName); // removes non-alphanumeric characters except space and dash
 		$typeName = preg_replace('/[\-\s]/', '_', $typeName); // converts spaces and dashes to underscores
 		return strtolower($typeName); // returns slugged version, lower case
-	}
+	}*/
 
 	public function getTypeURL($typeId, $typeSlug) {
 		return "/type/$typeId/$typeSlug/";
@@ -268,7 +257,7 @@ class Types {
 		$query_data = array(
 			'ID' => $type['id'],
 			'Name' => $type['name'],
-			'Slug' => $this->createSlug($type['name']),
+			'Slug' => createSlug($type['name']),
 			'CoverUrl' => $type['coverUrl'],
 			'BackgroundUrl' => $type['backgroundUrl']
 		);
@@ -285,7 +274,7 @@ class Types {
 		return array(
 			'id' => $type['id'],
 			'name' => $type['name'],
-			'slug' => $this->createSlug($type['name']),
+			'slug' => createSlug($type['name']),
 			'online' => $this->CI->tools->formatNumber($type['online']),
 			'viewersCurrent' => $this->CI->tools->formatNumber($type['viewersCurrent']),
 			'coverUrl' => $type['coverUrl'],

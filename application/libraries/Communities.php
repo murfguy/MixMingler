@@ -69,9 +69,14 @@ class Communities {
 	}
 
 
-	public function getNewCommunities($timeStamp) {
-		$sql_query = "SELECT * FROM Communities WHERE FoundationTime > ? OR FoundationTime > DATE_SUB(now(), INTERVAL 14 DAY)";
-		$query = $this->CI->db->query($sql_query, array($timeStamp));
+	public function getNewCommunities($timestamp) {
+		$query = $this->db
+			->select('*')
+			->from('Communities')
+			->where('FoundationTime > ', $timestamp)
+			->or_where('FoundationTime > DATE_SUB(now(), INTERVAL 14 DAY)')
+			->get();
+
 		return $query->result();
 	}
 

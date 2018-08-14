@@ -7,8 +7,6 @@ var baseActionUrl = baseURL+"/servlet/";
 
 	$('[data-toggle="tooltip"]').tooltip();
 
-	//hidePharError();
-
 	// Convert follow/ignore type buttons based on display state
 	console.log("classes: " + $("div.actionButtons.types").attr("class"));
 	if ( $("div.actionButtons.types").hasClass("followed") ) {
@@ -40,7 +38,7 @@ var baseActionUrl = baseURL+"/servlet/";
 	}
 
 
-	$("button.typeAction").click(function () {
+	/*$("button.typeAction").click(function () {
 
 		actionUrl = baseActionUrl;
 		console.log("button.typeAction:" + $(this).attr('typeId'));
@@ -117,7 +115,7 @@ var baseActionUrl = baseURL+"/servlet/";
 				console.log(json);
 				//console.log(json.message);
 			});
-	});
+	});*/
 
 	$("a.commToggle").click(function () {
 		console.log("toggle community");
@@ -167,7 +165,7 @@ var baseActionUrl = baseURL+"/servlet/";
 		}
 	});
 
-	console.log("HIDE!");
+	/*console.log("HIDE!");
 	$("a.typeToggle").click(function () {
 		console.log("toggle type view");
 		category = $(this).attr('category');
@@ -248,7 +246,7 @@ var baseActionUrl = baseURL+"/servlet/";
 					//console.log(json.message);
 				});
 		}
-	});
+	});*/
 	
 	setNewsToggles();
 	setViewToggleListeners();

@@ -221,64 +221,6 @@ function processCommunity(e, form) {
 			}
 		}
 	});
-
-
-	/*actionUrl = baseActionUrl+"approveCommunity/";
-
-	submitButton = form.children("button.setApproval" );
-	submitButton.attr('disabled', '');
-	submitButton.text("Submitting Approval");
-	submitButton.prepend('<i class="fas fa-sync fa-spin"></i> ');
-
-	console.log("actionUrl: "+ actionUrl);
-		$.ajax({
-			url: actionUrl,
-			type: "POST",
-			dataType: "json",
-			data: form.serialize()
-		})
-			.done(function (json){
-				console.log('approveCommunity - AJAX done');
-
-				submitButton = form.children("button.setApproval" );
-				parent = form.closest("div.infoBox");
-				submitButton.removeAttr('disabled');
-				submitButton.remove("i");
-
-				if (json.success) {
-					//form.after('<div class="alert alert-success">The '+json.long_name+' community was succesfully '+json.status+'.</div>');
-
-					displayAlert(parent, json.message, 'success');
-					//$("form#requestCommunity").hide();
-					//submitButton.text("Apply Role");
-					//displayAlert($( "form#requestCommunity"), json.message, 'success');
-					parent.hide();
-				} else {
-					submitButton.text("Submit Approval");
-					displayAlert(form, json.message, 'danger');
-					
-				}
-
-			}) 
-
-			.fail(function (json){
-				console.log('approveCommunity - AJAX failed');
-				displayAlert(form, 'There was an issue communicating with the server.');
-
-				submitButton = form.children("button.setApproval" );
-					submitButton.removeAttr('disabled');
-					submitButton.remove("i");
-					submitButton.text("Submit Approval");
-					
-			})
-
-			.always(function (json){
-				console.log('approveCommunity - AJAX always');
-				console.log(json);
-				
-				//
-				//console.log(json.message);
-			});*/
 }
 
 function foundCommunity(e, form) {

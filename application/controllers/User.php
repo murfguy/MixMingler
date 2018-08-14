@@ -61,7 +61,7 @@ class User extends CI_Controller {
 				}
 			}
 
-			$minglerData->LastTypeSlug = $this->types->createSlug($minglerData->LastType);
+			$minglerData->LastTypeSlug = createSlug($minglerData->LastType);
 
 			$minglerData->LastStartElapsed = getElapsedTimeString(strtotime($minglerData->LastStreamStart));
 			$minglerData->LastSeenElapsed = getElapsedTimeString(strtotime($minglerData->LastSeenOnline));		

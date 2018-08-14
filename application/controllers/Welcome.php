@@ -43,6 +43,12 @@ class Welcome extends CI_Controller {
 			$alerts['unfoundedCommunities'] = $unfoundedCommunities;
 		}
 
+		$viewData->communities = createCommunityObjects($this->users->getUsersCommunitiesInformation($_SESSION['mixer_id']));
+		$viewData->newCommunities = $this->communities->getNewCommunities($user->PreviousLogin);
+		$viewData->followedTypes = $this->users->getUserTypesInformation($_SESSION['mixer_id'], 'followed');
+		$viewData->mixerTypeData = $this->types->getSpecifiedTypesFromMixer(getTypeIDList($viewData->followedTypes));
+
+
 		/*$communitiesData = new stdClass();
 		$communitiesData->core = null;
 		$communitiesData->joined = null;
@@ -59,23 +65,23 @@ class Welcome extends CI_Controller {
 			$communitiesData->followed = $this->communities->getCommunitiesFromList($user->FollowedCommunities);
 		} */
 
-		$followedTypes = $this->types->getSpecifiedTypesFromMixer($user->FollowedTypes);
+		//$followedTypes = $this->types->getSpecifiedTypesFromMixer($user->FollowedTypes);
 
 		$gameNews = array();
 		$typeData = array();
 		$slugs = array();
 
-		foreach ($followedTypes as $type) {
-			$slugs[$type['id']] = $this->types->createSlug($type['name']);
-		}
+		//foreach ($followedTypes as $type) {
+			//$slugs[$type['id']] = $this->types->createSlug($type['name']);
+		//}
 		
 		$viewData->user = $user;
 		$viewData->alerts = $alerts;
 
 
-		$viewData->gameNews = $gameNews;
-		$viewData->followedTypes = $followedTypes;
-		$viewData->slugs = $slugs;
+		//$viewData->gameNews = $gameNews;
+		//$viewData->followedTypes = $followedTypes;
+		//$viewData->slugs = $slugs;
 
 		$this->load->view('main', $viewData);
 	}

@@ -24,8 +24,14 @@ class Type extends CI_Controller {
 			$currentUser->ignoresType = false;
 
 			$user = $this->users->getUserFromMingler($_SESSION['mixer_id']);
-			$currentUser->followedTypesIds = explode(",", $user->FollowedTypes);
-			$currentUser->ignoredTypesIds = explode(",", $user->IgnoredTypes);
+			$followedTypes = $this->users->getUserTypesInformation($_SESSION['mixer_id'], 'followed');
+			$ignoredTypes = $this->users->getUserTypesInformation($_SESSION['mixer_id'], 'ignored');
+
+			$followedTypeIDs = getTypeIDList($followedTypes);
+			$ignoredTypeIDs = getTypeIDList($ignoredTypes);
+
+			$currentUser->followedTypeIDs = $followedTypeIDs;
+			$currentUser->ignoredTypeIDs = $ignoredTypeIDs;
 
 			$currentUser = $currentUser;
 		} else {
@@ -62,9 +68,9 @@ class Type extends CI_Controller {
 			} else {
 				// If logged in
 				if (!empty($currentUser)) {
-					// See if user follows the current type
-					if (array_search($typeData->ID, $currentUser->followedTypesIds) > - 1) { $currentUser->followsType = true; }
-					if (array_search($typeData->ID, $currentUser->ignoredTypesIds) > - 1) { $currentUser->ignoresType = true; }
+					// See if user follows or ignores the current type
+					if (array_search($typeData->ID, explode(";", $followedTypeIDs)) > - 1) { $currentUser->followsType = true; }
+					if (array_search($typeData->ID, explode(";", $ignoredTypeIDs)) > - 1) { $currentUser->ignoresType = true; }
 				}
 
 				$displayData = new stdClass();
@@ -78,23 +84,22 @@ class Type extends CI_Controller {
 				$this->displayType($displayData);
 			}
 		} else {
-			// default action
+			// default action: display all types
 			$allKnownTypes = $this->types->getAllTypeIdsFromMingler();
 			$allActiveTypes = $this->types->getAllActiveTypesFromMixer();
 
 			// if user is logged in
 			if (!empty($currentUser)) {
-				$followedTypesData = $this->types->getSpecifiedTypesFromMixer(implode(";",$currentUser->followedTypesIds));
+				$mixerTypesData = $this->types->getSpecifiedTypesFromMixer($followedTypeIDs);
 
 				$followedTypeList = array();
 				$offlineFollowedTypeList = array();
-				foreach ($followedTypesData as $type) {
-					if ($type['online'] > 0) {
-						$followedTypeList[] = $this->types->formatTypeDataFromMixer($type);	
-					} else {
-						$offlineFollowedTypeList[] = $this->types->formatTypeDataFromMixer($type);
-					}
 
+				foreach ($mixerTypesData as $type) {
+					if ($type['online'] > 0) {
+						$followedTypeList[] = $this->types->formatTypeDataFromMixer($type);	} 
+						else {
+							$offlineFollowedTypeList[] = $this->types->formatTypeDataFromMixer($type);	}
 				}
 
 				$currentUser->followedTypeList = $followedTypeList;
@@ -112,7 +117,7 @@ class Type extends CI_Controller {
 
 				// If type is either followed or ignored, it shouldn't show up in the full list.
 				if ($currentUser != null) {
-					if (array_search($type['id'], $currentUser->ignoredTypesIds) > - 1) { $displayType = false; }
+					if (array_search($type['id'], explode(",", $ignoredTypeIDs)) > - 1) { $displayType = false; }
 				}
 
 				// Let's add any types we don't recognize.

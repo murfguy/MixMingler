@@ -12,6 +12,10 @@ class News {
 		$this->CI->load->database();
 		$this->CI->load->library('communities');
 		$this->CI->load->library('types');
+
+		$this->db = $this->CI->db;
+		$this->communities = $this->CI->communities;
+		$this->types = $this->CI->types;
 	}
 
 	public function addNews($mixer_id, $event, $eventType, $params = array()) {
@@ -31,8 +35,16 @@ class News {
 	}
 
 	public function getTypeNewsFeed($typeId) {
-		$sql_query = "SELECT *, (SELECT name_token FROM mixer_users WHERE mixer_users.mixer_id=timeline_events.mixer_id) as username FROM timeline_events WHERE eventType='type' AND extraVars=? ORDER BY id DESC LIMIT 0, 10";
-		$query = $this->CI->db->query($sql_query, array($typeId));
+		$query = $this->db
+			->select('TimelineEvents.*')
+			->select('Users.Username as Username')
+			->from('TimelineEvents')
+			->join('Users', 'Users.ID = TimelineEvents.MixerID')
+			->where('TimelineEvents.Type', 'type')
+			->where('TimelineEvents.TypeID', $typeId)
+			->order_by('TimelineEvents.ID', 'DESC')
+			->limit(10)
+			->get();
 
 		return $query->result();
 	}
@@ -66,8 +78,20 @@ class News {
 		return $query_data;
 	}
 
+
+	public function getFormattedEventText($newsEvent) {
+		// Add username link to item.
+		$eventText = str_replace("{username}", "<a href=\"/user/$newsEvent->Username\">$newsEvent->Username</a>", $newsEvent->Content); 
+		// Convert a {commId} string
+		$eventText = $this->convertCommunityString($eventText);
+		// Convert a {typeId} string
+		$eventText = $this->convertTypeString($eventText);
+
+		return $eventText;
+	}
+
 	public function getNewsDisplay($newsEvent, $avatar = "", $size="normal") {
-		// Convert string bits
+	/*	// Convert string bits
 
 		// Add username link to item.
 		$eventText = str_replace("{username}", "<a href=\"/user/$newsEvent->Username\">$newsEvent->Username</a>", $newsEvent->Content); 
@@ -110,7 +134,7 @@ class News {
 
 		}
 
-		return $newsContainer;
+		return $newsContainer;*/
 	}
 
 	private function getEventString($event, $params = "") {

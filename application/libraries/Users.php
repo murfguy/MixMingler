@@ -294,7 +294,9 @@ ORDER BY stream_count DESC";
 		return  $query->result();*/
 	}
 
-	public function getUserTypesInformation($mixerId) {
+	public function getUserTypesInformation($mixerId, $followState = null) {
+		if ($followState != null) { $this->db->where('UserTypes.FollowState', $followState); }
+		
 		$query = $this->db
 			->select('*')
 			->from('UserTypes')

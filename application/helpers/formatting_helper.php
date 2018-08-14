@@ -41,6 +41,14 @@ if ( ! function_exists('getElapsedTimeString')) {
 	}
 }
 
+if ( ! function_exists('createSlug')) {
+	function createSlug($typeName) {
+		$typeName = preg_replace('/[^a-zA-Z0-9\-\s]/', '', $typeName); // removes non-alphanumeric characters except space and dash
+		$typeName = preg_replace('/[\-\s]/', '_', $typeName); // converts spaces and dashes to underscores
+		return strtolower($typeName); // returns slugged version, lower case
+	}
+}
+
 /*if ( ! function_exists('removeValueFromList')) {
 	function removeValueFromList($value, $list) {
 		//Convert list list to PHP array

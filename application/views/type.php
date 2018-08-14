@@ -41,10 +41,35 @@
 					?>
 					
 					<div class="actionButtons types <?php echo $state; ?>">
+
+						<?php
+							$baseParams = [
+								'typeId' => $typeData->ID,
+								'userId' => $_SESSION['mixer_id'],
+								'displayType' => 'text'];
+
+							$followParams = ['state'=>'primary', 'action'=>'followType', 'content'=>"Follow"];
+							$ignoreParams = ['state'=>'warning', 'action'=>'ignoreType', 'content'=>"Ignore", 'confirm'=>true];
+
+							switch ($state) {
+								case "followed":
+									$followParams = ['state'=>'danger', 'action'=>'unfollowType', 'content'=>"Unfollow", 'confirm'=>true];
+									//echo action_button(array_merge($baseParams, $followParams));
+									break;
+								case "ignored":
+									$ignoreParams = ['state'=>'danger', 'action'=>'unignoreType', 'content'=>"Unignore"];
+									//echo action_button(array_merge($baseParams, $followParams));
+									break;
+							}
+
+
+							echo action_button(array_merge($baseParams, $followParams));
+							echo action_button(array_merge($baseParams, $ignoreParams));
+						?>
 						
-						<button class="action btn btn-sm btn-primary" id="follow" action="followType" typeId="<?php echo $typeData->ID; ?>" userId="<?php echo $_SESSION['mixer_id']; ?>">Follow</button>
+						<!--<button class="action btn btn-sm btn-primary" id="follow" action="followType" typeId="<?php echo $typeData->ID; ?>" userId="<?php echo $_SESSION['mixer_id']; ?>">Follow</button>
 						<button class="action btn btn-sm btn-warning" id="ignore" 
-						action="ignoreType" typeId="<?php echo $typeData->ID; ?>" userId="<?php echo $_SESSION['mixer_id']; ?>">Ignore</button>
+						action="ignoreType" typeId="<?php echo $typeData->ID; ?>" userId="<?php echo $_SESSION['mixer_id']; ?>">Ignore</button>-->
 					</div><?php
 				}
 
