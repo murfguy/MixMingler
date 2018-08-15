@@ -148,6 +148,7 @@ if ( ! function_exists('action_button')) {
 			'btnType' => 'mini',
 			'displayType' => 'icon',
 			'content' => 'chess-knight'
+			'hidden' => false
 		];*/
 
 		if (!empty($params)) {
@@ -155,6 +156,8 @@ if ( ! function_exists('action_button')) {
 			if (empty($params['confirm'])) {$params['confirm'] = false; }
 			if (empty($params['displayType'])) {$params['displayType'] = 'text'; }
 			if (empty($params['disabled'])) {$params['disabled'] = false; }
+			if (empty($params['isHidden'])) {$params['isHidden'] = false; }
+
 
 			$str = '<button';
 				if ($params['disabled']) { 
@@ -163,8 +166,10 @@ if ( ! function_exists('action_button')) {
 				$str.= ' class="action btn';
 
 				if ($params['confirm']) { $str .=' confirm'; }
+				if ($params['isHidden']) { $str .=' isHidden'; }
 				if (!empty($params['size'])) { $str .=' btn-'.$params['size']; }
 				if (!empty($params['state'])) { $str .=' btn-'.$params['state']; }
+				
 			$str .= '"'; // end of class attribute
 
 			if (!empty($params['action'])) { $str .=' action="'.$params['action'].'"'; }

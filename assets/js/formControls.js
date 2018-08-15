@@ -837,8 +837,10 @@ function updateButtonView(tgt, serverData) {
 			tgt.addClass('btn-danger confirm');
 			tgt.html('Unfollow');
 
-			$("div.actionButtons button#ignore").hide();
 			tgt.closest('tr').children('td.followState').text('Followed');
+
+			tgtIgnore = $("button[typeId='"+serverData.typeID+"'][action='ignoreType']");
+			tgtIngore.hide();
 			break;
 
 		case "unfollowType":
@@ -847,8 +849,10 @@ function updateButtonView(tgt, serverData) {
 			tgt.addClass('btn-primary');
 			tgt.html('Follow');
 
-			$("div.actionButtons button#ignore").show();
 			tgt.closest('tr').children('td.followState').text('n/a');
+
+			tgtIgnore = $("button[typeId='"+serverData.typeID+"'][action='ignoreType']");
+			tgtIgnore.show();
 			break;
 
 		case "ignoreType":
@@ -856,8 +860,12 @@ function updateButtonView(tgt, serverData) {
 			tgt.attr('action', 'unignoreType');
 			tgt.addClass('btn-danger');
 			tgt.html('Unignore');
-			$("div.actionButtons button#follow").hide();
+
 			tgt.closest('tr').children('td.followState').text('Ignored');
+
+			tgtFollow = $("button[typeId='"+serverData.typeID+"'][action='followType']");
+			tgtFollow.hide();
+
 			break;
 
 		case "unignoreType":
@@ -865,8 +873,11 @@ function updateButtonView(tgt, serverData) {
 			tgt.attr('action', 'ignoreType');
 			tgt.addClass('btn-warning confirm');
 			tgt.html('Ignore');
-			$("div.actionButtons button#follow").show();
+
 			tgt.closest('tr').children('td.followState').text('n/a');
+
+			tgtFollow = $("button[typeId='"+serverData.typeID+"'][action='followType']");
+			tgtFollow.show();
 			break;
 
 

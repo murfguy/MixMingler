@@ -54,10 +54,12 @@
 							switch ($state) {
 								case "followed":
 									$followParams = ['state'=>'danger', 'action'=>'unfollowType', 'content'=>"Unfollow", 'confirm'=>true];
+									$ignoreParams['isHidden'] = true;
 									//echo action_button(array_merge($baseParams, $followParams));
 									break;
 								case "ignored":
 									$ignoreParams = ['state'=>'danger', 'action'=>'unignoreType', 'content'=>"Unignore"];
+									$followParams['isHidden'] = true;
 									//echo action_button(array_merge($baseParams, $followParams));
 									break;
 							}
@@ -66,10 +68,6 @@
 							echo action_button(array_merge($baseParams, $followParams));
 							echo action_button(array_merge($baseParams, $ignoreParams));
 						?>
-						
-						<!--<button class="action btn btn-sm btn-primary" id="follow" action="followType" typeId="<?php echo $typeData->ID; ?>" userId="<?php echo $_SESSION['mixer_id']; ?>">Follow</button>
-						<button class="action btn btn-sm btn-warning" id="ignore" 
-						action="ignoreType" typeId="<?php echo $typeData->ID; ?>" userId="<?php echo $_SESSION['mixer_id']; ?>">Ignore</button>-->
 					</div><?php
 				}
 

@@ -117,7 +117,7 @@ class Type extends CI_Controller {
 
 				// If type is either followed or ignored, it shouldn't show up in the full list.
 				if ($currentUser != null) {
-					if (array_search($type['id'], explode(",", $ignoredTypeIDs)) > - 1) { $displayType = false; }
+					if (array_search($type['id'], explode(";", $ignoredTypeIDs)) > - 1) { $displayType = false; }
 				}
 
 				// Let's add any types we don't recognize.
