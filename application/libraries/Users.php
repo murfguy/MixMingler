@@ -364,7 +364,9 @@ ORDER BY stream_count DESC";
 				$this->db->group_start()
 							->where('Status', 'open')
 							->or_where('Status', 'closed')
-						->group_end();
+						->group_end()
+						->select('Users.Username as AdminName')
+						->join('Users', 'Users.ID = Communities.AdminApprover');
 				break;
 
 			default:
@@ -373,15 +375,12 @@ ORDER BY stream_count DESC";
 				break;
 		}
 
-		if ($status != 'pending' ||$status != "unfounded") {
+		/*if ($status != 'pending' || $status != "unfounded") {
 			$this->db->select('Users.Username as AdminName')
 			->join('Users', 'Users.ID = Communities.AdminApprover');
-		}
-
+		}*/
 
 		$query = $this->db->get();
-
-		//$query = $this->db->get('Communities', array('status' => $status, 'Founder' => $mixerID));
 		return  $query->result();
 	}
 	

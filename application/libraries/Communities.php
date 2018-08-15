@@ -17,10 +17,13 @@ class Communities {
 	}
 
 	public function getCommunity($communityID) {
-		//$sql_query = "SELECT * FROM Communities WHERE ID=$communityID";
-		//$query = $this->db->query($sql_query, array($communityID));
-
-		$query = $this->db->get_where('Communities', array('ID' => $communityID));
+		$query = $this->db
+			->select('Communities.*')
+			->from('Communities')
+			->select('CommunityCategories.Name AS CategoryName')
+			->join('CommunityCategories', 'CommunityCategories.ID = Communities.CategoryID')
+			->where('Communities.ID', $communityID)
+			->get();
 
 		if (!empty($query->result())) {
 			return $query->result()[0];

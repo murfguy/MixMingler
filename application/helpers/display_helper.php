@@ -67,27 +67,42 @@ if ( ! function_exists('roleBadge')) {
 
 
 if ( ! function_exists('card')) {
+	// Required Parameters
+		// url
+		// cover
+		// kind
+		// name
+	// optional parameters
+		// size
+		// stats
+			//.online
+			//.members
+			//.viewers
+			//.views
+			//.followers
+
 	function card($params = array()) {
 			if (empty($params)) {
 				$str = '<div class="typeInfo sml">';
 				$str .= "<p>Bad card data.</p>";
 			} else {
+				if (empty($params['category'])) { $params['category']= ""; }
+
 				if (empty($params['size'])) { 
-					$str = '<div class="typeInfo">';
+					//"';
 				} else {
-					$str = '<div class="typeInfo '.$params['size'].'">';
+					$str = $params['category'].'"';
 				}
+				$str = '<div class="typeInfo';
+				if (!empty($params['size'])) {  $str.= ' '.$params['size']; }
+				if (!empty($params['category'])) {  $str.= ' '.lcfirst($params['category']); }
+				if (!empty($params['extraClasses'])) {  
+					foreach ($params['extraClasses'] as $class) {
+						$str.= ' '.$class;	}}
 
-				$backupCovers = array(
-					'type' => "https://mixer.com/_latest/assets/images/main/types/default.jpg",
-					'stream' => "https://mixer.com/_latest/assets/images/browse/thumbnail.jpg?f877a91",
-					'streamer' => "https://mixer.com/_latest/assets/images/main/avatars/default.png",
-					'community' => "/assets/graphics/covers/blankCover.png",
-					//'stream' => "/assets/graphics/blankThumb.jpg",
-					//'streamer' => "/assets/graphics/blankAvatar.png",
-				);
+				$str .= '">';
 
-				$str .= '<a href="'.$params['url'].'"><img src="'.$params['cover'].'" onerror="this.onerror=null;this.src=\''.$backupCovers[$params['kind']].'\';" class="coverArt" /></a>';
+				$str .= '<a href="'.$params['url'].'"><img src="'.$params['cover'].'" '.imgBackup($params['kind']).'class="coverArt" /></a>';
 				$str .= '<p class="typeName"><a href="'.$params['url'].'">'.$params['name'].'</a></p>';
 			
 

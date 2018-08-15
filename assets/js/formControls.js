@@ -196,6 +196,8 @@ function processCommunity(e, form) {
 	actionData = form.serialize();
 	action = "processCommunity";
 
+	console.log("processCommunity");
+
 	data = form.serializeArray();
 	var communityName = findFormDataItem('name', data);
 	var status = findFormDataItem('status', data);

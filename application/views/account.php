@@ -210,7 +210,7 @@
 									// Get parameters for core community state button
 									if ($states['isMember']) {
 										if ($states['isCore']) {
-											$coreParams = ['disabled'=>true,'confirm'=>true,'state'=>'success','content'=>'check','action'=>'removeAsCore'];
+											$coreParams = ['disabled'=>false,'confirm'=>true,'state'=>'success','content'=>'check','action'=>'removeAsCore'];
 										} else {
 											$coreParams = ['disabled'=>false,'confirm'=>false,'state'=>'primary','content'=>'thumbs-up','action'=>'setAsCore'];
 										}
@@ -218,22 +218,24 @@
 										$coreParams = ['disabled'=>true,'confirm'=>false,'state'=>'danger','content'=>'minus-circle','action'=>'setAsCore'];
 									}
 
+									if (in_array($community->Status, ['open', 'closed']) ) {
+
 									?>
 
-								<tr>
-									<td><?php echo $community->Name; 
-										echo roleBadge('banned', $states['isBanned']);
-										echo roleBadge('founder', $states['isFounder']);
-										echo roleBadge('admin', $states['isAdmin']);
-										echo roleBadge('moderator', $states['isModerator']);
-										echo roleBadge('core', $states['isCore']); ?>
-									</td>
-									<td><?php echo action_button(array_merge($baseParams, $joinParams)); ?></td> <!-- joined state -->
-									<td><?php echo action_button(array_merge($baseParams, $followParams)); ?></td> <!-- followed state -->
-									<td><?php echo action_button(array_merge($baseParams, $coreParams)); ?></td> <!-- core state -->
-								</tr>
+									<tr>
+										<td><?php echo $community->Name; 
+											echo roleBadge('banned', $states['isBanned']);
+											echo roleBadge('founder', $states['isFounder']);
+											echo roleBadge('admin', $states['isAdmin']);
+											echo roleBadge('moderator', $states['isModerator']);
+											echo roleBadge('core', $states['isCore']); ?>
+										</td>
+										<td><?php echo action_button(array_merge($baseParams, $joinParams)); ?></td> <!-- joined state -->
+										<td><?php echo action_button(array_merge($baseParams, $followParams)); ?></td> <!-- followed state -->
+										<td><?php echo action_button(array_merge($baseParams, $coreParams)); ?></td> <!-- core state -->
+									</tr>
 
-								<?php } 
+								<?php }} 
 							} else {?>
 								<td colspan="4">You are not a part of any community.</td>
 							<?php }	?>

@@ -24,16 +24,19 @@
 		<div class="streamerList row">
 			<?php
 				if (count($communities) > 0) {
-					foreach ($communities as $community) { ?>
+					$baseParams = ['size'=>'med','kind'=>'community'];
 
-						<div class="typeInfo med">
-							<a href="/community/<? echo $community->Slug; ?>"><img src="/assets/graphics/covers/<? echo $community->Slug; ?>.jpg" onerror="this.src='/assets/graphics/covers/blankCover.png';" class="coverArt"></a>
-							<p class="typeName"><a href="/community/<? echo $community->Slug; ?>"><? echo $community->Name; ?></a></p>
-							<p class="stats">
-								<span class="onlineStat" data-toggle="tooltip" data-placement="bottom" title="Members"><i class="fas fa-users"></i>  <? echo $community->MemberCount; ?></span>
-							</p>
-						</div>
-					<?php }
+					foreach ($communities as $community) { 
+						$communityParams = [
+							'url' => "/community/$community->Slug",
+							'name' => $community->Name,
+							'category' => $community->CategoryName,
+							'cover' => '/assets/graphics/covers/'.$community->Slug.'.jpg',
+							'stats' => ['members' => $community->MemberCount],
+							'extraClasses'=>['communityListing']];
+
+						echo card(array_merge($baseParams, $communityParams));
+					}
 				} else {
 					echo "<p>No communities. Odd.</p>";
 				}

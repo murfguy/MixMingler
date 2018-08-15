@@ -137,8 +137,8 @@ class User extends CI_Controller {
 			$displayData->regStreamers = $query->result();
 
 			foreach ($displayData->regStreamers as $streamer) { 
-				$streamer->lastStartElapsed = $this->tools->getElapsedTimeString(strtotime($streamer->LastStreamStart));
-				$streamer->lastSeenElapsed = $this->tools->getElapsedTimeString(strtotime($streamer->LastSeenOnline));
+				$streamer->LastStartElapsed = getElapsedTimeString(strtotime($streamer->LastStreamStart));
+				$streamer->LastSeenElapsed = getElapsedTimeString(strtotime($streamer->LastSeenOnline));
 			}
 
 			$sql_query = "SELECT * FROM Users WHERE isRegistered=0 AND LastSeenOnline>DATE_SUB(NOW(), INTERVAL 30 MINUTE) ORDER BY LastStreamStart DESC";
