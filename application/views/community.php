@@ -20,11 +20,11 @@
 				foreach ($online_members as $member) { 
 					echo "<div class=\"streamerListing col-sm\">";
 							//$online_members[] = $member->Username;
-							echo "<h3><a href=\"/user/".$member->Username."\">".$member->Username."</a></h3>";
+							echo "<h3><a href=\"/user/".$member->token."\">".$member->token."</a></h3>";
 							//echo "<img src=\"https://thumbs.mixer.com/channel/".$member->ID.".m4v\" />";
-							echo "<a href=\"https://mixer.com/".$member->Username."\" target=\"_blank\"><img src=\"https://thumbs.mixer.com/channel/".$member->ID.".small.jpg\" style=\"width:100%\" /></a>";
-							echo "<p class=\"gameName\">".$member->type->Name."</p>";
-							echo "<p>Current Views: ".$member->ViewersCurrent."</p>";
+							echo "<a href=\"https://mixer.com/".$member->token."\" target=\"_blank\"><img src=\"https://thumbs.mixer.com/channel/".$member->id.".small.jpg\" style=\"width:100%\" /></a>";
+							echo "<p class=\"gameName\">".$member->type->name."</p>";
+							echo "<p>Current Views: ".$member->viewersCurrent."</p>";
 					echo "</div>";
 				 } 
 				 echo "</div> <!-- .row -->";
