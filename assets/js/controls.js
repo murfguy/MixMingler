@@ -4,6 +4,7 @@ var baseActionUrl = baseURL+"/servlet/";
 (function(){
 	console.log('MixMingler Start!!');
 	console.log("baseURL:" + baseURL);
+	runNewsCollection();
 
 	$('[data-toggle="tooltip"]').tooltip();
 
@@ -37,85 +38,6 @@ var baseActionUrl = baseURL+"/servlet/";
 		$("#ignore").attr('id','unignore');
 	}
 
-
-	/*$("button.typeAction").click(function () {
-
-		actionUrl = baseActionUrl;
-		console.log("button.typeAction:" + $(this).attr('typeId'));
-		switch($(this).attr('id')) {
-			case "follow": 
-				actionUrl += "followType/";
-
-				$(this).removeClass('btn-primary');
-				$(this).addClass('btn-danger');
-				$(this).text('Unfollow');
-				$(this).attr('id','unfollow');
-				$(this).attr('title','Stop getting updates about this game.');
-				// show ignore button
-
-				$("#ignore").hide();
-				break;
-
-			case "unfollow": 
-				actionUrl += "unfollowType/";
-
-				$(this).removeClass('btn-danger');
-				$(this).addClass('btn-primary');
-				$(this).text('Follow');
-				$(this).attr('id','follow');
-				$(this).attr('title','Get updates about this game.');
-				// hide ignore button
-				$("#ignore").show();
-				break;
-
-			case "ignore": 
-				actionUrl += "ignoreType/";
-
-				$(this).removeClass('btn-warning');
-				$(this).addClass('btn-danger');
-				$(this).text('Unignore');
-				$(this).attr('id','unignore');
-				$(this).attr('title','Have this game show up in lists again.');
-				// hide follow button
-				$("#follow").hide();
-				break;
-
-			case "unignore": 
-				actionUrl += "unignoreType/";
-
-				$(this).removeClass('btn-danger');
-				$(this).addClass('btn-warning');
-				$(this).text('Ignore');
-				$(this).attr('id','ignore');
-				$(this).attr('title','Hide this game in lists.');
-				// show ignore button
-				$("#follow").show();
-				break;
-		};
-
-		console.log($(this).attr('typeId'));
-		actionUrl += $(this).attr('typeId');
-
-		console.log("actionUrl: "+ actionUrl);
-		$.ajax({
-			url: actionUrl,
-			type: "POST",
-			dataType: "json"
-		})
-			.done(function (json){
-				console.log('typeAction - AJAX done');
-			}) 
-
-			.fail(function (json){
-				console.log('typeAction - AJAX failed');
-			})
-
-			.always(function (json){
-				console.log('typeAction - AJAX always');
-				console.log(json);
-				//console.log(json.message);
-			});
-	});*/
 
 	$("a.commToggle").click(function () {
 		console.log("toggle community");
@@ -164,89 +86,6 @@ var baseActionUrl = baseURL+"/servlet/";
 				break;
 		}
 	});
-
-	/*console.log("HIDE!");
-	$("a.typeToggle").click(function () {
-		console.log("toggle type view");
-		category = $(this).attr('category');
-		console.log(" --  "+category);
-
-		switch (category) {
-			case "followed":
-				$("div#followed").show();
-				$("div#allActive").hide();
-				break;
-
-			case "active":
-				$("div#followed").hide();
-				$("div#allActive").show();
-				break;
-			}
-	});
-
-
-	$("div.inactiveView").hide();
-	console.log("HIDE!");
-	$("a.viewToggle.accountTypes").click(function () {
-		console.log("toggle account type management view");
-		category = $(this).attr('category');
-		console.log(" --  "+category);
-
-		switch (category) {
-			case "followed":
-				$("div#followed").show();
-				$("div#ignored").hide();
-				break;
-
-			case "ignored":
-				$("div#followed").hide();
-				$("div#ignored").show();
-				break;
-			}
-	});
-
-
-	var coreLimit = 4;
-	$('input.coreCommunities').on('change', function(evt) {
-		console.log();
-
-		thisActionUrl = baseActionUrl;
-		if($("input[name='core']:checked").length > coreLimit) {
-			this.checked = false;
-			alert("You cannot select more than "+coreLimit+" Core Communities!");
-		} else {
-			commId = $(this).attr("commId");
-			if ($(this).is(':checked')) {
-				thisActionUrl += "setCoreCommunity/";
-				//console.log("this has been checked");
-			} else {
-				thisActionUrl += "unsetCoreCommunity/";
-				//console.log("this has been unchecked");
-			}
-			thisActionUrl += commId+"/";
-
-			console.log(thisActionUrl);
-
-			$.ajax({
-				url: thisActionUrl,
-				type: "POST",
-				dataType: "json"
-			})
-				.done(function (json){
-					console.log('commAction - AJAX done');
-				}) 
-
-				.fail(function (json){
-					console.log('commAction - AJAX failed');
-				})
-
-				.always(function (json){
-					console.log('commAction - AJAX always');
-					console.log(json);
-					//console.log(json.message);
-				});
-		}
-	});*/
 	
 	setNewsToggles();
 	setViewToggleListeners();
@@ -282,6 +121,6 @@ function logout(tgtUser) {
 }
 
 function hidePharError() {
-	console.log('hidePharError()');
-	$("p:contains('Message: Module')").parent().css("background-color", "#000");
+	//console.log('hidePharError()');
+	//$("p:contains('Message: Module')").parent().css("background-color", "#000");
 }

@@ -100,3 +100,74 @@ function getTypeNewsFeed(target) {
 					//console.log(json.message);
 				});
 }
+
+function runNewsCollection() {
+	console.log("runNewsCollection()");
+	getNewsFeed($('div#userNewsFeed'));
+}
+
+function getNewsFeed(tgt) {
+	if (tgt.length > 0) {
+		console.log("getNewsFeed("+tgt.attr('id')+")");
+		//console.log(" -- feedtype: "+ tgt.data('feedtype'));
+		switch (tgt.data('feedtype')) {
+			case "user":
+				feedParams = {
+					mixerId: tgt.data('userid')}
+				break;
+
+			case "type":
+				feedParams = {
+					typeId: tgt.data('typeid')}
+				break;
+
+			case "community":
+				feedParams = {
+					communityId: tgt.data('communityid')}
+				break;
+		}
+
+		if (tgt.data('displaysize') == undefined) { displaySize = "med"; }
+			else { displaySize = tgt.data('displaysize')}
+
+		thisActionUrl = baseActionUrl+"getNewsFeed/";
+
+		$.ajax({
+			url: thisActionUrl,
+			type: "POST",
+			dataType: "json",
+			data: {
+				feedType: tgt.data('feedtype'),
+				displaySize: displaySize,
+				feedParams: feedParams
+			}
+		})
+			.done(function (json){
+				console.log('getNewsFeed - AJAX done');
+				tgt.empty();
+				if (json.success) {
+					newsCount = json.displayItems.length;
+					if (newsCount > 0) {
+
+						for (i = 0; i<newsCount; i++) {
+							tgt.append(json.displayItems[i]);
+						}
+					} else {
+						tgt.append("<p>No news items for this user.");
+					}
+				}
+			}) 
+
+			.fail(function (json){
+				console.log('getNewsFeed - AJAX failed');
+				tgt.html("<div class=\"alert alert-danger\"><p>There was a problem in contacting the server. Pick another game and try again.</p></div>");
+			})
+
+			.always(function (json){
+				console.log('getNewsFeed - AJAX always');
+				console.log(json);
+				//console.log(json.message);
+			});
+	}
+
+}

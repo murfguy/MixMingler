@@ -155,10 +155,8 @@ class Version {
 			"Account Page: Manage communities + Set/Unset Core Communities",
 			"Community Moderation: Manage Users (approve/deny/kick/ban/promote)",
 			"Login: Mixer email address synced upon login.",
-			"Email Notice: Site Admins - New Community Request Received",
-			"Email Notice: Community Mods - New Community Request Submitted",
-			"Email Notice: Community Mods - New Community Request Approved",
-			"Email Notice: Community Mods - New Community Request Denied");
+			"Email Notices: For community creation, and new members",
+			"User Profile: AJAX loaded news feed.");
 		//$patch->notes[] = "Email Notices: Community Mods - New Member Request Received";
 		$patchNotes[] = $patch;
 

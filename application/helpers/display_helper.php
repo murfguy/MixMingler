@@ -82,40 +82,28 @@ if ( ! function_exists('card')) {
 			//.followers
 
 	function card($params = array()) {
-			if (empty($params)) {
-				$str = '<div class="typeInfo sml">';
+		if (empty($params)) {
+			$str = '<div class="typeInfo sml">';
 				$str .= "<p>Bad card data.</p>";
-			} else {
-				if (empty($params['category'])) { $params['category']= ""; }
+			$str .= '</div>';
+		} else {
+			if (empty($params['category'])) { $params['category']= ""; }
+			if (empty($params['size'])) { $params['size'] = 'med'; }
 
-				if (empty($params['size'])) { 
-					//"';
-				} else {
-					$str = $params['category'].'"';
-				}
-				$str = '<div class="typeInfo';
-				if (!empty($params['size'])) {  $str.= ' '.$params['size']; }
-				if (!empty($params['category'])) {  $str.= ' '.lcfirst($params['category']); }
-				if (!empty($params['extraClasses'])) {  
-					foreach ($params['extraClasses'] as $class) {
-						$str.= ' '.$class;	}}
+			if (!empty($params['stats'])) {
+				$stats = "";
+				foreach ($params['stats'] as $key => $value) {
 
-				$str .= '">';
-
-				$str .= '<a href="'.$params['url'].'"><img src="'.$params['cover'].'" '.imgBackup($params['kind']).'class="coverArt" /></a>';
-				$str .= '<p class="typeName"><a href="'.$params['url'].'">'.$params['name'].'</a></p>';
-			
-
-				if (!empty($params['stats'])) {
-					$str .= '<p class="stats">';
-
-					$stats = "";
-					foreach ($params['stats'] as $key => $value) {
+					if ($params['size'] != 'xsm') {
 						if ($stats != '') { $stats .= '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'; }
 						$stats .= '<span data-toggle="tooltip" title="';
 						switch ($key) {
 							case "online":
 								$stats .= 'Streams"><i class="fas fa-play-circle"></i> '.$params['stats']['online'];
+								break;
+
+							case "streamCount":
+								$stats .= 'Streams"><i class="fas fa-play-circle"></i> '.$params['stats']['streamCount'];
 								break;
 
 							case "members":
@@ -134,17 +122,39 @@ if ( ! function_exists('card')) {
 								$stats .= 'Followers"><i class="fas fa-heart"></i> '.$params['stats']['followers'];
 								break;
 						} //switch ($key)
-						$stats .= '</span>';
-					} // foreach ($params['stats'])
+					} else {
+						if ($stats != '') { $stats .= '<br>'; }
+						switch ($key) {
+							case "online":
+								$stats = $params['stats']['online'].' streams online.';
+								break;
 
+							case "streamCount":
+								$stats = 'Streamed '.$params['stats']['streamCount'].' times.';
+								break;
+						} //switch ($key)
+					} 
+				}  // foreach
+			}// if params['stats']
 
-					$str .= $stats;
-					$str .= '</p>';
-				} // if (!empty($params['stats']))
-
-			} // if (empty($params))
-
-		$str .= '</div>';
+			$str = '<div class="typeInfo';
+				$str.= ' '.$params['size'];
+				$str.= ' '.lcfirst($params['category']);
+				if (!empty($params['extraClasses'])) {  
+					foreach ($params['extraClasses'] as $class) {
+						$str.= ' '.$class;	}}
+			$str .= '" ';
+			if ($params['size'] == 'xsm') {
+				$str .= 'data-toggle="tooltip" data-placement="top" data-html="true" title="';
+				$str .= $params['name']."<br>".$stats.'"';
+			}
+			
+			$str .= '>';
+			$str .= '<a href="'.$params['url'].'"><img src="'.$params['cover'].'" '.imgBackup($params['kind']).'class="coverArt" /></a>';
+			if ($params['size'] != 'xsm') {
+						$str .= '<p class="typeName"><a href="'.$params['url'].'">'.$params['name'].'</a></p>'; }
+			$str .= '</div>'; 
+		}
 
 		return $str;
 	}
@@ -234,6 +244,49 @@ if ( ! function_exists('imgBackup')) {
 
 if ( ! function_exists('newsDisplay')) {
 	function newsDisplay($newsData, $eventText, $size = 'med') {
-		return "<p>$eventText</p>";
+		switch ($size) {
+			case "lrg":
+				$avatarSize = '40';
+				break;
+
+			case "med":
+			default:
+				$avatarSize = '30';
+				break;
+		}
+
+
+		$post = '<p class="post">'.$eventText.'</p>';
+		$time = '<p class="postTime">'.getElapsedTimeString($newsData->EventTime).'</p>';
+		$avatar = '<img src="'.$newsData->AvatarURL.'" '.imgBackup('streamer').' class="avatar thin-border newsAvatar" width="'.$avatarSize.'" />';
+
+
+		$str = '<div class="event';
+		$str .= '">';
+			if (in_array($size, ['med', 'lrg'])) {
+				$str .= $avatar;
+			}
+
+			$str .= $post;
+			$str .= $time;
+		$str .= '</div>';
+
+		return $str;
+	}
+}
+
+if (! function_exists('devNotesButton')) {
+	function devNotesButton($devNotes = null) {
+		if ($devNotes == null) {
+			return null;
+		}
+
+		$str = '<button type="button" class="btn btn-sm btn-info" data-toggle="tooltip" data-placement="bottom" data-html="true" title="';
+		foreach ($devNotes as $note) {
+			$str .= $note[0]." | ".$note[1]."<br>";
+		}
+		$str .= '"">Hover for DevNotes</button>';
+
+		return $str;
 	}
 }

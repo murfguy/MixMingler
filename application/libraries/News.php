@@ -38,6 +38,7 @@ class News {
 		$query = $this->db
 			->select('TimelineEvents.*')
 			->select('Users.Username as Username')
+			->select('Users.AvatarURL as AvatarURL')
 			->from('TimelineEvents')
 			->join('Users', 'Users.ID = TimelineEvents.MixerID')
 			->where('TimelineEvents.Type', 'type')
@@ -88,53 +89,6 @@ class News {
 		$eventText = $this->convertTypeString($eventText);
 
 		return $eventText;
-	}
-
-	public function getNewsDisplay($newsEvent, $avatar = "", $size="normal") {
-	/*	// Convert string bits
-
-		// Add username link to item.
-		$eventText = str_replace("{username}", "<a href=\"/user/$newsEvent->Username\">$newsEvent->Username</a>", $newsEvent->Content); 
-		// Convert a {commId} string
-		$eventText = $this->convertCommunityString($eventText);
-		// Convert a {typeId} string
-		$eventText = $this->convertTypeString($eventText);
-
-		
-		switch ($size) {
-			case "normal":
-			default:
-				$newsContainer = "<div class=\"userFeedItem\">";
-				$newsContainer .= "<div class=\"feedItemHeader\">";
-					$newsContainer .= "<img src=\"$avatar\" class=\"avatar thin-border\" width=\"42\" />";
-					$newsContainer .=  "<p class=\"postHead\"><a href=\"/user/$newsEvent->username\">$newsEvent->username</a><br><span class=\"postTime\">".$this->displayPostTime($newsEvent->eventTime)."</span></p>";
-				$newsContainer .= "</div>";
-				$newsContainer .= "<p class=\"post\">$eventText</p>";
-
-				$newsContainer .= "</div>";
-				break;
-
-			
-			case "condensed":
-				$newsContainer = "<div class=\"userFeedItem condensedNews\">";
-					$newsContainer .= "<p class=\"post\">$eventText</p>";
-					$newsContainer .=  "<p class=\"postHead\"><span class=\"postTime\">".$this->displayPostTime($newsEvent->EventTime)."</span></p>";
-				$newsContainer .= "</div>";
-				break;
-
-			case "mini":
-				$newsContainer = "<div class=\"userFeedItem miniNews\">";
-				$newsContainer .= "<p class=\"post\">$eventText</p>";
-					$newsContainer .= "<div class=\"feedItemHeader\">";
-						$newsContainer .=  "<p class=\"postHead\"><span class=\"postTime\">".$this->displayPostTime($newsEvent->eventTime)."</span></p>";
-					$newsContainer .= "</div>";
-
-				$newsContainer .= "</div>";
-				break;
-
-		}
-
-		return $newsContainer;*/
 	}
 
 	private function getEventString($event, $params = "") {
@@ -252,6 +206,69 @@ class News {
 		} 
 		
 		return $eventText;
+	}
+
+	public function getNewsFeedForUser($mixerId) {
+		$query = $this->db
+			->select('*')
+			->from('TimelineEvents')
+			->where('MixerID', $mixerId)
+			->get();
+
+		$query = $this->db
+			->select('TimelineEvents.*')
+			->select('Users.Username as Username')
+			->select('Users.AvatarURL as AvatarURL')
+			->from('TimelineEvents')
+			->join('Users', 'Users.ID = TimelineEvents.MixerID')
+			->where('TimelineEvents.MixerID', $mixerId)
+			->order_by('TimelineEvents.EventTime', 'DESC')
+			->limit(10)
+			->get();
+		return $query->result();
+	}
+
+	public function getNewsFeedForCommunity($communityId) {
+		// This gets all news related to a community (but not community members' feeds)
+		$query = $this->db
+			->select('*')
+			->from('TimelineEvents')
+			->where('CommunityID', $communityId)
+			->get();
+		return $query->result();
+	}
+
+	public function getNewsFeedForCommunityMembers($communityId) {
+		// This should get a list of news relating to all members of a community
+
+		// Full feed would include:
+			// User's type activity
+			// User's activity related to this community, but not others
+			// User's activity related to MixMingler
+			// user's milestones
+
+		$query = $this->db
+			->select('*')
+			->from('TimelineEvents')
+			->where('CommunityID', $communityId)
+			->get();
+		return $query->result();
+	}
+
+	public function getNewsFeedForType($typeId) {
+		$query = $this->db
+			->select('TimelineEvents.*')
+			->select('Users.Username as Username')
+			->select('Users.AvatarURL as AvatarURL')
+			->from('TimelineEvents')
+			->join('Users', 'Users.ID = TimelineEvents.MixerID')
+			->where('TimelineEvents.Type', 'type')
+			->where('TimelineEvents.TypeID', $typeId)
+			->order_by('TimelineEvents.EventTime', 'DESC')
+			->limit(10)
+			->get();
+
+		return $query->result();
 	}
 }
 ?>

@@ -1,6 +1,11 @@
+<?php 
+	$devNotes = array();
+	$devNotes[] = array('v0.3', 'View event feeds for followed communities.');
+	$devNotes[] = array('v0.3', 'View personal event feed.');
+?>
 <main role="main" class="container">
 	<div class="pageHeader">
-		<h1><img src="<?php echo $user->AvatarURL; ?>" <?php echo imgBackup('streamer'); ?> class="avatar thin-border" width="60" />Welcome <?php echo $user->Username; ?></h1>
+		<h1><img src="<?php echo $user->AvatarURL; ?>" <?php echo imgBackup('streamer'); ?> class="avatar thin-border" width="60" />Welcome <?php echo $user->Username; ?> <?php echo devNotesButton($devNotes); ?></h1>
 	</div>
 
 	<div class="alert alert-success">
@@ -9,7 +14,7 @@
 	</div>
 
 	<div class="row">
-		<div class="col-3 userInfo">
+		<div class="col-3">
 			
 			<?php if (!empty($alerts)) { ?> 
 
@@ -57,7 +62,6 @@
 							echo "<p>You haven't followed any communities.</p>";
 						}
 					?>
-					<p class="devNote" data-toggle="tooltip" title="Planned for v0.3" data-placement="left">[Planned Feature] Toggleable views of "Community" based news.</p>
 				</div>
 			</div><!-- .infoBox -->
 
@@ -98,6 +102,8 @@
 						echo "<p>No new communities.</p>";
 					}
 					?>
+
+					<button class="btn btn-sm btn-primary btn-block" onclick="window.location.href = '/community/create/';">Request A Community!</button>
 				</div> <!-- .infoInterior -->
 			</div><!-- .infoBox -->
 
@@ -119,14 +125,16 @@
 							foreach ($followedTypes as $type) { ?>
 								
 								<div class="newsFeed gamesFeed" id="typeNews-<?php echo $type->ID; ?>">
-									<h3><a href="/type/<?php echo $type->ID."/". $type->Slug; ?>"><?php echo $type->Name; ?></a></h3>
+									<h4 class="subHeader"><a href="/type/<?php echo $type->ID."/". $type->Slug; ?>"><?php echo $type->Name; ?></a></h4>
+
+									<h5>Top Streams</h5>
 									<div class="topStreams" id="type-<?php echo $type->ID; ?>">
 										<div class="spinner type alert alert-warning">
 											<p><i class="fas fa-circle-notch fa-spin"></i> Checking Mixer for top streams. One moment please.</p>
 										</div><!-- alert -->
 									</div><!-- .topStreams -->
 
-									<h3>Recent Activity</h3>
+									<h5>Recent Activity</h5>
 									<div class="typeNews" id="news-<?php echo $type->ID; ?>">
 										<div class="spinner news alert alert-warning">
 											<p><i class="fas fa-circle-notch fa-spin"></i> Checking MixMingler for recent news. One moment please.</p>
@@ -156,6 +164,7 @@
 					</div>
 				</div><!-- .infoInterior -->
 			</div><!-- .infoBox -->
+
 	
 		</div> <!-- #centerColumn -->
 

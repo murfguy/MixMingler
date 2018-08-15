@@ -53,10 +53,6 @@ footer.footer {
 -- Bootstrap Overrides -------------------
 --------------------------------------- */
 
-.row {
-	margin-left: 6px;
-}
-
 .col {
 	padding: 0;
 }
@@ -124,9 +120,7 @@ img.avatar.thin-border {
 }
 
 
-div.userInfo {
-	width: 25%;
-}
+
 
 
 .muted-text {
@@ -259,6 +253,16 @@ div.infoBox > .infoHeader {
 	background-color: #15123c;
 	
 	/*border-radius: 10px 10px 0px 0px;*/
+}
+
+.subHeader {
+	border-bottom: 1px solid #90a9d2;
+	border-top: 1px solid #90a9d2;
+	margin: 10px -8px 10px -8px;
+	padding: 8px 0px 0px 8px;
+	background-color: #15123c;
+	overflow: hidden;
+	text-overflow: ellipsis;
 }
 
 div.infoInterior {

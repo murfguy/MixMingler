@@ -32,9 +32,9 @@ if (! function_exists('createCommunityObjects')) {
 		$communities->pending = array();
 		$communities->manager = array();
 
-		if (!empty($communitiesData->MemberStates)) {
+		if (!empty($communitiesData)) {
 			foreach($communitiesData as $community) {
-			$states = explode(",", $community->MemberStates);
+				$states = explode(",", $community->MemberStates);
 				if (in_array('admin', $states)) { $communities->admin[] = $community; }
 				if (in_array('banned', $states)) { $communities->banned[] = $community; }
 				if (in_array('core', $states)) { $communities->core[] = $community; }

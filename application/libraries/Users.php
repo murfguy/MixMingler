@@ -17,24 +17,6 @@ class Users {
 	}
 
 	public function getUserFromMingler($mixerId) {
-		/*$sql_query = "SELECT U.*,
-			GROUP_CONCAT( CASE WHEN MemberState='admin' THEN UC.CommunityID ELSE NULL END) as AdminCommunities,
-			GROUP_CONCAT( CASE WHEN MemberState='moderator' THEN UC.CommunityID ELSE NULL END) as ModCommunities,
-			GROUP_CONCAT( CASE WHEN MemberState='core' THEN UC.CommunityID ELSE NULL END) as CoreCommunities,
-			GROUP_CONCAT( CASE WHEN MemberState='member' THEN UC.CommunityID ELSE NULL END) as JoinedCommunities,
-			GROUP_CONCAT( CASE WHEN MemberState='follower' THEN UC.CommunityID ELSE NULL END) as FollowedCommunities,
-			GROUP_CONCAT( CASE WHEN MemberState='pending' THEN UC.CommunityID ELSE NULL END) as PendingCommunities,
-			GROUP_CONCAT( CASE WHEN MemberState='banned' THEN UC.CommunityID ELSE NULL END) as BannedCommunities,
-			GROUP_CONCAT( CASE WHEN FollowState='followed' THEN UT.TypeID ELSE NULL END) as FollowedTypes,
-			GROUP_CONCAT( CASE WHEN FollowState='ignored' THEN UT.TypeID ELSE NULL END) as IgnoredTypes
-			FROM Users as U
-			JOIN UserCommunities AS UC ON U.ID = UC.MixerID
-			JOIN Communities AS C ON C.ID = UC.CommunityID
-			JOIN UserTypes AS UT ON U.ID = UT.MixerID
-			JOIN StreamTypes AS T ON T.ID = UT.TypeID
-			WHERE  UC.MixerID=?";
-		$query = $this->db->query($sql_query, array($mixerId));*/
-
 		// Let's get streamer data from Mingler based on the ID value we got from Mixer.
 		$query = $this->db->select('*')->from('Users')->where('ID', $mixerId)->get();
 
@@ -280,18 +262,24 @@ class Users {
 
 
 	public function getUsersRecentStreamTypes($mixer_id) {
-		/*$sql_query = "SELECT *, (SELECT name_token FROM mixer_users WHERE mixer_users.mixer_id= timeline_events.mixer_id) as name_token, 
-(SELECT typeName FROM stream_types WHERE stream_types.typeId= timeline_events.extraVars) as typeName, 
-(SELECT typeId FROM stream_types WHERE stream_types.typeId= timeline_events.extraVars) as typeId,
-(SELECT slug FROM stream_types WHERE stream_types.typeId= timeline_events.extraVars) as slug,
-(SELECT coverUrl FROM stream_types WHERE stream_types.typeId= timeline_events.extraVars) as coverUrl,
-COUNT(DISTINCT DATE(eventTime)) as stream_count
-FROM timeline_events
-WHERE eventType='type' AND eventTime > DATE_SUB(NOW(), INTERVAL 30 DAY) AND mixer_id=?
-GROUP BY extraVars
-ORDER BY stream_count DESC";
-		$query = $this->CI->db->query($sql_query, array($mixer_id));
-		return  $query->result();*/
+		$query = $this->db
+			->select('TimelineEvents.TypeID as ID')
+			->select('TimelineEvents.MixerID')
+			->select('TimelineEvents.Type')
+			->select('StreamTypes.Name AS Name')
+			->select('StreamTypes.Slug AS Slug')
+			->select('StreamTypes.CoverURL AS CoverURL')
+			->select('COUNT(DISTINCT DATE(TimelineEvents.EventTime)) as StreamCount')
+			->from('TimelineEvents')
+			->join('StreamTypes', 'StreamTypes.ID = TimelineEvents.TypeID')
+			->where('TimelineEvents.Type','type')
+			->where('TimelineEvents.EventTime > DATE_SUB(NOW(), INTERVAL 30 DAY)')
+			->where('TimelineEvents.MixerID', $mixer_id)
+			->group_by('TimelineEvents.TypeID')
+			->order_by('StreamCount', 'DESC')
+			->get();
+
+		return $query->result();
 	}
 
 	public function getUserTypesInformation($mixerId, $followState = null) {
@@ -382,17 +370,6 @@ ORDER BY stream_count DESC";
 
 		$query = $this->db->get();
 		return  $query->result();
-	}
-	
-	public function getUsersAdminedOrModeratedCommunities($mixer_id) {
-		/*$sql_query = "SELECT communities.* 
-			FROM `UserCommunities` 
-			JOIN mixer_users ON mixer_users.mixer_id = UserCommunities.MixerID
-			JOIN communities ON communities.id = UserCommunities.CommunityID
-			WHERE MixerID = ? AND (MemberState = 'moderator' OR MemberState='admin')";
-		$query = $this->CI->db->query($sql_query, array($mixer_id));
-
-		return  $query->result();*/
 	}
 
 	public function getSiteAdmins() {

@@ -48,28 +48,3 @@ if ( ! function_exists('createSlug')) {
 		return strtolower($typeName); // returns slugged version, lower case
 	}
 }
-
-/*if ( ! function_exists('removeValueFromList')) {
-	function removeValueFromList($value, $list) {
-		//Convert list list to PHP array
-		$array = explode(",", $list);
-		
-		// Remove the value from the array
-		if (($key = array_search($value, $array)) !== false) { unset($array[$key]); }
-		
-		// Restore to string.list and return
-		return implode(',', $array);
-	}
-}
-
-if ( ! function_exists('valueIsInList')) {
-	function valueIsInList($value, $list) {
-		$array = explode(",", $list);
-		if (($key = array_search($value, $array)) !== false) { 
-			return true;
-		}
-		return false;
-	}
-}
-
-*/

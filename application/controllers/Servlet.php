@@ -884,7 +884,7 @@ class Servlet extends CI_Controller {
 	// ---------------------------------------------------------------
 
 	public function getTopStreamsForType($typeId) {
-		sleep(1);
+		//sleep(1);
 		$this->returnData->typeID = $typeId;
 		$this->returnData->success = true;
 		$this->returnData->message = "Got streams from mixer.";
@@ -897,19 +897,19 @@ class Servlet extends CI_Controller {
 	// --- News Collection Functions --------------------------------- 
 	// ---------------------------------------------------------------
 
-	public function getNewsForType($typeId) {
-		sleep(1);
+	public function getNewsForType($typeId, $size = 'med') {
+		//sleep(1);
 		$this->returnData->typeID = $typeId;
 		$this->returnData->success = false;
 		$this->returnData->message = "Failed to get news.";
 
-		$typeNews = $this->news->getTypeNewsFeed($typeId);
+		$typeNews = $this->news->getNewsFeedForType($typeId);
 
 		if (!empty($typeNews)) {
 			$displayItems = array();
 			foreach($typeNews as $event) {
 				$eventText = $this->news->getFormattedEventText($event);
-				$displayItems[] = newsDisplay($event, $eventText);
+				$displayItems[] = newsDisplay($event, $eventText, $size);
 			}
 			$this->returnData->success = true;
 			$this->returnData->newsFeed = $typeNews;
@@ -918,6 +918,47 @@ class Servlet extends CI_Controller {
 		} else {
 			$this->returnData->message = "There was no news to collect.";
 		}
+
+		$this->returnData();
+	}
+
+	public function getNewsFeed() {
+		$this->returnData->message = "Failed to collect news.";
+		//$feedType, $feedParams, $queryLimit = 25, $displaySize = 'med'
+		$feedType = $_POST['feedType'];
+		$feedParams = $_POST['feedParams'];
+		if (empty($_POST['queryLimit'])) { $queryLimit = 25; } else { $queryLimit = (int)$_POST['queryLimit']; }
+		if (empty($_POST['displaySize'])) { $displaySize = 'med'; } else { $displaySize = $_POST['displaySize']; }
+
+		switch ($feedType) {
+			case "user":
+				$news = $this->news->getNewsFeedForUser($feedParams['mixerId']);
+				break;
+
+			case "community":
+				$news = $this->news->getNewsFeedForCommunity($feedParams['communityId']);
+				break;
+
+			case "type":
+				$news = $this->news->getNewsFeedForType($feedParams['typeId']);
+				break;
+		}
+
+		if (!empty($news)) {
+			$displayItems = array();
+			foreach($news as $event) {
+				$eventText = $this->news->getFormattedEventText($event);
+				$displayItems[] = newsDisplay($event, $eventText, $displaySize);
+			}
+			$this->returnData->success = true;
+			$this->returnData->newsFeed = $news;
+			$this->returnData->displayItems = $displayItems;
+			$this->returnData->message = "News was collected!";
+		} else {
+			$this->returnData->message = "There was no news to collect.";
+		}
+
+
 
 		$this->returnData();
 	}

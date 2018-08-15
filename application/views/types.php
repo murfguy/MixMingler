@@ -1,18 +1,21 @@
+<?php 
+	$devNotes = array();
+	$devNotes[] = array('v0.5', 'Search field to find offline games');
+?>
 <main role="main" class="container">
 	<div id="userHeader" class="pageHeader">
-		<h1>Stream Types</h1>
+		<h1>Games & Stream Types <?php echo devNotesButton($devNotes); ?></h1>
 	</div>
 
 	<?php
 	$followingGames = false;
-	if ($currentUser != null) {
-		$followingGames = (!empty($currentUser->followedTypeList) || !empty($currentUser->offlineFollowedTypeList)); }
-		?>
+	if (isset($_SESSION['mixer_id'])) { 
+		$followingGames = (!empty($currentUser->followedTypeList) || !empty($currentUser->offlineFollowedTypeList)); ?>
 	<div class="btn-group d-flex" role="group">
 		<button type="button" class="btn btn-info displayToggle" target="followed"<?php if ($followingGames) { echo " disabled"; }?>>Following</button>
 		<button type="button" class="btn btn-info displayToggle" target="allActive"<?php if (!$followingGames) { echo " disabled"; }?>>All Online Games</button>
 	</div>
-
+	<?php }  ?>
 	<div class="row">
 		<div class="col">
 			<?php if ($followingGames) { ?>
@@ -69,7 +72,9 @@
 			<?php } ?>
 
 			<div id="allActive" class="typeView<?php if ($followingGames) { echo " inactiveView"; } else { echo " activeView"; }; ?>">
-				<h2>Active Types</h2>
+				<?php if (isset($_SESSION['mixer_id'])) { ?>
+				<h2>Online Games</h2>
+				<?php } ?>
 				<div class="streamerList row">
 					<?php foreach ($allTypes as $type) {
 					echo card(array(

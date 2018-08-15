@@ -27,9 +27,6 @@
 			<p>A Version History and Development Roadmap can be read on the <a href="/alpha/">Alpha Information</a> page.</p>
 		</div>
 
-
-		<p class="devNote" data-toggle="tooltip" title="Planned for v0.2" data-placement="left">[Tweak] Make login button an actual button</p>
-		<p class="devNote" data-toggle="tooltip" title="Planned for v0.3" data-placement="left">[Tweak] Add login button to navigation</p>
 		<p class="devNote" data-toggle="tooltip" title="Planned for v0.4" data-placement="left">[Feature] View of randomized streams, types and communities.</p>
 		<!--<h1>Proto-Login</h1>
 		<form id="protoLogin">
