@@ -77,6 +77,7 @@ class Communities {
 			->from('Communities')
 			->where('FoundationTime > ', $timestamp)
 			->or_where('FoundationTime > DATE_SUB(now(), INTERVAL 14 DAY)')
+			->order_by('FoundationTime', 'DESC')
 			->get();
 
 		return $query->result();

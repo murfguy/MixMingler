@@ -99,11 +99,11 @@ if ( ! function_exists('card')) {
 						$stats .= '<span data-toggle="tooltip" title="';
 						switch ($key) {
 							case "online":
-								$stats .= 'Streams"><i class="fas fa-play-circle"></i> '.$params['stats']['online'];
+								$stats .= 'Streams Online"><i class="fas fa-play-circle"></i> '.$params['stats']['online'];
 								break;
 
 							case "streamCount":
-								$stats .= 'Streams"><i class="fas fa-play-circle"></i> '.$params['stats']['streamCount'];
+								$stats .= 'Times Streamed"><i class="fas fa-play-circle"></i> '.$params['stats']['streamCount'];
 								break;
 
 							case "members":
@@ -130,7 +130,7 @@ if ( ! function_exists('card')) {
 								break;
 
 							case "streamCount":
-								$stats = 'Streamed '.$params['stats']['streamCount'].' times.';
+								$stats = 'Streamed '.$params['stats']['streamCount'].' times';
 								break;
 						} //switch ($key)
 					} 
@@ -151,8 +151,11 @@ if ( ! function_exists('card')) {
 			
 			$str .= '>';
 			$str .= '<a href="'.$params['url'].'"><img src="'.$params['cover'].'" '.imgBackup($params['kind']).'class="coverArt" /></a>';
+			
+			
 			if ($params['size'] != 'xsm') {
-						$str .= '<p class="typeName"><a href="'.$params['url'].'">'.$params['name'].'</a></p>'; }
+				$str .= '<p class="typeName"><a href="'.$params['url'].'">'.$params['name'].'</a></p>';
+				$str .= '<p class="stats">'.$stats.'</p>'; }
 			$str .= '</div>'; 
 		}
 

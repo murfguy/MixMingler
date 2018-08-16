@@ -841,8 +841,8 @@ function updateButtonView(tgt, serverData) {
 
 			tgt.closest('tr').children('td.followState').text('Followed');
 
-			tgtIgnore = $("button[typeId='"+serverData.typeID+"'][action='ignoreType']");
-			tgtIngore.hide();
+			tgtIgnore = $("button[typeid='"+serverData.typeID+"'][action='ignoreType']");
+			tgtIgnore.hide();
 			break;
 
 		case "unfollowType":
@@ -853,7 +853,7 @@ function updateButtonView(tgt, serverData) {
 
 			tgt.closest('tr').children('td.followState').text('n/a');
 
-			tgtIgnore = $("button[typeId='"+serverData.typeID+"'][action='ignoreType']");
+			tgtIgnore = $("button[typeid='"+serverData.typeID+"'][action='ignoreType']");
 			tgtIgnore.show();
 			break;
 

@@ -95,9 +95,12 @@
 				<div class="infoInterior">
 					<?php
 					if (!empty($newCommunities)) {
+						$str = "";
 						foreach ($newCommunities as $community) {
-								echo '<p>'.communityListLink($community).'</p>';
+							if ($str != "") { $str .= ", ";}
+							$str .= communityListLink($community);
 						}
+						echo "<p>$str</p>";
 					} else {
 						echo "<p>No new communities.</p>";
 					}
