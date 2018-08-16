@@ -183,6 +183,11 @@ class Servlet extends CI_Controller {
 										->delete('UserCommunities');
 									//$this->db->delete('UserCommunities');
 									$this->returnData->message = "You have left $community->Name.";
+
+									$this->db
+										->where('CommunityID', $communityID)
+										->where('MixerID', $currentUserId)
+										->delete('TimelineEvents');
 								}
 							}							
 							break;
@@ -800,6 +805,11 @@ class Servlet extends CI_Controller {
 										->delete('UserCommunities');
 
 									$this->returnData->message = $member->Username." was kicked from ".$community->Name;
+
+									$this->db
+										->where('CommunityID', $communityID)
+										->where('MixerID', $memberId)
+										->delete('TimelineEvents');
 								}
 
 								// notify user about removal
@@ -838,6 +848,11 @@ class Servlet extends CI_Controller {
 									$this->db->insert('UserCommunities', $data);
 
 									$this->returnData->message = $member->Username." was banned from ".$community->Name;
+
+									$this->db
+										->where('CommunityID', $communityID)
+										->where('MixerID', $memberId)
+										->delete('TimelineEvents');
 
 									// message admins/moderators
 								}

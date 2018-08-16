@@ -51,7 +51,7 @@ class Type extends CI_Controller {
 				if (!empty($params)) {
 					$slug = $params[0];
 				} else {
-					$slug = $this->types->createSlug($typeData->Name);
+					$slug = createSlug($typeData->Name);
 				}
 
 			} else {

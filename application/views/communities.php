@@ -30,7 +30,7 @@
 						$communityParams = [
 							'url' => "/community/$community->Slug",
 							'name' => $community->Name,
-							'category' => $community->CategoryName,
+							'category' => $community->CategorySlug,
 							'cover' => '/assets/graphics/covers/'.$community->Slug.'.jpg',
 							'stats' => ['members' => $community->MemberCount],
 							'extraClasses'=>['communityListing']];

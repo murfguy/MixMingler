@@ -21,6 +21,7 @@ class Communities {
 			->select('Communities.*')
 			->from('Communities')
 			->select('CommunityCategories.Name AS CategoryName')
+			->select('CommunityCategories.Slug AS CategorySlug')
 			->join('CommunityCategories', 'CommunityCategories.ID = Communities.CategoryID')
 			->where('Communities.ID', $communityID)
 			->get();
