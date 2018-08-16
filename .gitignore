@@ -35,6 +35,8 @@ application/config/config.php
 application/config/database.php
 sftp-config.json
 
+
+application/libraries/Authdata.php
 # exclude covers
 assets/graphics/covers/*
 # but keep the blank cover file
