@@ -9,7 +9,7 @@ MixMingler is currently in development, and open for testing. Available versions
 - Please submit bug reports for this build.
 
 **http://dev.mixmingler.com** - Development Build. Unstable.
-- This is my development code. It's open and usable, and draws from the same database as Alpha. However, bugs and broken features are to be expected with this build.
+- This is my development code. It's open and usable, and the database may be volatile and be reset without warning. However, bugs and broken features are to be expected with this build.
 - Please do not submit bug reports for this build.
 
 ## Community
