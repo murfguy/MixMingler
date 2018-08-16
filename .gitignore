@@ -31,12 +31,15 @@ sftp-config.josn
 *.sublime-project
 /tests/tests/
 /tests/results/
-application/config/config.php
-application/config/database.php
 sftp-config.json
 
+#excluded to prevent cross-domain url issues. Manually update if needed.
+application/config/config.php
 
+#excluded for security
 application/libraries/Authdata.php
+application/config/database.php
+
 # exclude covers
 assets/graphics/covers/*
 # but keep the blank cover file
