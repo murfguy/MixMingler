@@ -1,6 +1,6 @@
 <main role="main" class="container">
 	<div class="pageHeader">
-		<h1><img src="<?php echo $avatarUrl = $user->avatarURL; ?>" class="avatar thin-border" width="60" />Welcome <?php echo $user->name_token; ?></h1>
+		<h1><img src="<?php echo $user->AvatarURL; ?>" <?php echo imgBackup('streamer'); ?> class="avatar thin-border" width="60" />Welcome <?php echo $user->Username; ?> <?php echo devNotes('main'); ?></h1>
 	</div>
 
 	<div class="alert alert-success">
@@ -9,32 +9,66 @@
 	</div>
 
 	<div class="row">
-		<div class="col-3 userInfo">
+		<div class="col-3">
+			
+			<?php if (!empty($alerts)) { ?> 
+
+			<div class="infoBox">
+				<h4 class="infoHeader bg-danger">Alerts <i class="fas fa-bell"></i></h4>
+				<div class="infoInterior">
+					<?php if (!empty($alerts['pendingRequests'])) { ?>
+						<h6>Site Admin</h6>
+						<p><a href="/admin/">Community Requests</a> <span class="badge badge-danger"><?php echo $alerts['pendingRequests']; ?></span></p>
+					<?php } ?>
+					
+					<?php if (!empty($alerts['unfoundedCommunities'])) { ?>
+						<h6>Unfounded Communities</h6>
+						<?php foreach ($alerts['unfoundedCommunities'] as $community) { ?>
+							<p><a href="/community/<?php echo $community->Slug ?>/mod"><?php echo $community->Name ?></a>
+							<?php switch ($community->Status) {
+								case "approved":
+									echo ' <span class="badge badge-success"><i class="fas fa-check-circle"></i></span>';
+									break;
+								case "rejected":
+									echo ' <span class="badge badge-danger"><i class="fas fa-times-circle"></i></span>';
+									break;
+								case "pending":
+									echo ' <span class="badge badge-warning"><i class="fas fa-exclamation-circle"></i></span>';
+								default:
+									break;
+							} ?>
+							</p>
+						<?php } ?>
+					<?php } ?>
+				</div>
+			</div><!-- .infoBox Alerts -->
+			<?php } ?>
+
 
 			<div class="infoBox">
 				<h4 class="infoHeader">Communities You Follow</h4>
 				<div class="infoInterior">
 					<?php
-						if (!empty($communitiesData->followed)) {
-							foreach ($communitiesData->followed as $community) {
-								echo "<p><a href=\"/community/$community->slug\">$community->long_name</a></p>";
+						if (!empty($communities->follower)) {
+							foreach ($communities->follower as $community) {
+								echo '<p>'.communityListLink($community).'</p>';
 							}
 						} else {
 							echo "<p>You haven't followed any communities.</p>";
 						}
 					?>
-					<p class="devNote" data-toggle="tooltip" title="Planned for v0.3" data-placement="left">[Planned Feature] Toggleable views of "Community" based news.</p>
 				</div>
-			</div>
+			</div><!-- .infoBox -->
 
 			<div class="infoBox">
 				<h4 class="infoHeader">Games You Follow</h4>
 				<div class="infoInterior">
 					<?php 
-						if (!empty($followedTypes)) {	
+						if (!empty($mixerTypeData)) {	
 						echo "<p>Click icons to show news for that game.</p>";	
 						echo "<div class=\"icons row\">";
-							foreach ($followedTypes as $type) {
+							foreach ($mixerTypeData as $type) {
+								if (empty($type['coverUrl'])) { $type['coverUrl'] = 'https://mixer.com/_latest/assets/images/main/types/default.jpg'; }
 								echo "<div class=\"miniTypeInfo \"><a class=\"newsToggle\" data-newstype=\"typeNews\" data-typeid=\"".$type['id']."\"><img class=\"miniCover";
 
 								if ($type['online'] == 0) {
@@ -48,101 +82,114 @@
 							echo "<p>You haven't followed any games yet!</p>";
 						}
 					?>
-				</div>
-			</div>
+				</div><!-- .infoInterior -->
+			</div><!-- .infoBox -->
+
+			<div class="infoBox">
+				<h6 class="infoHeader">New Communities!</h6>
+				<div class="infoInterior">
+					<?php
+					if (!empty($newCommunities)) {
+						$str = "";
+						foreach ($newCommunities as $community) {
+							if ($str != "") { $str .= ", ";}
+							$str .= communityListLink($community);
+						}
+						echo "<p>$str</p>";
+					} else {
+						echo "<p>No new communities.</p>";
+					}
+					?>
+
+					<button class="btn btn-sm btn-primary btn-block" onclick="window.location.href = '/community/create/';">Request A Community!</button>
+				</div> <!-- .infoInterior -->
+			</div><!-- .infoBox -->
 
 			<div class="infoBox">
 				<h4 class="infoHeader">Your Activity</h4>
 				<div class="infoInterior">
 					<p class="devNote" data-toggle="tooltip" title="Planned for v0.3" data-placement="left">Coming soon</p>
-				</div>
-			</div>
-			<!--<div class="infoBox">
-				<h6 class="infoHeader">Followed Communities</h4>
-				<div class="infoInterior">
-					<?php
-						if (!empty($communitiesData->followed)) {
-							foreach ($communitiesData->followed as $community) {
-								echo "<p><a href=\"/community/$community->slug\">$community->long_name</a></p>";
-							}
-						} else {
-							echo "<p>You haven't followed any communities.</p>";
-						}
-					?>
-				</div>
-			</div>-->
-		</div>
-		<div class="col-7 userFeed">
-			
-			
-			
+				</div><!-- .infoInterior -->
+			</div><!-- .infoBox -->
+		</div> <!-- #leftColumn -->
+	
+		<div class="col-7 userFeed" id="centerColumn">
 			<div class="infoBox">
 				<h4 class="infoHeader">News Feed</h4>
 				<div class="infoInterior">
 					<p>Select a <b>Game</b> to the left in order to see specific information.</p>
 					<?php 
 						if (!empty($followedTypes)) {	
-
-
-							foreach ($followedTypes as $type) {
-								echo "<div class=\"newsFeed gamesFeed\" id=\"typeNews-".$type['id']."\" />";
-								echo "<h3><a href=\"/type/".$type['id']."/".$slugs[$type['id']]."\">".$type['name']."</a></h3>";
-
+							foreach ($followedTypes as $type) { ?>
 								
-								echo "<div class=\"topStreams\" id=\"type-".$type['id']."\">";
-									echo "<p>Getting top streams, please wait one moment.</p>";
-								echo "</div>";
+								<div class="newsFeed gamesFeed" id="typeNews-<?php echo $type->ID; ?>">
+									<h4 class="subHeader"><a href="/type/<?php echo $type->ID."/". $type->Slug; ?>"><?php echo $type->Name; ?></a></h4>
 
-								$gameNewsFeed = $gameNews[$type['id']];
+									<h5>Top Streams</h5>
+									<div class="topStreams" id="type-<?php echo $type->ID; ?>">
+										<div class="spinner type alert alert-warning">
+											<p><i class="fas fa-circle-notch fa-spin"></i> Checking Mixer for top streams. One moment please.</p>
+										</div><!-- alert -->
+									</div><!-- .topStreams -->
 
-								echo "<h4>Recent Streams</h4>";
-								foreach ($gameNewsFeed as $feed) {
-									echo "<p>".$feed."</p>";
-								}
+									<h5>Recent Activity</h5>
+									<div class="typeNews" id="news-<?php echo $type->ID; ?>">
+										<div class="spinner news alert alert-warning">
+											<p><i class="fas fa-circle-notch fa-spin"></i> Checking MixMingler for recent news. One moment please.</p>
+										</div><!-- alert -->
+									</div><!-- .typeNews -->
+								</div><!-- .newsFeed -->
 
-								echo "</div>";
-							}
+							<?php } /* foreach */
 
-						} else {
-							echo "<p>You haven't followed any games yet!</p>";
-						}
-					?>
-
-					<p class="devNote" data-toggle="tooltip" title="Planned for v0.3" data-placement="left">The planned default view for this area will be an amalgamation of news based on games and communities you follow.</p>
-
-
-				</div>
-
-			</div>
-			<p class="devNote" data-toggle="tooltip" title="Planned for v0.3" data-placement="left">[Planned] AJAX system for loading news feeds in order to improve performance and load time.</p>
+						} else { ?>
+							<div class="alert alert-warning"><p>You haven't followed any games yet!</p></div>
+					<?php }	?>
+				</div><!-- .infoInterior/News Feed -->
+			</div><!-- .infoBox/News Feed -->
+			
 
 			<div class="infoBox">
-				<h4 class="infoHeader">MixMingler Notices</h4>
+				<h4 class="infoHeader">MixMingler Alpha Development Notices</h4>
 				<div class="infoInterior">
-					<div class="userFeedItem">
-						<p class="post">v0.2.0-Type Released!!!! (see <a href="/alpha/">Version History for notes</a>). We are officially moving into development on v0.3-Communities! Please visit the <a href="https://discord.gg/hcS64t9">MixMingler Discord</a> to provide any feedback.</p>
-						<p class="postHead"><span class="postTime">24 July 2018</span></p>
+					<div class="userFeedItem notices alert alert-danger">
+						<h5 class="postTime">16 August 2018</h5>
+						<p class="post">v0.2.2 is released. This update included a large scale overhaul to the database struture. Due to this, all data has been purged from the database in order to accommodate these changes. This includes games followed, communities created, even registration to the site. This is a clean slate.</p>
 					</div>
+					<div class="userFeedItem notices alert alert-danger">
+						<h5 class="postTime">1 August 2018</h5>
+						<p class="post">v0.2.1 is released. This update has made substantial changes to the backend functionality for communities. As such, in preparation for this release, all data related to communities has been purged.</p>
+					</div>
+				</div><!-- .infoInterior -->
+			</div><!-- .infoBox -->
+
+	
+		</div> <!-- #centerColumn -->
+
+		<div class="col-2" id="rightColumn">
+			
+			<?php
+			//$modCommunities = null;
+			if (!empty($communities->manager)) { ?>
+			<div class="infoBox">
+				<h6 class="infoHeader">Communities You Manage</h6>
+				<div class="infoInterior">
+						<?php	foreach ($communities->manager as $community) {
+								echo '<p>'.communityListLink($community, true).'</p>';
+							
+							}
+					?>
 				</div>
 			</div>
-
-			<!--<p>This page should make it easy to see at a glance the following bits of info:</p>
-			<ul>
-				<li>Your communities</li>
-				<li>activity feed for communities you follow</li>
-				<li>activity feed for games you follow</li>
-			</ul>-->
-		</div>
-		<div class="col-2">
-
+			<?php } ?>
 
 			<div class="infoBox">
 				<h6 class="infoHeader">Core Communities</h4>
 				<div class="infoInterior">
 					<?php
-						if (!empty($communitiesData->core)) {
-							foreach ($communitiesData->core as $community) {
-								echo "<p><a href=\"/community/$community->slug\">$community->long_name</a></p>";
+						if (!empty($communities->core)) {
+							foreach ($communities->core as $community) {
+								echo '<p>'.communityListLink($community).'</p>';
 							}
 						} else {
 							echo "<p>You haven't marked any core communities.</p>";
@@ -154,9 +201,9 @@
 				<h6 class="infoHeader">Your Communities</h4>
 				<div class="infoInterior">
 					<?php
-						if (!empty($communitiesData->joined)) {
-							foreach ($communitiesData->joined as $community) {
-								echo "<p><a href=\"/community/$community->slug\">$community->long_name</a></p>";
+						if (!empty($communities->member)) {
+							foreach ($communities->member as $community) {
+								echo '<p>'.communityListLink($community).'</p>';
 							}
 						} else {
 							echo "<p>You haven't joined any communities.</p>";
@@ -165,41 +212,7 @@
 				</div>
 			</div>
 
-			<div class="infoBox">
-				<h6 class="infoHeader">New Communities!</h6>
-				<div class="infoInterior">
-					<?php
-					if (!empty($communitiesData->new)) {
-						foreach ($communitiesData->new as $community) {
-							echo "<p><a href=\"/community/$community->slug/\">$community->long_name</a></p>";
-						}
-					} else {
-						echo "<p>No new communities.</p>";
-					}
-					?>
-				</div>
-			</div>
-
+			
 		</div>
-	</div>
-
-	<!--<div class="plans">
-		<p><b>Plans/Ideas for this page:</b></p>
-		<ul>
-			<li>Feed should be broken down into followed Type and Community feeds</li>
-			<li>Events should be displayed for when a streamer:
-				<ul>
-					<li>Joined MixMingler</li>
-					<li>goes live</li>
-					<li>starts playing a new game</li>
-					<li>joins a community</li>
-					<li>Surpass certain view/follower milestones</li>
-					<li>Becomes a partner</li>
-					<li>Get featured</li>
-				</ul>
-			</li>
-			<li>Quick access to Communities that you follow</li>
-			<li>Tools to sync your Mixer data to MixMingler</li>
-		</ul>
-	</div>-->
+	</div><!-- .row -->
 </main>

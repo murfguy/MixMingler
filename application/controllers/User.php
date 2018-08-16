@@ -48,8 +48,8 @@ class User extends CI_Controller {
 				}
 			} else {
 				// We found this user, so let's see if they are eligible to do a basic sync with Mixer.
-				$syncThreshold = time() - (1);
-				$lastSync = strtotime($minglerData->lastSynced);
+				$syncThreshold = time() - (60);
+				$lastSync = strtotime($minglerData->LastSynced);
 
 				if ($lastSync <= $syncThreshold) {
 					// User can sync with Mixer now.
@@ -61,52 +61,10 @@ class User extends CI_Controller {
 				}
 			}
 
-			$minglerData->lastTypeSlug = $this->types->createSlug($minglerData->lastType);
+			$minglerData->LastTypeSlug = createSlug($minglerData->LastType);
 
-			$minglerData->lastStartElapsed = $this->tools->getElapsedTimeString(strtotime($minglerData->lastStreamStart));
-			$minglerData->lastSeenElapsed = $this->tools->getElapsedTimeString(strtotime($minglerData->lastSeenOnline));		
-
-			if (!empty($minglerData->followedTypes)) {
-				$minglerData->followedTypesData = $this->types->getTypesByIdsFromMingler($minglerData->followedTypes);
-			}
-
-
-			// --------------------------------------------------------------------------------
-			// Portion #2: Get Timeline Events for the current user using data from Mingler.
-			// --------------------------------------------------------------------------------
-			$feedData = null;
-			$newsDisplayItems = null;
-			$sql_query = "SELECT *, (SELECT name_token FROM mixer_users WHERE mixer_id=?) as username FROM `timeline_events` WHERE mixer_id=? ORDER BY id DESC, eventTime DESC LIMIT 0,100";
-			$query = $this->db->query($sql_query, array($minglerData->mixer_id, $minglerData->mixer_id));
-			$feedData = $query->result();
-
-			// We need to get the HTML version of these events so we can display them in the view.
-			if ($feedData != null) {
-				$newsDisplayItems = array();
-				foreach($feedData as $event) {
-					$newsDisplayItems[] = $this->news->getNewsDisplay($event, $minglerData->avatarURL, "condensed");
-				}
-			}
-
-			// --------------------------------------------------------------------------------
-			// Portion #3: Get Communities Data for the current user
-			// --------------------------------------------------------------------------------
-
-			$communitiesData = new stdClass();
-			$communitiesData->core = null;
-			$communitiesData->joined = null;
-			$communitiesData->followed = null;
-			$communitiesData->core = null;
-
-			if (!empty($minglerData->coreCommunities)) {
-				$communitiesData->core = $this->communities->getCommunitiesFromList($minglerData->coreCommunities);
-			} 
-			if (!empty($minglerData->joinedCommunities)) {
-				$communitiesData->joined = $this->communities->getCommunitiesFromList($minglerData->joinedCommunities);
-			} 
-			if (!empty($minglerData->followedCommunities)) {
-				$communitiesData->followed = $this->communities->getCommunitiesFromList($minglerData->followedCommunities);
-			} 
+			$minglerData->LastStartElapsed = getElapsedTimeString($minglerData->LastStreamStart);
+			$minglerData->LastSeenElapsed = getElapsedTimeString($minglerData->LastSeenOnline);	
 
 
 			// --------------------------------------------------------------------------------
@@ -114,12 +72,19 @@ class User extends CI_Controller {
 			// --------------------------------------------------------------------------------
 
 			$displayData = new stdClass();
+			//$displayData->minglerData = $minglerData;
+			//$displayData->communities = $communities;
+				//$displayData->feedData = $feedData;
+				//$displayData->newsItems = $newsDisplayItems;
+
+
+			$displayData->member = $minglerData;
 			$displayData->mixerData = $mixerData;
-			$displayData->minglerData = $minglerData;
-			$displayData->communitiesData = $communitiesData;
-			$displayData->feedData = $feedData;
-			$displayData->newsItems = $newsDisplayItems;
-			$displayData->recentTypes = $this->users->getUsersRecentStreamTypes($minglerData->mixer_id);
+			$displayData->types = $this->users->getUserTypesInformation($minglerData->ID);
+			$displayData->communities = createCommunityObjects($this->users->getUsersCommunitiesInformation($minglerData->ID));
+			$displayData->recentTypes = $this->users->getUsersRecentStreamTypes($minglerData->ID);
+			//$displayData->news = $this->users->getUserTimeline($minglerData->ID);
+
 			$this->displayUser($displayData);
 
 
@@ -131,22 +96,22 @@ class User extends CI_Controller {
 	private function displayUsers() {
 			$displayData = new stdClass();
 
-			$sql_query = "SELECT *, (CHAR_LENGTH(joinedCommunities) - IF(joinedCommunities!='',(CHAR_LENGTH(REPLACE(joinedCommunities,',',''))-1),0)) as joinedCount, (CHAR_LENGTH(followedCommunities) - IF(followedCommunities!='',(CHAR_LENGTH(REPLACE(followedCommunities,',',''))-1),0)) as followedCount FROM mixer_users WHERE registered=1 AND lastSeenOnline>DATE_SUB(NOW(), INTERVAL 30 DAY) ORDER BY lastStreamStart DESC";
+			$sql_query = "SELECT * FROM Users WHERE isRegistered=1 AND LastSeenOnline>DATE_SUB(NOW(), INTERVAL 30 DAY) ORDER BY LastStreamStart DESC";
 			$query = $this->db->query($sql_query);
 			$displayData->regStreamers = $query->result();
 
 			foreach ($displayData->regStreamers as $streamer) { 
-				$streamer->lastStartElapsed = $this->tools->getElapsedTimeString(strtotime($streamer->lastStreamStart));
-				$streamer->lastSeenElapsed = $this->tools->getElapsedTimeString(strtotime($streamer->lastSeenOnline));
+				$streamer->LastStartElapsed = getElapsedTimeString($streamer->LastStreamStart);
+				$streamer->LastSeenElapsed = getElapsedTimeString($streamer->LastSeenOnline);
 			}
 
-			$sql_query = "SELECT * FROM mixer_users WHERE registered=0 AND lastSeenOnline>DATE_SUB(NOW(), INTERVAL 30 MINUTE) ORDER BY lastStreamStart DESC";
+			$sql_query = "SELECT * FROM Users WHERE isRegistered=0 AND LastSeenOnline>DATE_SUB(NOW(), INTERVAL 30 MINUTE) ORDER BY LastStreamStart DESC";
 			$query = $this->db->query($sql_query);
 			$displayData->nonRegStreamers = $query->result();
 
 			foreach ($displayData->nonRegStreamers as $streamer) { 
-				$streamer->lastStartElapsed = $this->tools->getElapsedTimeString(strtotime($streamer->lastStreamStart));
-				$streamer->lastSeenElapsed = $this->tools->getElapsedTimeString(strtotime($streamer->lastSeenOnline));
+				$streamer->LastStartElapsed = getElapsedTimeString($streamer->LastStreamStart);
+				$streamer->LastSeenElapsed = getElapsedTimeString($streamer->LastSeenOnline);
 			}
 
 			$this->load->view('htmlHead');

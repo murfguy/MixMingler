@@ -2,10 +2,12 @@
 	<div id="userHeader" class="pageHeader">
 		<h1>Alpha Version Information</h1>
 	</div>
+
+	<p>refer: <?php $_SERVER["REQUEST_URI"]; ?></p>
 	<nav id="categoryNav">
-		<a class="infoToggle" category="info">Alpha Info</a> | 
-		<a class="infoToggle" category="version">Version History</a> | 
-		<a class="infoToggle" category="roadmap">Roadmap</a>
+		<a class="viewToggle" category="info">Alpha Info</a> | 
+		<a class="viewToggle" category="version">Version History</a> | 
+		<a class="viewToggle" category="roadmap">Roadmap</a>
 	</nav>
 
 
@@ -46,7 +48,7 @@
 
 					        echo "\" data-toggle=\"collapse\" data-target=\"#collapse$itemCount\" aria-expanded=\"true\" aria-controls=\"collapse$itemCount\">";
 					          echo "<b>$patch->date</b> ($patch->version)";
-					        echo "</button>";
+					          echo "</button></h5>";
 						echo "</div>";
 
 						echo "<div id=\"collapse$itemCount\" class=\"collapse";
@@ -94,12 +96,11 @@
 				<p>Status: Now in development!</p>
 			<ul>
 				<li>General: AJAX-based data loading to improve site performance speeds.</li>
-				<li>Home page: Global news feed as default view. Collects all news from types + communities a user follows.</li>
-				<li>Home page: View recent activity based on community follows.</li>
+				<li>Home page: View recent activity based on followed communities.</li>
 				<li>Overhaul community browsing page</li>
 				<li>Provide admin/moderation tools for communities.</li>
 				<li>Allow users to request new communities.</li>
-				<li>Provide information about: founding member, current owner, current moderators</li>
+				<li>Community Detail: Provide information about: founding member, current owner, current moderators</li>
 				<li>Account Management: Select core communities</li>
 				<li>Account Management: Manage communities</li>
 			</ul>
@@ -118,7 +119,7 @@
 			</ul>
 			<h3>Unmapped Features</h3>
 			<ul>
-				<li>Be able to find offline games/games not yet in MixMingler database.</li>
+				<li>Be able to find offline games and games not yet in MixMingler database.</li>
 				<li>Be able to crowd-source linking games to communities to help improve suggestions.</li>
 				<li>Types Page: Allow option to follow/ignore from thumbnails.</li>
 				<li>Raid Finder: A tool that would help find streams to raid.</li>

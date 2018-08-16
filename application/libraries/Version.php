@@ -6,6 +6,7 @@ class Version {
 	private $major;
 	private $minor;
 	private $revision;
+	private $build;
 	private $stage;
 
 	public function __construct() {
@@ -14,7 +15,7 @@ class Version {
 
 		$this->major = 0;
 		$this->minor = 2;
-		$this->revision = 0;
+		$this->revision = 2;
 		$this->stage = "Types";
 
 		// Load Database
@@ -34,6 +35,9 @@ class Version {
 				break;
 			case "0.4":
 				$stage = "Streamers";
+				break;
+			case "0.5":
+				$stage = "Not Even My Final Form";
 				break;
 		}
 	}
@@ -63,6 +67,115 @@ class Version {
 		$patch->notes[] = "note";
 		$patchNotes[] = $patch;
 		----- Template --------- */
+
+		/* --------------------------------------------------------------------------------- 
+		// --- v0.3 Task List -------------------------------------------------------------- 
+		// --------------------------------------------------------------------------------- 
+
+		Phase Approach:
+			Phase 1: Focus on data input/manipulation (Forms/Servlet) [Function]
+			Phase 2: Focus on data collection/display (Servlet/Views) [Display]
+			Phase 3: Focus on final UI/UX for Candidate release [Form/Flow]
+
+		--- Site Admin Panel ---------------------------------------------------------------
+			Ban user from creating communities -- Target: Phase 1
+
+		--- Community Moderation Panel -----------------------------------------------------
+			Moderation Tool: community summary analytics. -- Target: Phase 2
+				- Recently joined members
+				- Totals of: core members, members, followers, 
+				- Quick list of pending members
+				- (Further expansion in future version)
+			Moderation Tool: adjust community settings. (Admins only) -- Target: Phase 1
+				- Cover art can be uploaded.
+				- Summary and description can be changed. 
+				- Status can be set to open or closed
+				- Can toggle 'requires approval' setting
+				- Transfer ownership
+				- Delete community
+			Moderation Tool: membership management controls (Moderators) -- completed
+				- Promote/demote
+				- Kick
+				- Ban
+				- Approve/Deny
+
+		--- Community List page ---------------------------------------------------------
+			UI/UX overhaul  -- Target: Ongoing/Phase 3
+				-- Showcase core/joined/followed communities
+				-- Showcase all communities
+				-- Slogan/Summary on hover
+				-- ?? show number of online members
+				-- ?? show number of current views
+		
+		--- Community Details Page ------------------------------------------------------
+			UI/UX overhaul -- Target: Ongoing/Phase 3
+				-- View: Top Streams (if any online, default here)
+				-- View: Member List (if no online members, default here)
+					-- Sort on: Recently online, number of follows, number of views, community rank (admin, mod, core, member)
+					-- Show as grid
+						-- Avatar, name
+					-- Show as table
+						-- Avatar, Name, followers, views, top games (show top 5 games)
+
+
+		--- User Home Page --------------------------------------------------------------
+			Show pending admin requests (site admins)  -- Target: Phase 2
+			Show pending moderation requests (community admins/moderators) -- Target: Phase 2
+			Allow selection/view of community news feeds -- Target: Phase 2
+		
+		--- User Profile Page -----------------------------------------------------------
+			Display Core Communities -- completed
+
+		--- User Account Settings -------------------------------------------------------
+			Manage communities (leave/follow/unpend) -- completed
+			Select Core Communities -- completed
+
+		--- Type Details Page -----------------------------------------------------------
+			AJAX data collection -- Target: Phase 2
+
+		--- Email Notifications ---------------------------------------------------------
+			GENERAL -- Target: Phase 3
+			Adjust Email notification settings from account panel
+			Email notifications to site admins that a new community is awaiting approval.
+			Email notifications to community admins that thier community is approved/denied.
+			Email notifications to community admins that a member is awaiting approval.
+			Email notifications to community member that membership in a community is approved/denied/banned/promoted.
+
+		---------------------------------------------------------------------------------
+		--- </end> v0.3 Task List -------------------------------------------------------
+		--------------------------------------------------------------------------------- */
+
+		$patch = new stdClass();
+		$patch->version = "0.2.2";
+		$patch->date = date($date_string, strtotime('2018-08-16'));
+		$patch->notes = array(
+			"General/Backend: Complete overhaul to database structure and refactoring of associated server communication functions. (AKA: why this update took 2 weeks)",
+			"Types List: UX tweak: Shows active type list if user is not following any types.",
+			"General UX Update: Alerts and Confirmation prompts appear when communicating with backend.",
+			"General: UI adjustments for sub page navigation",
+			"General UI: icons may appear next to community lists to indicate your role in that community.",
+			"Home Page: Panel with alerts related to pending community requests now appears.",
+			"Account Page: Manage communities + Set/Unset Core Communities",
+			"Community Moderation: Manage Users (approve/deny/kick/ban/promote)",
+			"Login: Mixer email address synced upon login.",
+			"Email Notices: For community creation, and new members",
+			"User Profile: AJAX loaded news feed.");
+		$patchNotes[] = $patch;
+
+
+		$patch = new stdClass();
+		$patch->version = "0.2.1";
+		$patch->date = date($date_string, strtotime('2018-08-01'));
+		$patch->notes = array();
+		$patch->notes[] = "Admin Panel: user site roles assignable";
+		$patch->notes[] = "Home page: news feeds load asynchronously.";
+		$patch->notes[] = "New communities can be requested.";
+		$patch->notes[] = "Admin Panel: approve/reject community requests";
+		$patch->notes[] = "Communities can now be founded once approved.";
+		$patch->notes[] = "Community moderation page with limited functions added.";
+		$patch->notes[] = "Can approve or deny pending member requests for communities.";
+		$patch->notes[] = "Controls for join/leave/follow/unfollow fine-tuned and now also handled 'closed' and 'approval required' communities.";
+		$patchNotes[] = $patch;
 
 		$patch = new stdClass();
 		$patch->version = "0.2.0";
@@ -203,4 +316,6 @@ class Version {
 
 		return $patchNotes;
 	}
+
+	
 }?>

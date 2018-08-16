@@ -1,6 +1,6 @@
 <main role="main" class="container">
 	<div class="pageHeader">
-		<h1>Welcome to <span class="mixBlue">Mix</span>Mingler!</h1>
+		<h1>Welcome to <span class="mixBlue">Mix</span>Mingler! <?php echo devNotes('login'); ?></h1>
 	</div>
 <div id="body">
 	<div style="margin-bottom: 50px">
@@ -28,9 +28,19 @@
 		</div>
 
 
-		<p class="devNote" data-toggle="tooltip" title="Planned for v0.2" data-placement="left">[Tweak] Make login button an actual button</p>
-		<p class="devNote" data-toggle="tooltip" title="Planned for v0.3" data-placement="left">[Tweak] Add login button to navigation</p>
-		<p class="devNote" data-toggle="tooltip" title="Planned for v0.4" data-placement="left">[Feature] View of randomized streams, types and communities.</p>
+			<div class="infoBox">
+				<h4 class="infoHeader">MixMingler Alpha Development Notices</h4>
+				<div class="infoInterior">
+					<div class="userFeedItem notices alert alert-danger">
+						<h5 class="postTime">16 August 2018</h5>
+						<p class="post">v0.2.2 is released. This update included a large scale overhaul to the database struture. Due to this, all data has been purged from the database in order to accommodate these changes. This includes games followed, communities created, even registration to the site. This is a clean slate.</p>
+					</div>
+					<div class="userFeedItem notices alert alert-danger">
+						<h5 class="postTime">1 August 2018</h5>
+						<p class="post">v0.2.1 is released. This update has made substantial changes to the backend functionality for communities. As such, in preparation for this release, all data related to communities has been purged.</p>
+					</div>
+				</div><!-- .infoInterior -->
+			</div><!-- .infoBox -->
 		<!--<h1>Proto-Login</h1>
 		<form id="protoLogin">
 			<div class="form-group">

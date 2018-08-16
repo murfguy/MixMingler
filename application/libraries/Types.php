@@ -9,13 +9,13 @@ class Types {
 		$this->CI =& get_instance();
 
 		// Load Database
-		$this->CI->load->database();
-		$this->CI->load->library('tools');
+		$this->CI->load->database(); $this->db = $this->CI->db;
+		$this->CI->load->library('tools'); $this->tools = $this->CI->tools;
 	}
 
 	public function getTypeById($typeId) {
 		$data = new stdClass();
-		$sql_query = "SELECT * FROM stream_types WHERE typeId=?";
+		$sql_query = "SELECT * FROM StreamTypes WHERE ID=?";
 		$query = $this->CI->db->query($sql_query, array($typeId));
 
 		if (!empty($query->result())) {
@@ -29,7 +29,7 @@ class Types {
 
 	public function getTypeBySlug($slug) {
 		$data = new stdClass();
-		$sql_query = "SELECT * FROM stream_types WHERE slug=?";
+		$sql_query = "SELECT * FROM StreamTypes WHERE slug=?";
 		$query = $this->CI->db->query($sql_query, array($slug));
 
 		if (!empty($query->result())) {
@@ -42,7 +42,7 @@ class Types {
 	}
 
 	public function getAllTypesFromMingler() {
-		$sql_query = "SELECT * FROM stream_types ORDER BY typeName ASC";
+		$sql_query = "SELECT * FROM StreamTypes ORDER BY typeName ASC";
 		$query = $this->CI->db->query($sql_query);
 		$types = $query->result();
 
@@ -50,13 +50,13 @@ class Types {
 	}
 
 	public function getAllTypeIdsFromMingler() {
-		$sql_query = "SELECT typeId FROM stream_types ORDER BY id ASC";
+		$sql_query = "SELECT ID FROM StreamTypes ORDER BY ID ASC";
 		$query = $this->CI->db->query($sql_query);
 		$types = $query->result();
 
 		$typeIds = array();
 		foreach ($types as $type) {
-			$typeIds[] = $type->typeId;
+			$typeIds[] = $type->ID;
 		}
 
 		return $typeIds;
@@ -67,7 +67,7 @@ class Types {
 
 			$typeIds = str_replace(";", ",", $typeIds);
 
-			$sql_query = "SELECT * FROM stream_types WHERE typeId IN ($typeIds) ORDER BY typeName ASC";
+			$sql_query = "SELECT * FROM StreamTypes WHERE typeId IN ($typeIds) ORDER BY typeName ASC";
 			$query = $this->CI->db->query($sql_query);
 			$types = $query->result();
 
@@ -126,7 +126,7 @@ class Types {
 			$urlParameters = "?limit=$totalLimit";
 			$maxPage = 1;
 		} else {
-			$urlParameters = "?limit=100";
+			$urlParameters = "?limit=50";
 		}
 		
 		$urlParameters .="&order=viewersCurrent:DESC,numFollowers:DESC,token:ASC";
@@ -165,9 +165,9 @@ class Types {
 			$content = file_get_contents($url.$urlParameters."&page=".$currentPage);
 			$newList = json_decode($content, true);
 
-			/*foreach ($newList as $type) {
-				$type['slug'] = $this->createSlug($type['name']);
-			}*/
+			foreach ($newList as $type) {
+				$type['slug'] = createSlug($type['name']);
+			}
 
 			$allTypes = array_merge($allTypes, $newList);
 
@@ -182,30 +182,40 @@ class Types {
 	}
 
 	public function getRecentStreamsForType($typeId) {
-		$sql_query = "SELECT *, (SELECT name_token FROM mixer_users WHERE mixer_users.mixer_id=timeline_events.mixer_id) as username, (SELECT avatarUrl FROM mixer_users WHERE mixer_users.mixer_id=timeline_events.mixer_id) as avatarUrl, MAX(eventTime) as eventTime FROM timeline_events WHERE eventType='type' AND extraVars=? AND eventTime > DATE_SUB(NOW(), INTERVAL 7 DAY) GROUP BY timeline_events.mixer_id ORDER BY eventTime DESC LIMIT 0, 50";
-		$query = $this->CI->db->query($sql_query, array($typeId));
-		$feedData = $query->result();
-
-		return $feedData;
+		$query = $this->db
+			->select('TimelineEvents.*')
+			->select('Users.Username as Username')
+			->select('Users.AvatarUrl as AvatarURL')
+			->select('MAX(EventTime) as EventTime')
+			->from('TimelineEvents')
+			->join('Users', 'Users.ID = TimelineEvents.MixerID')
+			->where('Type', 'type')
+			->where('TypeID', $typeId)
+			->where('EventTime > DATE_SUB(NOW(), INTERVAL 7 DAY)')
+			->group_by('MixerID')
+			->get();
+		return $query->result();
 	}
 
 	public function getLastMonthsMostFrequentStreamersForType($typeId) {
+		$query = $this->db
+			->select('MixerID')
+			->select('Users.Username AS Username')
+			->select('Users.NumFollowers AS NumFollowers')
+			->select('Users.AvatarURL AS AvatarURL')
+			->select('COUNT(DISTINCT DATE(eventTime)) as StreamCount')
+			->from('TimelineEvents')
+			->join('Users', 'Users.ID = TimelineEvents.MixerID')
+			->where('Type', 'type')
+			->where('TypeID', $typeId)
+			->where('EventTime>DATE_SUB(NOW(), INTERVAL 30 DAY) ')
+			->group_by('MixerID')
+			->order_by('StreamCount', 'DESC')
+			->order_by('NumFollowers', 'DESC')
+			->limit(50)
+			->get();
 
-		$sql_query = "SELECT mixer_id, 
-(SELECT name_token FROM mixer_users WHERE mixer_users.mixer_id = timeline_events.mixer_id) as username, 
-(SELECT numFollowers FROM mixer_users WHERE mixer_users.mixer_id = timeline_events.mixer_id) as numFollowers, 
-(SELECT avatarUrl FROM mixer_users WHERE mixer_users.mixer_id = timeline_events.mixer_id) as avatarUrl, 
-COUNT(DISTINCT DATE(eventTime)) as stream_count
-FROM `timeline_events` 
-WHERE eventType='type' AND extraVars=? AND eventTime>DATE_SUB(NOW(), INTERVAL 30 DAY) 
-GROUP BY mixer_id 
-ORDER BY `stream_count` DESC, numFollowers DESC 
-LIMIT 0, 50";
-
-		$query = $this->CI->db->query($sql_query, array($typeId));
-		$feedData = $query->result();
-
-		return $feedData;
+		return $query->result();
 	}
 
 	public function addNewType($typeData) {
@@ -213,8 +223,8 @@ LIMIT 0, 50";
 			$typeData = $this->getEmptyType();
 		}
 
-		$sql_query = "INSERT IGNORE INTO stream_types (typeId, typeName, slug, coverUrl, backgroundUrl) VALUES (?, ?, ?, ?, ?)";
-		$query = $this->CI->db->query($sql_query, array($typeData['id'], $typeData['name'], $this->createSlug($typeData['name']), $typeData['coverUrl'], $typeData['backgroundUrl']));
+		$sql_query = "INSERT IGNORE INTO StreamTypes (ID, Name, Slug, CoverURL, BackgroundURL) VALUES (?, ?, ?, ?, ?)";
+		$query = $this->CI->db->query($sql_query, array($typeData['id'], $typeData['name'], createSlug($typeData['name']), $typeData['coverUrl'], $typeData['backgroundUrl']));
 	}
 
 	public function getEmptyType() {
@@ -229,11 +239,11 @@ LIMIT 0, 50";
 	}
 	
 
-	public function createSlug($typeName) {
+	/*public function createSlug($typeName) {
 		$typeName = preg_replace('/[^a-zA-Z0-9\-\s]/', '', $typeName); // removes non-alphanumeric characters except space and dash
 		$typeName = preg_replace('/[\-\s]/', '_', $typeName); // converts spaces and dashes to underscores
 		return strtolower($typeName); // returns slugged version, lower case
-	}
+	}*/
 
 	public function getTypeURL($typeId, $typeSlug) {
 		return "/type/$typeId/$typeSlug/";
@@ -241,15 +251,15 @@ LIMIT 0, 50";
 
 	public function getSyncQueryDataArray($type) {
 		if ($type['coverUrl'] == null) {
-			$type['coverUrl']  = "https://mixer.com/_latest/assets/images/main/types/default.jpg";
+			$type['coverUrl']  = "";
 		}
 
 		$query_data = array(
-			'typeId' => $type['id'],
-			'typeName' => $type['name'],
-			'slug' => $this->createSlug($type['name']),
-			'coverUrl' => $type['coverUrl'],
-			'backgroundUrl' => $type['backgroundUrl']
+			'ID' => $type['id'],
+			'Name' => $type['name'],
+			'Slug' => createSlug($type['name']),
+			'CoverUrl' => $type['coverUrl'],
+			'BackgroundUrl' => $type['backgroundUrl']
 		);
 
 		return $query_data;
@@ -264,7 +274,7 @@ LIMIT 0, 50";
 		return array(
 			'id' => $type['id'],
 			'name' => $type['name'],
-			'slug' => $this->createSlug($type['name']),
+			'slug' => createSlug($type['name']),
 			'online' => $this->CI->tools->formatNumber($type['online']),
 			'viewersCurrent' => $this->CI->tools->formatNumber($type['viewersCurrent']),
 			'coverUrl' => $type['coverUrl'],
