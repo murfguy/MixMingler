@@ -229,7 +229,7 @@ div.authBtn > button {
 }
 
 .devNote:before {
-	content: "Developer Note: ";
+	content: "DevNote: ";
 }
 
 

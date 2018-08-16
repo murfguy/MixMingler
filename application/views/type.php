@@ -1,6 +1,6 @@
 <main role="main" class="container">
 	<div id="userHeader" class="pageHeader">
-		<h1><?php echo $typeData->Name; ?></h1>
+		<h1><?php echo $typeData->Name; ?> <?php echo devNotes('type'); ?></h1>
 	</div>
 	<div class="row">
 		<div class="col userInfo">

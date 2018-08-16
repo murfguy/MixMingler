@@ -1,9 +1,7 @@
 <main role="main" class="container">
 <div class="container">
-		<p class="devNote"  data-toggle="tooltip" title="Planned for v0.3" data-placement="left">General updates and full fledged community features are planned for development during v0.3 (Communities). See the <a href="/alpha/">Alpha Information Page</a> for more info. Bugs or incomplete implementations are expected in this area.</p>
-
 	<div id="userHeader" class="pageHeader">
-		<h1><?php echo $community->Name; ?></h1>
+		<h1><?php echo $community->Name; ?>  <?php echo devNotes('community'); ?></h1>
 		<p><?php echo $community->Description; ?></p>
 	</div>
 
@@ -131,15 +129,8 @@
 			</div>
 
 			<h3>News Feed</h3>
-			<?php
-				if (!empty($newsDisplayItems)) {
-					foreach ($newsDisplayItems as $newsItem) {
-						echo $newsItem;
-					}
-				} else {
-					echo "<p>No members yet!</p>";
-				}
-			?>
+			<p class="devNote">coming soon.</p>
+
 		</div>
 
 	</div>

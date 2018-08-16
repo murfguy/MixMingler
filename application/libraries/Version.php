@@ -36,6 +36,9 @@ class Version {
 			case "0.4":
 				$stage = "Streamers";
 				break;
+			case "0.5":
+				$stage = "Not Even My Final Form";
+				break;
 		}
 	}
 
@@ -144,7 +147,7 @@ class Version {
 
 		$patch = new stdClass();
 		$patch->version = "0.2.2";
-		$patch->date = date($date_string, strtotime('2018-08-01'));
+		$patch->date = date($date_string, strtotime('2018-08-16'));
 		$patch->notes = array(
 			"General/Backend: Complete overhaul to database structure and refactoring of associated server communication functions. (AKA: why this update took 3 weeks)",
 			"Types List: UX tweak: Shows active type list if user is not following any types.",
@@ -314,4 +317,6 @@ class Version {
 
 		return $patchNotes;
 	}
+
+	
 }?>

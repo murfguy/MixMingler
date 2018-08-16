@@ -1,10 +1,6 @@
-<?php 
-	$devNotes = array();
-	$devNotes[] = array('v0.5', 'Search field to find offline games');
-?>
 <main role="main" class="container">
 	<div id="userHeader" class="pageHeader">
-		<h1>Games & Stream Types <?php echo devNotesButton($devNotes); ?></h1>
+		<h1>Games & Stream Types <?php echo devNotes('types'); ?></h1>
 	</div>
 
 	<?php

@@ -1,11 +1,6 @@
-<?php 
-	$devNotes = array();
-	$devNotes[] = array('v0.3', 'View event feeds for followed communities.');
-	$devNotes[] = array('v0.3', 'View personal event feed.');
-?>
 <main role="main" class="container">
 	<div class="pageHeader">
-		<h1><img src="<?php echo $user->AvatarURL; ?>" <?php echo imgBackup('streamer'); ?> class="avatar thin-border" width="60" />Welcome <?php echo $user->Username; ?> <?php echo devNotesButton($devNotes); ?></h1>
+		<h1><img src="<?php echo $user->AvatarURL; ?>" <?php echo imgBackup('streamer'); ?> class="avatar thin-border" width="60" />Welcome <?php echo $user->Username; ?> <?php echo devNotes('main'); ?></h1>
 	</div>
 
 	<div class="alert alert-success">
@@ -155,15 +150,15 @@
 			
 
 			<div class="infoBox">
-				<h4 class="infoHeader">MixMingler Notices</h4>
+				<h4 class="infoHeader">MixMingler Alpha Development Notices</h4>
 				<div class="infoInterior">
+					<div class="userFeedItem notices alert alert-danger">
+						<h5 class="postTime">16 August 2018</h5>
+						<p class="post">v0.2.2 is released. This update included a large scale overhaul to the database struture. Due to this, all data has been purged from the database in order to accommodate these changes. This includes games followed, communities created, even registration to the site. This is a clean slate.</p>
+					</div>
 					<div class="userFeedItem notices alert alert-danger">
 						<h5 class="postTime">1 August 2018</h5>
 						<p class="post">v0.2.1 is released. This update has made substantial changes to the backend functionality for communities. As such, in preparation for this release, all data related to communities has been purged.</p>
-					</div>
-					<div class="userFeedItem notices alert alert-success">
-						<h5 class="postTime">24 July 2018</h5>
-						<p class="post">v0.2.0-Type Released!!!! (see <a href="/alpha/">Version History for notes</a>). We are officially moving into development on v0.3-Communities! Please visit the <a href="https://discord.gg/hcS64t9">MixMingler Discord</a> to provide any feedback.</p>
 					</div>
 				</div><!-- .infoInterior -->
 			</div><!-- .infoBox -->

@@ -1,7 +1,7 @@
 <main role="main" class="container">
 <div class="container">
 	<div class="pageHeader">
-		<h1><span class="mixBlue">Mix</span>Mingler Communities</h1>
+		<h1><span class="mixBlue">Mix</span>Mingler Communities <?php echo devNotes('communities'); ?></h1>
 	</div>
 		<p class="devNote"  data-toggle="tooltip" title="Planned for v0.3" data-placement="left">General updates and full fledged community features are currently under development. See the <a href="/alpha/">Alpha Information Page</a> for more info. Bugs or incomplete implementations are expected in this area.</p>
 

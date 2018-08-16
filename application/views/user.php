@@ -1,6 +1,6 @@
 <main role="main" class="container">
 	<div id="userHeader" class="pageHeader">
-		<h1><?php echo $member->Username; ?></h1>
+		<h1><?php echo $member->Username; ?> <?php echo devNotes('user'); ?></h1>
 	</div>
 
 	

@@ -1,6 +1,6 @@
 <main role="main" class="container">
 	<div id="userHeader" class="pageHeader">
-		<h1>MixMingler Admin Panel</h1>
+		<h1>MixMingler Admin Panel <?php echo devNotes('admin'); ?></h1>
 	</div>
 	<p class="devNote">Admin features are planned to added/implemented alongside Community features. See the <a href="/alpha/">Alpha Information Page</a> for more info. Bugs or incomplete implementations are expected in this area.</p>
 

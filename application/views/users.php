@@ -1,8 +1,8 @@
 <main role="main" class="container">
 	<div id="userHeader" class="pageHeader">
-		<h1>Streamers</h1>
+		<h1>Streamers  <?php echo devNotes('users'); ?></h1>
 	</div>
-	<p class="devNote" data-toggle="tooltip" title="Planned for v0.4" data-placement="left">[PLAN] This page should suggest streamers based on communities and types followed. For debug/testing, we are simply showcasing registered streamers and recently active streams.</p>
+	<p class="devNote" data-toggle="tooltip" title="Planned for v0.4" data-placement="left">This page is in 'debug' mode as it has not entered full-scale developement.</p>
 	
 
 		<h1>Registered Members</h1>

@@ -1,7 +1,7 @@
 <main role="main" class="container">
 <div class="container">
 	<div id="userHeader" class="pageHeader">
-		<h1>Create a Community</h1>
+		<h1>Create a Community  <?php echo devNotes('community-add'); ?></h1>
 	</div>
 	<?php 
 		$success = true;
