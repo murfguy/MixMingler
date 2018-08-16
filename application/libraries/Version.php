@@ -149,7 +149,7 @@ class Version {
 		$patch->version = "0.2.2";
 		$patch->date = date($date_string, strtotime('2018-08-16'));
 		$patch->notes = array(
-			"General/Backend: Complete overhaul to database structure and refactoring of associated server communication functions. (AKA: why this update took 3 weeks)",
+			"General/Backend: Complete overhaul to database structure and refactoring of associated server communication functions. (AKA: why this update took 2 weeks)",
 			"Types List: UX tweak: Shows active type list if user is not following any types.",
 			"General UX Update: Alerts and Confirmation prompts appear when communicating with backend.",
 			"General: UI adjustments for sub page navigation",
@@ -160,7 +160,6 @@ class Version {
 			"Login: Mixer email address synced upon login.",
 			"Email Notices: For community creation, and new members",
 			"User Profile: AJAX loaded news feed.");
-		//$patch->notes[] = "Email Notices: Community Mods - New Member Request Received";
 		$patchNotes[] = $patch;
 
 
