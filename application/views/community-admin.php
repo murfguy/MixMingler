@@ -110,11 +110,11 @@
 				echo " You are a moderator.";
 			}
 		?></p>
-
 		<div class="btn-group d-flex" role="group">
+			<button type="button" class="btn btn-primary" onclick="window.location.href = '/community/<?php echo $community->Slug; ?>/';" data-toggle="tooltip" title="Back to Community Page"><i class="fas fa-arrow-left"></i></button>
 			<button type="button" class="btn btn-info displayToggle" target="summaryView">Summary</button>
 			<button type="button" class="btn btn-info displayToggle" target="memberManager" disabled>Members</button>
-			<button type="button" class="btn btn-info displayToggle" target="settingsManager">Settings</button>
+			<?php if ($currentUser->isAdmin) { ?><button type="button" class="btn btn-info displayToggle" target="settingsManager">Settings</button><?php } ?>
 		</div>
 
 
@@ -124,7 +124,7 @@
 			<div id="summaryView" class="inactiveView">
 				<h2>Community Summary</h2>
 				<p class="devNote">coming soon</p>
-			</div>
+			</div> <!-- summary view -->
 
 			<div id="memberManager">
 
@@ -150,7 +150,7 @@
 					?>
 					<div id="allMembers">
 						<?php
-					if (!empty($members)) { ?>
+						if (!empty($members)) { ?>
 						<h4>All Members</h4>
 						<table class="table table-striped table-bordered table-hover table-sm ">
 							<thead class="thead-dark">
@@ -271,9 +271,9 @@
 						<?php }  ?>
 
 						</table>
-					<?php }	else { ?>
-						<p>No one is in this community.... which is odd, because the admin should be.</p>
-					<?php }  ?>
+						<?php }	else { ?>
+							<p>No one is in this community.... which is odd, because the admin should be.</p>
+						<?php }  ?>
 					</div> <!-- allMembers -->
 
 					<div id="pendingMembers" class="inactiveView">
@@ -330,7 +330,7 @@
 						<?php } else { ?>
 							<p>There are no currently pending members.</p>
 						<?php } ?>
-					</div>
+					</div> <!-- pending members -->
 
 					<div id="bannedMembers" class="inactiveView">
 						<h4>Banned Members</h4>
@@ -365,21 +365,140 @@
 						<?php } else { ?>
 							<p>There are no banned members. Lucky you!</p>
 						<?php } ?>
-					</div>
-				</div>
-			</div>
+					</div> <!-- banned members -->
+				</div> <!-- window group -->
+			</div> <!-- member mananger -->
 
-
+			<?php if ($currentUser->isAdmin) { ?>
 			<div id="settingsManager" class="inactiveView">
 				<h2>Community Settings</h2>
-				<p class="devNote">coming soon</p>
-			</div>
-		</div>
-	</div>
+				
+				<?php 
+					$attributes = array('id' => 'editCommunity');
+					$hidden = array(
+						'commId' => $community->ID,
+						'mixerUser_id' => $_SESSION['mixer_id']
+					);
+					echo form_open('servlet/editCommunity', $attributes, $hidden); 
+				?>
+
+				<div class="form-row">
+					<div class="col-4">
+						<div class="form-group">
+							<?php 
+								echo form_label('Summary/Slogan', 'summary');
+
+								$attributes = array(
+									'id' => 'summary',
+									'class' => 'form-control form-control-sm',
+									'placeholder' => 'Shows up as hover text on thumbnails.',
+									'data-validation' => 'required length',
+									'data-validation-length' => 'max100'
+								);
+								echo form_input('summary', $community->Summary, $attributes); 
+							?>
+						</div> <!-- group: summary -->
+
+						<div class="form-group">
+							<?php
+								$options = array(
+									'name' => 'description',
+									'rows' => '4');
+
+								$attributes = array(
+									'id' => 'description',
+									'class' => 'form-control form-control-sm',
+									'placeholder' => 'Shows up on community details page.',
+									'data-validation' => 'required length',
+									'data-validation-length' => 'max500',
+									'rows' => '3'
+								);
+
+								echo form_label('Description', 'description');
+								echo form_textarea($options, $community->Description, $attributes);
+							?>
+						</div> <!-- group: description -->
+
+						
+
+					</div> <!-- col1-->
+					
+					<div class="col-4">
+						<?php 
+
+							echo form_label('Cover Art', 'coverArt');
+							echo "<br>";
+							echo form_label('Discord', 'discord');
+							echo "<br>";
+							echo form_label('Team', 'team');
+						?>
+					</div><!-- col3-->
+					<div class="col-4">
+						<div class="form-group">
+						<h5>Community Status</h5>
+						<p>Are you accepting new members?</p>
+							<?php 
+								$attributes = array(
+									'id' => 'communityStatus',
+									'class' => 'communityStatus',
+									'name' => 'communityStatus'
+								);
+
+								echo form_radio('status', 'open', TRUE, $attributes);
+								echo form_label(' Open (accepting members)', 'requireApproval');
+								echo "<br>";
+								echo form_radio('status', 'closed', FALSE, $attributes); 
+								echo form_label(' Closed (not accepting members)', 'requireApproval');
+							?>
+						</div> <!-- group status -->
+
+						<div class="form-group">
+							<h5>Membership Approval</h5>
+							<p>Require members to be approved before joining?</p>
+							<?php 
+								$attributes = array(
+									'id' => 'requireApproval',
+									'class' => 'requireApproval',
+									'data-validation' => 'required',
+								);
+
+								echo form_radio('requireApproval', 'no', TRUE, $attributes);
+								echo form_label(' No', 'requireApproval');
+								echo "<br>";
+								echo form_radio('requireApproval', 'yes', FALSE, $attributes); 
+								echo form_label(' Yes', 'requireApproval');
+							?>
+						</div> <!-- group approval -->
+					</div> <!-- col2-->
+				</div><!-- form row -->
+
+
+
+				<button class="editButton btn btn-lg btn-primary">Save Settings</button>
+				<?php echo form_close(); ?>
+			</div> <!-- settings -->
+			<?php } // is admin ?>
+		</div> <!-- col -->
+	</div> <!-- row -->
 
 		
-		<?php } ?>
+	<?php } // has access ?>
 		
+				<!--<div class="row">
+					<div class="infoBox col-6">
+						<h4 class="infoHeader">Community Details</h4>
+						<div class="infoInterior">
+							
+							
+							<h5>Cover Art</h5>
+							<p>Soon!</p>
+
+							<h5>Discord</h5>
+							<h5>Mixer Team</h5>
+						</div>
+					</div>
+	
+				</div>-->
 	
 		
 		
