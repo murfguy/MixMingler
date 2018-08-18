@@ -193,6 +193,7 @@ class Types {
 			->where('TypeID', $typeId)
 			->where('EventTime > DATE_SUB(NOW(), INTERVAL 7 DAY)')
 			->group_by('MixerID')
+			->limit(50)
 			->get();
 		return $query->result();
 	}

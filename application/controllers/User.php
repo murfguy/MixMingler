@@ -35,7 +35,7 @@ class User extends CI_Controller {
 
 				if ($minglerData == null) {
 					// This user is NOT on Mingler AT ALL. Add them as an unregistered user.
-					$this->users->addUser($mixerData);
+					$this->users->addNewUser($mixerData);
 					$this->users->syncUser($mixerData);
 
 					// Now that they are added, let's finally get the proper data!

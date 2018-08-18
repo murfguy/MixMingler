@@ -277,6 +277,7 @@ class Users {
 			->where('TimelineEvents.MixerID', $mixer_id)
 			->group_by('TimelineEvents.TypeID')
 			->order_by('StreamCount', 'DESC')
+			->order_by('TimelineEvents.EventTime', 'DESC')
 			->get();
 
 		return $query->result();
