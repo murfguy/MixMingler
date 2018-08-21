@@ -51,10 +51,10 @@
 							);
 
 							echo form_radio('requireApproval', 'no', TRUE, $attributes);
-							echo form_label(' No', 'requireApproval');
+							echo form_label(' No (members may join freely)', 'requireApproval');
 							echo "<br>";
 							echo form_radio('requireApproval', 'yes', FALSE, $attributes); 
-							echo form_label(' Yes', 'requireApproval');
+							echo form_label(' Yes (members require admin/moderator approval before joining)', 'requireApproval');
 						?>
 						</div>
 				</div>
@@ -372,11 +372,13 @@
 			<?php if ($currentUser->isAdmin) { ?>
 			<div id="settingsManager" class="inactiveView">
 				<h2>Community Settings</h2>
+
+				<div id="editCommunityForm">
 				
 				<?php 
 					$attributes = array('id' => 'editCommunity');
 					$hidden = array(
-						'commId' => $community->ID,
+						'communityId' => $community->ID,
 						'mixerUser_id' => $_SESSION['mixer_id']
 					);
 					echo form_open('servlet/editCommunity', $attributes, $hidden); 
@@ -384,6 +386,11 @@
 
 				<div class="form-row">
 					<div class="col-4">
+
+						<div class="infoBox">
+
+						<h4 class="infoHeader">Community Info</h4>
+						<div class="infoInterior">
 						<div class="form-group">
 							<?php 
 								echo form_label('Summary/Slogan', 'summary');
@@ -410,8 +417,7 @@
 									'class' => 'form-control form-control-sm',
 									'placeholder' => 'Shows up on community details page.',
 									'data-validation' => 'required length',
-									'data-validation-length' => 'max500',
-									'rows' => '3'
+									'data-validation-length' => 'max300'
 								);
 
 								echo form_label('Description', 'description');
@@ -419,56 +425,101 @@
 							?>
 						</div> <!-- group: description -->
 
-						
+						<div class="form-group">
+							<?php
+								echo form_label('Cover Art', 'coverArt');
+								echo '<br><p class="devNote">coming soon</p>';
+							?>
+						</div>
+						</div><!-- info interior -->
+						</div><!-- info box-->
 
 					</div> <!-- col1-->
 					
 					<div class="col-4">
+
+						<div class="infoBox">
+
+						<h4 class="infoHeader">Social Connections</h4>
+						<div class="infoInterior">
+						
+						<h5>Discord</h5>
+						<div class="form-group form-inline">
 						<?php 
 
-							echo form_label('Cover Art', 'coverArt');
-							echo "<br>";
-							echo form_label('Discord', 'discord');
-							echo "<br>";
-							echo form_label('Team', 'team');
+							echo form_label('https://discord.gg/', 'discord');
+							$attributes = array(
+								'id' => 'discord',
+								'class' => 'form-control form-control-sm',
+								'placeholder' => 'Link to an associated Discord channel.',
+								'data-validation' => 'length',
+								'data-validation-length' => 'max10',
+								'size' => '5',
+								'maxlength' => '10',
+								'style'=> 'width:25%'
+							);
+							echo form_input('discord', $community->Discord, $attributes); 
 						?>
+						</div><!--group: discord -->
+
+						<h5>Mixer Team</h5>
+						<div class="form-group">
+						<?php
+							echo form_label('Team', 'team');
+							echo '<br><p class="devNote">coming soon</p>';
+						?>
+						</div><!-- group: team -->
+						</div><!-- info interior -->
+						</div><!-- info box -->
 					</div><!-- col3-->
 					<div class="col-4">
 						<div class="form-group">
+						<div class="infoBox">
+
+						<h4 class="infoHeader">Membership Status</h4>
+						<div class="infoInterior">
 						<h5>Community Status</h5>
-						<p>Are you accepting new members?</p>
-							<?php 
-								$attributes = array(
-									'id' => 'communityStatus',
-									'class' => 'communityStatus',
-									'name' => 'communityStatus'
-								);
 
-								echo form_radio('status', 'open', TRUE, $attributes);
-								echo form_label(' Open (accepting members)', 'requireApproval');
-								echo "<br>";
-								echo form_radio('status', 'closed', FALSE, $attributes); 
-								echo form_label(' Closed (not accepting members)', 'requireApproval');
-							?>
-						</div> <!-- group status -->
+							<div class="form-group">
+								<?php 
+									$attributes = array(
+										'id' => 'communityStatus',
+										'class' => 'communityStatus',
+										'name' => 'communityStatus'
+									);
 
-						<div class="form-group">
-							<h5>Membership Approval</h5>
-							<p>Require members to be approved before joining?</p>
-							<?php 
-								$attributes = array(
-									'id' => 'requireApproval',
-									'class' => 'requireApproval',
-									'data-validation' => 'required',
-								);
+									echo form_radio('status', 'open', ($community->Status == "open"), $attributes);
+									echo form_label(' Open (accepting members)', 'requireApproval');
+									echo "<br>";
+									echo form_radio('status', 'closed', ($community->Status == "closed"), $attributes); 
+									echo form_label(' Closed (not accepting members)', 'requireApproval');
+								?>
+							</div> <!-- group status -->
 
-								echo form_radio('requireApproval', 'no', TRUE, $attributes);
-								echo form_label(' No', 'requireApproval');
-								echo "<br>";
-								echo form_radio('requireApproval', 'yes', FALSE, $attributes); 
-								echo form_label(' Yes', 'requireApproval');
-							?>
-						</div> <!-- group approval -->
+							<div class="form-group">
+								<h5>Require Approval of new Members?</h5>
+								<?php 
+									$attributes = array(
+										'id' => 'requireApproval',
+										'class' => 'requireApproval',
+										'data-validation' => 'required',
+									);
+
+									$requireApproval = (boolval($community->isApprovalRequired));
+
+									/*$isClosed = false;
+									if ($community->Status == "closed") {
+										$isClosed = true;}*/
+
+									echo form_radio('requireApproval', 'no', !$requireApproval, $attributes);
+									echo form_label(' No (members may join freely)', 'requireApproval');
+									echo "<br>";
+									echo form_radio('requireApproval', 'yes', $requireApproval, $attributes); 
+									echo form_label(' Yes (admin/moderators must approve new members)', 'requireApproval');
+								?>
+							</div> <!-- group approval -->
+						</div> <!-- info interior -->
+						</div> <!-- info box -->
 					</div> <!-- col2-->
 				</div><!-- form row -->
 
@@ -476,6 +527,10 @@
 
 				<button class="editButton btn btn-lg btn-primary">Save Settings</button>
 				<?php echo form_close(); ?>
+			</div> <!-- edit community -->
+				<h2>Transfer Community Ownership</h2>
+				<p>You may transfer community administration rights to one of your moderators. The moderator you select will approve the request, at which point you will be demoted to a moderator.</p>
+				<p class="devNote">Coming Soon</p>
 			</div> <!-- settings -->
 			<?php } // is admin ?>
 		</div> <!-- col -->

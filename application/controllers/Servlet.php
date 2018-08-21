@@ -15,7 +15,7 @@ class Servlet extends CI_Controller {
 
 		$this->returnData = new stdClass();
 		$this->returnData->success = false;
-		$this->returnData->message = "Pinged server, but no action was executed";
+		$this->returnData->message = "Server action was requested, but no action occured.";
 	}
 
 	public function index() {
@@ -515,8 +515,8 @@ class Servlet extends CI_Controller {
 					$this->communications->sendMessage('user', 'communityDenied', $emailParams);
 				}
 
-			} else {$this->returnData->message = $this->getWarningText("insufficientRights"); } // insufficient role
-		} else { $this->returnData->message = $this->getWarningText("noLoggedIn"); } //not logged in
+			} else {$this->getWarningText("insufficientRights"); } // insufficient role
+		} else { $this->getWarningText("notLoggedIn"); } //not logged in
 
 		
 		$this->returnData();
@@ -560,24 +560,11 @@ class Servlet extends CI_Controller {
 							'CommunityID' => $_POST['commId'],
 							'MessageParams' => array($_POST['commId']));
 						$this->news->addNews($_POST['mixerUser_id'], "foundedCommunity", "community", $newsParams);
-					} else {
-						$this->returnData->message = "Community's status is '$community->Status' and cannot be founded.";
-					}
-				} else {
-					// insufficient role
-					$this->returnData->message = "Form data was incomplete.";
-				}
-			
-			} else {
-				// insufficient role
-				$this->returnData->message = "You do not have permission to perform this action.";
-			}
-		} else {
-			//not logged in
-			$this->returnData->message = "You are not logged in.";			
-		}
+					} else { $this->returnData->message = "Community's status is '$community->Status' and cannot be founded."; }
+				} else { $this->returnData->message = "Form data was incomplete.";}			
+			} else { $this->returnData->message = "You do not have permission to perform this action."; }
+		} else { $this->returnData->message = "You are not logged in."; }
 
-		
 		$this->returnData();
 
 	}
@@ -617,8 +604,43 @@ class Servlet extends CI_Controller {
 	// --- Community Moderation Functions ---------------------------- 
 	// ---------------------------------------------------------------
 
-	public function editCommunityDetails() {
+	public function editCommunity() {
 		// Only for admins
+		$this->returnData->requestedAction = 'editCommunity';
+		if (isset($_SESSION['mixer_id'])) {
+			if (!empty($_POST)) {
+				$community = $this->communities->getCommunity($_POST['communityId']);
+				
+				if (!empty($community)) {
+					if ($community->Admin == $_SESSION['mixer_id']) {
+
+						$requireApproval = 0;
+						if ($_POST['requireApproval'] == "yes") {
+							$requireApproval = 1;
+						}
+
+						$submitedData = [
+							'Description' => strip_tags($_POST['description']),
+							'Summary' => strip_tags($_POST['summary']),
+							'Status' => $_POST['status'],
+							'isApprovalRequired' => $requireApproval,
+							'Discord' => strip_tags($_POST['discord'])];
+						$this->db
+							->where('ID', $_POST['communityId'])
+							->update('Communities', $submitedData);
+
+						$this->returnData->submitedData = $submitedData;
+
+
+						$this->returnData->success = true;
+						$this->returnData->message = "Community details were succesfully edited.";
+
+					} else { $this->getWarningText("insufficientRights"); }
+				} else { $this->getWarningText("emptyResult"); }
+			} else { $this->getWarningText("badData"); }
+		} else { $this->getWarningText("notLoggedIn"); } //not logged in
+
+		$this->returnData();
 	}
 
 	public function transferCommunityOwnership() {
@@ -1002,11 +1024,27 @@ class Servlet extends CI_Controller {
 				break;
 
 			case "emptyResult":
-				$this->returnData->message = "The database query came back empty.";
+				$this->returnData->message = "A database query came back empty.";
+				break;
+
+			case "emptyCommunity":
+				$this->returnData->message = "Community data came back empty from the database.";
+				break;
+
+			case "emptyUser":
+				$this->returnData->message = "User data came back empty from the database.";
+				break;
+
+			case "emptyType":
+				$this->returnData->message = "Stream Type data came back empty from the database.";
 				break;
 
 			case "insufficientRights":
 				$this->returnData->message = "You do not have sufficient access rights to perform this action.";
+				break;
+
+			case "invalidPermissions":
+				$this->returnData->message = "We attempted to verify permissions, but the permissions request was invalid.";
 				break;
 
 			default:
@@ -1016,8 +1054,91 @@ class Servlet extends CI_Controller {
 	}
 
 	// --------------------------------------------------------------- 
-	// --- Debug/Text Functions -------------------------------------- 
+	// --- Debug/Test Functions -------------------------------------- 
 	// ---------------------------------------------------------------
+
+	private function verifyPermissions($permissions, $formData) {
+		/*
+			array(
+			'LoggedIn' => true,
+			'FormData' => true,
+			'DatabaseQuery' => array(
+				'community', 'user'),
+			'Role' => 'siteAdmin,')
+		*/
+
+
+		$success = true;
+		$database = array();
+		if (!empty($permissions)) {
+
+			foreach ($permissions as $index => $permissionData) {
+				switch ($index) {
+
+					case "LoggedIn":
+						if (!isset($_SESSION['mixer_id'])) { 
+							$success = false;
+							$this->getWarningText("notLoggedIn"); }
+						break;
+
+					case "FormData":
+						if (empty($formData)) {
+							$success = false;
+							$this->getWarningText("badData"); }
+						break;
+
+					case "DatabaseQuery":
+						foreach ($permissionData as $dbQuery) {
+							switch ($dbQuery) {
+								case "community":
+									if (empty($database['community'] = $this->communities->getCommunity($formData['communityId']))) {
+										$success = false; $this->getWarningText("emptyCommunity");};
+									break;
+								
+								case "user":
+									if (empty($database['user'] = $this->users->getUserFromMingler($formData['userId']))) {
+										$success = false; $this->getWarningText("emptyUser");};
+									break;
+
+								case "type":
+									if (empty($database['type'] = $this->types->getTypeById($formData['typeId']))) {
+										$success = false; $this->getWarningText("emptyType");};
+									break;
+							}
+						}
+
+						if (empty($database) && $success) { $success = false; $this->getWarningText("emptyResult"); }
+						break;
+
+					case "SiteAdmin":
+						// requires a database
+						if (in_array($_SESSION['site_role'], ['admin', 'owner'])) {
+							$success = false; $this->getWarningText("insufficientRights");};
+						break;
+
+					case "Admin":
+						// requires a database query for communities AND site admins
+						if ($database['community']->Admin == $_SESSION['mixer_id']) {
+							$success = false; $this->getWarningText("insufficientRights");};
+						break;
+
+					case "Mod":
+
+						break;
+
+					case "UserIsSelf":
+						// requires a database query for communities
+						break;
+				}
+
+				if (!$success) { break; } // stop the loop if we hit a bad value
+			}
+
+			return $success;
+		} else {
+
+		}
+	}
 
 	public function testServlet() {
 		$this->returnData->success = false;
