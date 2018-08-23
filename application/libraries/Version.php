@@ -150,6 +150,7 @@ class Version {
 		$patch->version = "0.2.3";
 		$patch->date = date($date_string, strtotime('2018-08-23'));
 		$patch->notes = array(
+			"Community Admin: Now has a 'back' button to return to community profile page.",
 			"Community Admin: Can now edit community details.",
 			"Community Admin: Can now upload cover art while editing details.",
 			"Community Admin: Can now specify a related discord server.",

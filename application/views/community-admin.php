@@ -3,9 +3,6 @@
 		<h1><?php echo $community->Name; ?> Moderation Page <?php echo devNotes('community-admin'); ?></h1>
 	</div>
 
-
-
-
 	<div class="container">
 		<?php 
 			$hasAccess = true;
