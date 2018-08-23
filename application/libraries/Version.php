@@ -15,7 +15,7 @@ class Version {
 
 		$this->major = 0;
 		$this->minor = 2;
-		$this->revision = 2;
+		$this->revision = 3;
 		$this->stage = "Types";
 
 		// Load Database
@@ -144,6 +144,21 @@ class Version {
 		---------------------------------------------------------------------------------
 		--- </end> v0.3 Task List -------------------------------------------------------
 		--------------------------------------------------------------------------------- */
+
+
+		$patch = new stdClass();
+		$patch->version = "0.2.3";
+		$patch->date = date($date_string, strtotime('2018-08-23'));
+		$patch->notes = array(
+			"Community Admin: Now has a 'back' button to return to community profile page.",
+			"Community Admin: Can now edit community details.",
+			"Community Admin: Can now upload cover art while editing details.",
+			"Community Admin: Can now specify a related discord server.",
+			"Community Admin: Fixed bug where users were not being removed as 'pending'.",
+			"Auth/User Profile: Fixed a bug where users were not syncing.",
+			"Backend: Consolidated user sync into a single function.",
+			"Community Profile: Now displays cover art and link to discord server (if supplied).");
+		$patchNotes[] = $patch;
 
 		$patch = new stdClass();
 		$patch->version = "0.2.2";

@@ -63,18 +63,26 @@ class Auth extends CI_Controller {
 				// resource owner.
 				$resourceOwner = $provider->getResourceOwner($accessToken);
 				$owner = $resourceOwner->toArray();
+				
+				// Adjust array to include avatarUrl in an expected position.
+				// We do this since the library expects an input for mixer api /channels/ endpoint,
+				// but we are sending in /users/current which has a different data structure.
+				//$owner['channel']['user']['avatarUrl'] = $owner['avatarUrl'];
+				$channelData = $this->users->getUserFromMixer($owner['username']);
+				$user = $this->users->syncUser($channelData, true);
 
 				// Check if user has data on Mingler
-				$minglerData = $this->users->getUserFromMingler($owner['channel']['id']);
+				/*$minglerData = $this->users->getUserFromMingler($owner['channel']['id']);
 
 				$isNewJoin = false;
-				if ($minglerData->ID != null) {					
-					$userInDatabase = true;
-					// If has data, run an update
+
+				if (!empty($minglerData)) {
 					if ($minglerData->isRegistered < 1) {
 						$isNewJoin = true;
 					}
 				} else {
+					// User is not in database, so we need to add them.
+
 					// Adjust array to include avatarUrl in an expected position.
 					// We do this since the library expects an input for mixer api /channels/ endpoint,
 					// but we are sending in /users/current which has a different data structure.
@@ -89,25 +97,24 @@ class Auth extends CI_Controller {
 					$isNewJoin = true;
 				}
 
-				if ($userInDatabase) {
-					if ($isNewJoin) {
-						// Register User
-						$this->users->registerUser($owner['channel']['id']);
+				if ($isNewJoin) {
+					// Register User
+					$this->users->registerUser($owner['channel']['id']);
 
-						// Add Timeline Event for "joined Mingler"
-						$this->news->addNews($owner['channel']['id'], 'joinMixMingler', 'mingler');
-					}
+					// Add Timeline Event for "joined Mingler"
+					$this->news->addNews($owner['channel']['id'], 'joinMixMingler', 'mingler');
+				}*/
 
-					$emailSynced = $this->users->syncEmailAddress($owner['email'], $owner['channel']['id']);
+				$emailSynced = $this->users->syncEmailAddress($owner['email'], $owner['channel']['id']);
 
-					$minglerData = $this->users->getUserFromMingler($owner['channel']['id']);
-					$this->users->loggedIn($owner['channel']['id']);
+				$minglerData = $this->users->getUserFromMingler($owner['channel']['id']);
+				$this->users->loggedIn($owner['channel']['id']);
 
-					$_SESSION['mixer_user'] = $owner['username'];
-					$_SESSION['mixer_id'] = $owner['channel']['id'];
-					$_SESSION['mixer_userId'] = $owner['id'];
-					$_SESSION['site_role'] = $minglerData->SiteRole;
-				}
+				$_SESSION['mixer_user'] = $owner['username'];
+				$_SESSION['mixer_id'] = $owner['channel']['id'];
+				$_SESSION['mixer_userId'] = $owner['id'];
+				$_SESSION['site_role'] = $minglerData->SiteRole;
+				
 
 				header('Location: /');
 				//var_export($resourceOwner->toArray());

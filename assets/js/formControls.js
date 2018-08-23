@@ -4,7 +4,7 @@ function setFormListeners() {
 
 	// Set form validators
 	$.validate({
-		modules: 'security',
+		modules: 'security, file',
 		onModulesLoaded: function () {
 			console.log("Form Validation Modules loaded");
 		}
@@ -32,6 +32,9 @@ function setFormListeners() {
 
 	// set listeners for founding community from community moderation pages
 	$("form#foundCommunity").submit(function (event) { foundCommunity(event, $(this))} );
+
+	// set listeners for founding community from community moderation pages
+	$("form#editCommunity").submit(function (event) { editCommunity(event, $(this))} );
 }
 
 function applyUserRole(e, form) {
@@ -132,55 +135,6 @@ function requestCommunity(e, form) {
 			});
 		}
 	})
-	
-
-	/*console.log("actionUrl: "+ actionUrl);
-		$.ajax({
-			url: actionUrl,
-			type: "POST",
-			dataType: "json",
-			data: form.serialize()
-		})
-			.done(function (json){
-				console.log('requestCommunity - AJAX done');
-				
-
-				submitButton = $( "form#requestCommunity button.requestCommunity" );
-				submitButton.removeAttr('disabled');
-				submitButton.remove("i");
-
-				if (json.success) {
-					$("form#requestCommunity").after('<div class="alert alert-success">Your commmunity request has been submitted. It will need to be approved by a site admin before it is available for you to make public.</div>');
-					$("form#requestCommunity").hide();
-					//submitButton.text("Apply Role");
-					//displayAlert($( "form#requestCommunity"), json.message, 'success');
-				} else {
-					submitButton.text("Submit Request");
-
-					json.messages.forEach(function (message) {
-						displayAlert($( "form#requestCommunity"), message);
-					})
-				}
-
-			}) 
-
-			.fail(function (json){
-				console.log('requestCommunity - AJAX failed');
-				displayAlert($( "form#requestCommunity"), 'There was an issue communicating with the server.');
-				submitButton = $( "form#requestCommunity button.requestCommunity" );
-					submitButton.removeAttr('disabled');
-					submitButton.remove("i");
-					submitButton.text("Submit Request");
-					
-			})
-
-			.always(function (json){
-				console.log('requestCommunity - AJAX always');
-				console.log(json);
-				
-				//
-				//console.log(json.message);
-			});*/
 }
 
 function findFormDataItem(target, data) {
@@ -190,6 +144,7 @@ function findFormDataItem(target, data) {
 	    }
 	}
 } 
+
 function processCommunity(e, form) {
 	e.preventDefault();
 
@@ -233,6 +188,73 @@ function processCommunity(e, form) {
 								dataType: 'json',
 								method: 'post',
 								data: actionData
+							}).done(function (response) {
+								if (response.success) {
+									self.setContentAppend('<div>'+response.message+'</div>');
+									//updateButtonView(targetButton, response);
+
+									if (response.success) {
+										parent = form.closest("div.infoBox").children('.infoInterior').html(response.message);
+										$("tr#notice-"+response.originalSlug).html('<td colspan="8">'+response.Name+" was approved.</td>")
+									}
+								} else {
+									self.setContentAppend('<div>There was an issue with completing your requested action! <br><b>Server Message:</b> '+response.message+'</div>');
+								}
+							}).fail(function(){
+								self.setContentAppend('<div>There was a problem with communicating with the server.</div>');
+							}).always(function(response){
+								//self.setContentAppend('<div>Always!</div>');
+								console.log(response)
+							});
+						}
+					})
+				}
+			},
+			no: {
+				text: "Nevermind"
+			}
+		}
+	});
+}
+
+function editCommunity(e, form) {
+	e.preventDefault();
+	actionUrl = baseActionUrl+"editCommunity/";
+
+
+	processingTitle = 'Editing Community...';
+	buttonClass = 'btn-warning';
+	buttonText = "Save Edits";
+	//formData = new FormData(form);
+	var formData = new FormData($("#editCommunity")[0])
+	// Attach file
+	var file_data = $('#coverart').prop('files')[0];
+	console.log(file_data);
+	formData.append('file', file_data); 
+
+	$.confirm({
+		title: 'Are you sure?',
+		content: "All provided data will be applied to your community.",
+		theme: 'dark',
+		buttons: {
+			yes: {
+				text: buttonText,
+				btnClass: buttonClass,
+				action: function () {
+					$.alert({
+						title: processingTitle,
+						theme: 'dark',
+						autoClose: 'ok|8000',
+						content: function(){
+							var self = this;
+							
+							return $.ajax({
+								url: actionUrl,
+								dataType: 'json',
+								method: 'POST',
+								data: formData,
+								processData:false,
+								contentType:false,
 							}).done(function (response) {
 								if (response.success) {
 									self.setContentAppend('<div>'+response.message+'</div>');
@@ -942,7 +964,6 @@ function updateButtonView(tgt, serverData) {
 			break;
 	}
 }
-
 
 function disableModerationButton(tgt) {
 	tgt.removeClass('action confirm btn-danger btn-success btn-primary btn-dark');

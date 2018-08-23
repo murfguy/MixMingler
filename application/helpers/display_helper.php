@@ -145,10 +145,11 @@ if ( ! function_exists('card')) {
 						$str.= ' '.$class;	}}
 			$str .= '" ';
 			if ($params['size'] == 'xsm') {
-				$str .= 'data-toggle="tooltip" data-placement="top" data-html="true" title="';
-				$str .= $params['name']."<br>".$stats.'"';
+				$str .= 'data-toggle="tooltip" data-placement="top" data-html="true" title="'.$params['name']."<br>".$stats.'"';
+			} elseif (!empty($params['tooltip'])) {
+				$str .= 'data-toggle="tooltip" data-placement="top" data-html="true" title="'.$params['tooltip'].'"';
 			}
-			
+
 			$str .= '>';
 			$str .= '<a href="'.$params['url'].'"><img src="'.$params['cover'].'" '.imgBackup($params['kind']).'class="coverArt" /></a>';
 			
@@ -322,14 +323,17 @@ if (!function_exists('devNotes')) {
 			$devNotes[] = array('view'=>'community', 'version'=>$v['0.3'], 'note'=>'Implement news feed for that showcases all info related to members.');
 
 			//Community Admin
-			$devNotes[] = array('view'=>'community-admin', 'version'=>$v['0.3'], 'note'=>'Return to community link/button.');
+			
 			$devNotes[] = array('view'=>'community-admin', 'version'=>$v['0.3'], 'note'=>'Implement summary view.');
-			$devNotes[] = array('view'=>'community-admin', 'version'=>$v['0.3'], 'note'=>'Implement settings panel.');
-
 
 			//Account Management
 			$devNotes[] = array('view'=>'account', 'version'=>$v['0.4'], 'note'=>'Implement user summary view.');
 			$devNotes[] = array('view'=>'account', 'version'=>$v['0.5'], 'note'=>'Implement user specific settings.');
+
+			
+			// --- completed v0.2.3 ---- 
+			//$devNotes[] = array('view'=>'community-admin', 'version'=>$v['0.3'], 'note'=>'Implement settings panel.');
+			//$devNotes[] = array('view'=>'community-admin', 'version'=>$v['0.3'], 'note'=>'Return to community link/button.'); 
 
 
 			$notes = "";

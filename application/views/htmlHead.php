@@ -1,10 +1,47 @@
 <html>
 <head>
+	<?php 
+		//$ga_tracking = "UA-124100080-3"; // development
+		//$ga_tracking = "UA-124100080-2"; // alpha
+		//$ga_tracking = "UA-124100080-1"; // alpha
+
+		$allowed_hosts = array('dev.mixmingler.com', 'alpha.mixmingler.com', 'mixmingler.com', 'www.mixmingler.com');
+		if (isset($_SERVER['HTTP_HOST']) || !in_array($_SERVER['HTTP_HOST'], $allowed_hosts)) {
+		    //header($_SERVER['SERVER_PROTOCOL'].' 400 Bad Request');
+		   // exit;
+		}
+
+		switch ($_SERVER['HTTP_HOST']) {
+			case "dev.mixmingler.com":
+				$ga_tracking = "UA-124100080-3";
+				break;
+			
+			case "alpha.mixmingler.com":
+				$ga_tracking = "UA-124100080-2";
+				break;
+
+			case "www.mixmingler.com":
+			case "mixmingler.com":
+				$ga_tracking = "UA-124100080-1";
+				break;
+		}
+	?>
+
 	<title>MixMingler</title>
 	
 	<!-- Required meta tags -->
 	<meta charset="utf-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=yes">
+
+	<!-- Global site tag (gtag.js) - Google Analytics -->
+	<script async src="https://www.googletagmanager.com/gtag/js?id=<?php echo $ga_tracking; ?>"></script>
+	<script>
+	  window.dataLayer = window.dataLayer || [];
+	  function gtag(){dataLayer.push(arguments);}
+	  gtag('js', new Date());
+
+	  gtag('config', '<?php echo $ga_tracking; ?>');
+	</script>
 
 	
 	<!-- BootStrap -->

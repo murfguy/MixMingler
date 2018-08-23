@@ -11,9 +11,11 @@ class Users {
 		// Load Database
 		$this->CI->load->database();
 		$this->CI->load->library('types');
+		$this->CI->load->library('news');
 
 		$this->db = $this->CI->db;
 		$this->types = $this->CI->types;
+		$this->news = $this->CI->news;
 	}
 
 	public function getUserFromMingler($mixerId) {
@@ -77,6 +79,40 @@ class Users {
 		return $follows;
 	}
 
+	private function getUser($userIndentifier) {
+		if (ctype_digit($userIndentifier)) {
+			// This is a user id input
+			return $this->getUserFromMingler($userIndentifier);
+		} else {
+			// This is the user token
+			return $this->getUserFromMinglerByToken($userIndentifier);
+		}
+	}
+
+	// Check user and add or update in database.
+	// Do not use in Scan for now, as that deals with large query batches.
+	public function syncUser($mixerUserData, $registerUser = false) {
+		$user = $this->getUserFromMingler($mixerUserData['id']);
+		
+		if (empty($user)) {
+			// If they don't exist, add them (addUser will ignore any duplicate streamers)
+			$this->addNewUser($mixerUserData); 
+
+			// Note that this person is brand SPANKIN' new, so we note they've been synced for the first time.
+			$this->news->addNews($mixerUserData['id'], 'firstSync', "mingler");
+
+		} 
+
+		$this->syncUserData($mixerUserData);
+		$user = $this->getUserFromMingler($mixerUserData['id']);		
+
+		if ($registerUser && !$user->isRegistered) {
+			$this->registerUser($mixerUserData['id']);
+		}
+
+		return $this->getUserFromMingler($mixerUserData['id']);
+	}
+
 	public function syncFollows($userId) {
 		/*$follows = $this->getFollowedChannelsFromMixer($userId);
 
@@ -126,6 +162,9 @@ class Users {
 		//$this->CI->db->set('isRegistered', 1);
 		$this->CI->db->where('ID', $mixerId);
 		$this->CI->db->update('Users', $data);
+		
+		if ($this->db->affected_rows() > 0) {
+			$this->CI->news->addNews($mixerId, 'joinMixMingler', 'mingler'); }
 
 		return ($this->db->affected_rows() > 0);
 	}
@@ -148,20 +187,31 @@ class Users {
 		$query = $this->CI->db->query($sql_query, array($mixerId));
 	}
 
-	public function syncUser($mixerApi_data) {
+	public function syncUserData($mixerApi_data) {
 		if ($mixerApi_data['user']['avatarUrl'] == null) {
 			$mixerApi_data['user']['avatarUrl'] = "";
 		}
 
-		$timestamp = date('Y-m-d H:i:s');
+		$data = [
+			'Username' => $mixerApi_data['token'],
+			'AvatarURL' => $mixerApi_data['user']['avatarUrl'],
+			'LastSynced' => date('Y-m-d H:i:s'),
+			'isPartner' => $mixerApi_data['partnered'],
+			'ViewersTotal' => $mixerApi_data['viewersTotal'],
+			'NumFollowers' => $mixerApi_data['numFollowers'],
+			'LastType' => $mixerApi_data['type']['name'],
+			'LastTypeId' => $mixerApi_data['type']['id']];
 
-		$sql_query = "UPDATE Users SET Username=?, AvatarURL=?, LastSynced=?, isPartner=?, ViewersTotal=?, NumFollowers=?, LastType=?, LastTypeId=? WHERE ID=?";
-		$query = $this->CI->db->query($sql_query, array($mixerApi_data['token'], $mixerApi_data['user']['avatarUrl'], $timestamp, $mixerApi_data['partnered'], $mixerApi_data['viewersTotal'], $mixerApi_data['numFollowers'], $mixerApi_data['type']['name'], $mixerApi_data['type']['id'], $mixerApi_data['id']));
+		$this->db->where('ID', $mixerApi_data['id'])
+			->update('Users', $data);
+
+		//$sql_query = "UPDATE Users SET Username=?, AvatarURL=?, LastSynced=?, isPartner=?, ViewersTotal=?, NumFollowers=?, LastType=?, LastTypeId=? WHERE ID=?";
+		//$query = $this->CI->db->query($sql_query, array($mixerApi_data['token'], $mixerApi_data['user']['avatarUrl'], $timestamp, $mixerApi_data['partnered'], $mixerApi_data['viewersTotal'], $mixerApi_data['numFollowers'], $mixerApi_data['type']['name'], $mixerApi_data['type']['id'], $mixerApi_data['id']));
 		
 		// If current type isn't already stored, let's get it stored.
-		$allKnownTypes = $this->CI->types->getAllTypeIdsFromMingler();
+		$allKnownTypes = $this->types->getAllTypeIdsFromMingler();
 		if (!in_array($mixerApi_data['type']['id'], $allKnownTypes )) {
-			$this->CI->types->addNewType($mixerApi_data['type']);
+			$this->types->addNewType($mixerApi_data['type']);
 		}
 
 		// If streamer is online, we want to mark that
@@ -277,6 +327,7 @@ class Users {
 			->where('TimelineEvents.MixerID', $mixer_id)
 			->group_by('TimelineEvents.TypeID')
 			->order_by('StreamCount', 'DESC')
+			->order_by('TimelineEvents.EventTime', 'DESC')
 			->get();
 
 		return $query->result();

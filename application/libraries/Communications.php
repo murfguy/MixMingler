@@ -28,6 +28,10 @@ class Communications {
 
 		$this->email->initialize($config);
 		$this->email->from('alerts@mixmingler.com', 'MixMingler Alerts');
+		//$this->email->reply_to('contact@mixmingler.com', 'MixMingler Contact');
+		
+		$this->email->set_header('From', 'MixMingler Alerts < alerts@mixmingler.com >');
+		$this->email->set_header('Reply-To', 'MixMingler Admin < contact@mixmingler.com >');
 	}
 
 	public function sendMessage($recipientGroup, $messageType, $msgParams) {
@@ -54,7 +58,7 @@ class Communications {
 			$this->email->subject($msg->subject);
 			$this->email->message($msg->message);
 
-			$this->CI->email->send(FALSE);
+			$this->email->send(FALSE);
 		}
 
 	}
