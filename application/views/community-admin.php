@@ -112,16 +112,16 @@
 		?></p>
 		<div class="btn-group d-flex" role="group">
 			<button type="button" class="btn btn-primary" onclick="window.location.href = '/community/<?php echo $community->Slug; ?>/';" data-toggle="tooltip" title="Back to Community Page"><i class="fas fa-arrow-left"></i></button>
-			<button type="button" class="btn btn-info displayToggle" target="summaryView" >Summary</button>
+			<button type="button" class="btn btn-info displayToggle" target="summaryView" disabled>Summary</button>
 			<button type="button" class="btn btn-info displayToggle" target="memberManager" >Members</button>
-			<?php if ($currentUser->isAdmin) { ?><button type="button" class="btn btn-info displayToggle" target="settingsManager" disabled>Settings</button><?php } ?>
+			<?php if ($currentUser->isAdmin) { ?><button type="button" class="btn btn-info displayToggle" target="settingsManager">Settings</button><?php } ?>
 		</div>
 
 
 	<div class="row">
 
 		<div class="col">
-			<div id="summaryView" class="inactiveView">
+			<div id="summaryView" class="">
 				<h2>Community Summary</h2>
 				<p class="devNote">coming soon</p>
 			</div> <!-- summary view -->
@@ -370,7 +370,7 @@
 			</div> <!-- member mananger -->
 
 			<?php if ($currentUser->isAdmin) { ?>
-			<div id="settingsManager" class="">
+			<div id="settingsManager" class="inactiveView">
 				<h2>Community Settings</h2>
 
 				<div id="editCommunityForm">
