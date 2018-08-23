@@ -145,8 +145,9 @@ if ( ! function_exists('card')) {
 						$str.= ' '.$class;	}}
 			$str .= '" ';
 			if ($params['size'] == 'xsm') {
-				$str .= 'data-toggle="tooltip" data-placement="top" data-html="true" title="';
-				$str .= $params['name']."<br>".$stats.'"';
+				$str .= 'data-toggle="tooltip" data-placement="top" data-html="true" title="'.$params['name']."<br>".$stats.'"';
+			} elseif (!empty($params['tooltip'])) {
+				$str .= 'data-toggle="tooltip" data-placement="top" data-html="true" title="'.$params['tooltip'].'"';
 			}
 			
 			$str .= '>';

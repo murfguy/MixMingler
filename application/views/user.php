@@ -7,7 +7,7 @@
 
 	<div class="row">
 		<div class="col userInfo">
-			<p><img src="<?php echo $avatarUrl = $member->AvatarURL; ?>" class="avatar" width="200" /></p>
+			<p><img src="<?php echo $avatarUrl = $member->AvatarURL; ?>" class="avatar" <?php echo imgBackup('streamer'); ?> width="200" /></p>
 
 			<?php 
 				switch($member->SiteRole) {

@@ -607,33 +607,69 @@ class Servlet extends CI_Controller {
 	public function editCommunity() {
 		// Only for admins
 		$this->returnData->requestedAction = 'editCommunity';
+		$this->returnData->receivedData = $this->input->post();//$_POST;
 		if (isset($_SESSION['mixer_id'])) {
 			if (!empty($_POST)) {
 				$community = $this->communities->getCommunity($_POST['communityId']);
 				
 				if (!empty($community)) {
 					if ($community->Admin == $_SESSION['mixer_id']) {
+						//$uploadSuccess = true;
+						//$this->returnData->hasUpload = false;
 
-						$requireApproval = 0;
+			        	$requireApproval = 0;
 						if ($_POST['requireApproval'] == "yes") {
 							$requireApproval = 1;
 						}
 
 						$submitedData = [
-							'Description' => strip_tags($_POST['description']),
-							'Summary' => strip_tags($_POST['summary']),
-							'Status' => $_POST['status'],
-							'isApprovalRequired' => $requireApproval,
-							'Discord' => strip_tags($_POST['discord'])];
-						$this->db
-							->where('ID', $_POST['communityId'])
-							->update('Communities', $submitedData);
+								'Description' => strip_tags($_POST['description']),
+								'Summary' => strip_tags($_POST['summary']),
+								'Status' => $_POST['status'],
+								'isApprovalRequired' => $requireApproval,
+								'Discord' => strip_tags($_POST['discord'])];
 
-						$this->returnData->submitedData = $submitedData;
+						$config['upload_path']          = './assets/graphics/covers/';
+						$config['allowed_types']        = 'gif|jpg|png';
+						$config['max_size']             = 256;
+						$config['max_width']            = 512;
+						$config['max_height']           = 512;
+						$config['overwrite'] = TRUE;
+						$config['file_name'] = $community->Slug;
 
+						$runQuery = true;
 
-						$this->returnData->success = true;
-						$this->returnData->message = "Community details were succesfully edited.";
+						if (isset($_FILES['file']['name'])) {
+							$runQuery = false;							
+				            if (0 < $_FILES['file']['error']) {
+				                $this->returnData->message =  'Error during file upload' . $_FILES['file']['error'];
+				            } else {
+				                if (file_exists('uploads/' . $_FILES['file']['name'])) {
+				                     $this->returnData->message =  'File already exists : ' . $_FILES['file']['name'];
+				                } else {
+				                    $this->load->library('upload', $config);
+				                    if (!$this->upload->do_upload('file')) {
+				                         $this->returnData->message =  $this->upload->display_errors();
+				                    } else {
+				                    	$runQuery = true;
+				                    	$submitedData['CoverFileType'] = pathinfo($_FILES['file']['name'], PATHINFO_EXTENSION);
+				                         $this->returnData->message =  'Cover art successfully uploaded.';
+				                    }
+				                }
+				            }
+				        }
+
+				        if ($runQuery) {							
+							$this->db
+								->where('ID', $_POST['communityId'])
+								->update('Communities', $submitedData);
+
+							$this->returnData->submitedData = $submitedData;
+
+							$this->returnData->success = true;
+							$this->returnData->message = "Community details were succesfully edited.";
+				        }
+						
 
 					} else { $this->getWarningText("insufficientRights"); }
 				} else { $this->getWarningText("emptyResult"); }
@@ -716,7 +752,7 @@ class Servlet extends CI_Controller {
 										->where('CommunityID', $community->ID)
 										->where('MixerID', $member->ID)
 										->where('MemberState', 'pending')
-										->delete('UserCommunities', $data);
+										->delete('UserCommunities');
 
 									$this->returnData->message = $member->Username." was added as a new member to ".$community->Name;
 
@@ -739,8 +775,11 @@ class Servlet extends CI_Controller {
 									$this->returnData->message = $member->Username." is not pending.";
 								} else {
 									// remove as pending
-									$this->db->where('MemberState', 'pending');
-									$this->db->delete('UserCommunities', $data);
+									$this->db
+										->where('CommunityID', $community->ID)
+										->where('MixerID', $member->ID)
+										->where('MemberState', 'pending')
+										->delete('UserCommunities');
 
 									$this->returnData->message = $member->Username." was denied membership to ".$community->Name;
 
@@ -925,7 +964,7 @@ class Servlet extends CI_Controller {
 		$this->returnData->typeID = $typeId;
 		$this->returnData->success = true;
 		$this->returnData->message = "Got streams from mixer.";
- 		$this->returnData->streams = $this->types->getActiveStreamsFromMixerByTypeId($typeId, 6);
+		$this->returnData->streams = $this->types->getActiveStreamsFromMixerByTypeId($typeId, 6);
 
 		$this->returnData();
 	}

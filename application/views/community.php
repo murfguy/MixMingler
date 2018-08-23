@@ -69,6 +69,8 @@
 			<div>
 				<p>
 				<?php 
+					echo '<img src="/assets/graphics/covers/'.$community->Slug.'.'.$community->CoverFileType.'" '.imgBackup('community').'class="coverArt" width="250" />';
+				
 					if ($currentUser != null) {
 
 						$baseParams = ['displayType' => 'text','size' => 'sm','communityId'=>$community->ID, 'userId'=> $_SESSION['mixer_id']];
@@ -117,6 +119,7 @@
 				<div class="infoInterior">
 					<p><span data-toggle="tooltip" title="Members"><i class="fas fa-users"></i> <?php echo count($members); ?></span> &nbsp;&nbsp;|&nbsp;&nbsp; <span data-toggle="tooltip" title="Followers"><i class="fas fa-heart"></i> <?php echo count($followers); ?></span></p>
 					<p>Founded By: <a href="/user/<?php echo $admin->Username; ?>" data-toggle="tooltip" title="Founder"><i class="fas fa-star" style="color: gold"></i> <?php echo $admin->Username; ?></a></p>
+					<?php if (!empty($community->Discord)) { ?><button type="button" class="btn btn-lg btn-primary" data-toggle="tooltip" title="Join the Discord for this community!" onclick="window.open('https://discord.gg/<?php echo $community->Discord; ?>')"><i class="fab fa-discord"></i></button><?php } ?>
 					<hr style="background-color: white">
 					<p>Moderated By:</p>
 					<p><a href="/user/<?php echo $admin->Username; ?>" data-toggle="tooltip" title="Admin"><i class="fas fa-crown" style="color: gold"></i> <?php echo $admin->Username; ?></a> 

@@ -31,9 +31,12 @@
 							'url' => "/community/$community->Slug",
 							'name' => $community->Name,
 							'category' => $community->CategorySlug,
-							'cover' => '/assets/graphics/covers/'.$community->Slug.'.jpg',
 							'stats' => ['members' => $community->MemberCount],
-							'extraClasses'=>['communityListing']];
+							'extraClasses'=>['communityListing'],
+							'cover' => null,
+							'tooltip' => $community->Summary];
+						if (!empty($community->CoverFileType)) {
+							$communityParams['cover'] = '/assets/graphics/covers/'.$community->Slug.'.'.$community->CoverFileType;} 
 
 						echo card(array_merge($baseParams, $communityParams));
 					}

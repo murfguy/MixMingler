@@ -112,9 +112,9 @@
 		?></p>
 		<div class="btn-group d-flex" role="group">
 			<button type="button" class="btn btn-primary" onclick="window.location.href = '/community/<?php echo $community->Slug; ?>/';" data-toggle="tooltip" title="Back to Community Page"><i class="fas fa-arrow-left"></i></button>
-			<button type="button" class="btn btn-info displayToggle" target="summaryView">Summary</button>
-			<button type="button" class="btn btn-info displayToggle" target="memberManager" disabled>Members</button>
-			<?php if ($currentUser->isAdmin) { ?><button type="button" class="btn btn-info displayToggle" target="settingsManager">Settings</button><?php } ?>
+			<button type="button" class="btn btn-info displayToggle" target="summaryView" >Summary</button>
+			<button type="button" class="btn btn-info displayToggle" target="memberManager" >Members</button>
+			<?php if ($currentUser->isAdmin) { ?><button type="button" class="btn btn-info displayToggle" target="settingsManager" disabled>Settings</button><?php } ?>
 		</div>
 
 
@@ -126,7 +126,7 @@
 				<p class="devNote">coming soon</p>
 			</div> <!-- summary view -->
 
-			<div id="memberManager">
+			<div id="memberManager" class="inactiveView">
 
 				<div class="pageHeader">
 					<h2>Member Management</h2>
@@ -370,7 +370,7 @@
 			</div> <!-- member mananger -->
 
 			<?php if ($currentUser->isAdmin) { ?>
-			<div id="settingsManager" class="inactiveView">
+			<div id="settingsManager" class="">
 				<h2>Community Settings</h2>
 
 				<div id="editCommunityForm">
@@ -381,7 +381,7 @@
 						'communityId' => $community->ID,
 						'mixerUser_id' => $_SESSION['mixer_id']
 					);
-					echo form_open('servlet/editCommunity', $attributes, $hidden); 
+					echo form_open_multipart('servlet/editCommunity', $attributes, $hidden); 
 				?>
 
 				<div class="form-row">
@@ -426,11 +426,24 @@
 						</div> <!-- group: description -->
 
 						<div class="form-group">
+
 							<?php
-								echo form_label('Cover Art', 'coverArt');
-								echo '<br><p class="devNote">coming soon</p>';
+
+								$attributes = array(
+									'id' => 'coverart',
+									'class' => 'form-control form-control-sm',
+									/*'data-validation' => 'mime size dimension',
+									'data-validation-max-size' => '256kb',
+									'data-validation-allowing' => "jpg, png, gif",
+									'data-validation-dimension' => 'max512x512',
+									'data-validation-error-msg-size' => "You can not upload images larger than 512kb.",
+									'data-validation-error-msg-mime' => "You can only upload a jpg, png or gif.",
+									'data-validation-error-msg-dimension' => "You can only upload images unders 512x512 pixels."*/);
+
+								echo form_label('Cover Art', 'coverart');
+								echo form_upload('coverart', '', $attributes);
 							?>
-						</div>
+						</div> <!-- group coverart -->
 						</div><!-- info interior -->
 						</div><!-- info box-->
 

@@ -63,9 +63,16 @@ class Auth extends CI_Controller {
 				// resource owner.
 				$resourceOwner = $provider->getResourceOwner($accessToken);
 				$owner = $resourceOwner->toArray();
+				
+				// Adjust array to include avatarUrl in an expected position.
+				// We do this since the library expects an input for mixer api /channels/ endpoint,
+				// but we are sending in /users/current which has a different data structure.
+				//$owner['channel']['user']['avatarUrl'] = $owner['avatarUrl'];
+				$channelData = $this->users->getUserFromMixer($owner['username']);
+				$user = $this->users->syncUser($channelData, true);
 
 				// Check if user has data on Mingler
-				$minglerData = $this->users->getUserFromMingler($owner['channel']['id']);
+				/*$minglerData = $this->users->getUserFromMingler($owner['channel']['id']);
 
 				$isNewJoin = false;
 
@@ -96,7 +103,7 @@ class Auth extends CI_Controller {
 
 					// Add Timeline Event for "joined Mingler"
 					$this->news->addNews($owner['channel']['id'], 'joinMixMingler', 'mingler');
-				}
+				}*/
 
 				$emailSynced = $this->users->syncEmailAddress($owner['email'], $owner['channel']['id']);
 

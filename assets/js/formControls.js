@@ -4,7 +4,7 @@ function setFormListeners() {
 
 	// Set form validators
 	$.validate({
-		modules: 'security',
+		modules: 'security, file',
 		onModulesLoaded: function () {
 			console.log("Form Validation Modules loaded");
 		}
@@ -135,7 +135,6 @@ function requestCommunity(e, form) {
 			});
 		}
 	})
-
 }
 
 function findFormDataItem(target, data) {
@@ -145,6 +144,7 @@ function findFormDataItem(target, data) {
 	    }
 	}
 } 
+
 function processCommunity(e, form) {
 	e.preventDefault();
 
@@ -225,6 +225,12 @@ function editCommunity(e, form) {
 	processingTitle = 'Editing Community...';
 	buttonClass = 'btn-warning';
 	buttonText = "Save Edits";
+	//formData = new FormData(form);
+	var formData = new FormData($("#editCommunity")[0])
+	// Attach file
+	var file_data = $('#coverart').prop('files')[0];
+	console.log(file_data);
+	formData.append('file', file_data); 
 
 	$.confirm({
 		title: 'Are you sure?',
@@ -245,8 +251,10 @@ function editCommunity(e, form) {
 							return $.ajax({
 								url: actionUrl,
 								dataType: 'json',
-								method: 'post',
-								data: form.serialize()
+								method: 'POST',
+								data: formData,
+								processData:false,
+								contentType:false,
 							}).done(function (response) {
 								if (response.success) {
 									self.setContentAppend('<div>'+response.message+'</div>');
@@ -956,7 +964,6 @@ function updateButtonView(tgt, serverData) {
 			break;
 	}
 }
-
 
 function disableModerationButton(tgt) {
 	tgt.removeClass('action confirm btn-danger btn-success btn-primary btn-dark');

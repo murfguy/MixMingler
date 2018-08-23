@@ -54,7 +54,7 @@ class Communications {
 			$this->email->subject($msg->subject);
 			$this->email->message($msg->message);
 
-			$this->CI->email->send(FALSE);
+			$this->email->send(FALSE);
 		}
 
 	}
