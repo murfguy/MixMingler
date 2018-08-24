@@ -5,3 +5,24 @@ This file should house CSS relevent to:
 	user listings
 	user pages
 ----------------- */
+
+table.userList {
+	border-collapse: collapse;
+	border-radius: 1em;
+	overflow: hidden;
+	border: 3px solid white;
+	font-size: 14px;
+}
+
+table.userList thead {
+	background-color: rgb(54, 78, 174);
+	border-bottom: 1px solid rgb(141, 154, 206);
+}
+table.userList thead th {
+	cursor: pointer;
+	border-right: 1px solid rgb(141, 154, 206);
+}
+
+table.userList td {
+	padding: 9px;
+}

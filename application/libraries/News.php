@@ -34,7 +34,7 @@ class News {
 		$query = $this->CI->db->query($sql_query, $values);
 	}
 
-	public function getTypeNewsFeed($typeId) {
+	public function getTypeNewsFeed($typeId, $limit=10) {
 		$query = $this->db
 			->select('TimelineEvents.*')
 			->select('Users.Username as Username')
@@ -44,18 +44,25 @@ class News {
 			->where('TimelineEvents.Type', 'type')
 			->where('TimelineEvents.TypeID', $typeId)
 			->order_by('TimelineEvents.ID', 'DESC')
-			->limit(10)
+			->limit($limit)
 			->get();
 
 		return $query->result();
 	}
 
-	/*public function getCommunityNewsFeed($max = 10) {
-		$sql_query = "SELECT *, (SELECT name_token FROM mixer_users WHERE mixer_users.mixer_id=timeline_events.mixer_id) as username FROM timeline_events WHERE mixer_id IN (276998,265097,273268,205053,222346,255317,217203,2333,249896,534267,261799,280222,13163285,462135,35942,6114513) ORDER BY id DESC LIMIT 0,$max";
-		$query = $this->CI->db->query($sql_query);
+	public function getCommunityNewsFeed($communityId, $limit=35, $isFullNews = false) {
 
-		return  $query->result();
-	}*/
+		$this->db->select('*')->from('TimelineEvents')->where('CommunityID', $communityId);
+
+		if (!$isFullNews) {
+			// all members
+			$allMemberIds = $this->communities->getArrayOfMemberIDs($this->communities->getCommunityMembersByGroup($community->ID, 'member'));
+			$this->db->or_where_in('MixerID', $communityId);
+		}
+
+		$query = $this->db->limit($limit)->get();
+		return $query->result();
+	}
 
 	public function getNewsArray($mixer_id, $event, $eventType, $params = array()) {
 		if (empty($params)) {
@@ -208,12 +215,12 @@ class News {
 		return $eventText;
 	}
 
-	public function getNewsFeedForUser($mixerId) {
-		$query = $this->db
+	public function getNewsFeedForUser($mixerId, $limit = 15) {
+		/*$query = $this->db
 			->select('*')
 			->from('TimelineEvents')
 			->where('MixerID', $mixerId)
-			->get();
+			->get();*/
 
 		$query = $this->db
 			->select('TimelineEvents.*')
@@ -223,39 +230,30 @@ class News {
 			->join('Users', 'Users.ID = TimelineEvents.MixerID')
 			->where('TimelineEvents.MixerID', $mixerId)
 			->order_by('TimelineEvents.EventTime', 'DESC')
-			->limit(10)
+			->limit($limit)
 			->get();
+
 		return $query->result();
 	}
 
-	public function getNewsFeedForCommunity($communityId) {
-		// This gets all news related to a community (but not community members' feeds)
-		$query = $this->db
-			->select('*')
-			->from('TimelineEvents')
-			->where('CommunityID', $communityId)
-			->get();
-		return $query->result();
-	}
-
-	public function getNewsFeedForCommunityMembers($communityId) {
-		// This should get a list of news relating to all members of a community
-
-		// Full feed would include:
-			// User's type activity
-			// User's activity related to this community, but not others
-			// User's activity related to MixMingler
-			// user's milestones
+	public function getNewsFeedForCommunity($communityId, $limit = 25) {
+		$allMemberIds = $this->communities->getArrayOfMemberIDs($this->communities->getCommunityMembersByGroup($communityId, 'member'));
 
 		$query = $this->db
-			->select('*')
+			->select('TimelineEvents.*')
+			->select('Users.Username as Username')
+			->select('Users.AvatarURL as AvatarURL')
 			->from('TimelineEvents')
-			->where('CommunityID', $communityId)
+			->join('Users', 'Users.ID = TimelineEvents.MixerID')
+			//->where('TimelineEvents.CommunityID', $communityId)
+			->or_where_in('TimelineEvents.MixerID', $allMemberIds)
+			->order_by('TimelineEvents.EventTime', 'DESC')
+			->limit($limit)
 			->get();
 		return $query->result();
 	}
 
-	public function getNewsFeedForType($typeId) {
+	public function getNewsFeedForType($typeId, $limit = 10) {
 		$query = $this->db
 			->select('TimelineEvents.*')
 			->select('Users.Username as Username')
@@ -265,7 +263,7 @@ class News {
 			->where('TimelineEvents.Type', 'type')
 			->where('TimelineEvents.TypeID', $typeId)
 			->order_by('TimelineEvents.EventTime', 'DESC')
-			->limit(10)
+			->limit($limit)
 			->get();
 
 		return $query->result();

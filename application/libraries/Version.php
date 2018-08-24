@@ -15,7 +15,7 @@ class Version {
 
 		$this->major = 0;
 		$this->minor = 2;
-		$this->revision = 3;
+		$this->revision = 4;
 		$this->stage = "Types";
 
 		// Load Database
@@ -110,7 +110,8 @@ class Version {
 		--- Community Details Page ------------------------------------------------------
 			UI/UX overhaul -- Target: Ongoing/Phase 3
 				-- View: Top Streams (if any online, default here)
-				-- View: Member List (if no online members, default here)
+				-- View: Community News (if no online members, default here)
+				-- View: Member List (default sort should be most recently online)
 					-- Sort on: Recently online, number of follows, number of views, community rank (admin, mod, core, member)
 					-- Show as grid
 						-- Avatar, name
@@ -145,6 +146,16 @@ class Version {
 		--- </end> v0.3 Task List -------------------------------------------------------
 		--------------------------------------------------------------------------------- */
 
+		$patch = new stdClass();
+		$patch->version = "0.2.4";
+		$patch->date = date($date_string, strtotime('2018-08-24'));
+		$patch->notes = array(
+			"Community Profile: Design overhauled.",
+			"Community Profile: Display online users, but default to news if no users online.",
+			"Community Profile: Table of all members now available, with sortable data.",
+			"community Profile: Member/Follower counts adjust when user changes follow/join status.",
+			"Community Profile: Display news for all members.");
+		$patchNotes[] = $patch;
 
 		$patch = new stdClass();
 		$patch->version = "0.2.3";

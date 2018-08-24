@@ -6,8 +6,16 @@ This file should house CSS relevent to:
 ----------------- */
 
 div.event {
-	padding: 6px;
+	padding: 8px 6px 8px 0px;
 	border-bottom: 1px solid #5774a2;
+}
+
+div[data-displaysize="lrg"] div.event {
+	margin-bottom: 10px;
+	border: 2px solid #5774a2;
+	border-radius: 10px;
+	padding: 8px ;
+	background-color: rgb(21, 18, 60);
 }
 
 div.event img.newsAvatar {
@@ -29,7 +37,7 @@ div.event p.post {
 
 div.event p.postTime {
 	color: rgb(167, 217, 234);
-	font-size: 85%;
+	font-size: 75%;
 	padding-left: 7px; 
 }
 

@@ -276,8 +276,8 @@ class Types {
 			'id' => $type['id'],
 			'name' => $type['name'],
 			'slug' => createSlug($type['name']),
-			'online' => $this->CI->tools->formatNumber($type['online']),
-			'viewersCurrent' => $this->CI->tools->formatNumber($type['viewersCurrent']),
+			'online' => $type['online'],
+			'viewersCurrent' => $type['viewersCurrent'],
 			'coverUrl' => $type['coverUrl'],
 			'backgroundUrl' => $type['backgroundUrl']
 		);

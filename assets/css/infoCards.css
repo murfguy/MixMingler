@@ -1,0 +1,8 @@
+div.typeInfo > p.subName {
+	color: #aaa;
+	font-size: 12px;
+}
+
+span.miniStat {
+	cursor: pointer;
+}
