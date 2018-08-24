@@ -38,21 +38,23 @@
 
 							if (!empty($currentUser)) {
 								$baseParams = ['displayType' => 'text','size' => 'sm','communityId'=>$community->ID, 'userId'=> $_SESSION['mixer_id']];
-								if ($currentUser->isMember) { 
-									$buttonParams = ['content' => 'Leave', 'state' => 'danger', 'confirm' => true, 'action' => 'leaveCommunity'];} 
-								elseif ($currentUser->isBanned) {
-									$buttonParams = ['content' => 'Banned', 'state' => 'dark', 'disabled' => true]; } 
-								elseif ($community->Status == 'closed') {
-									$buttonParams = ['content' => 'Closed','state' => 'secondary','disabled' => true];} 
-								elseif ($currentUser->isPending) {
-									$buttonParams = ['content' => '<i class="fas fa-circle-notch fa-spin"></i> Pending','state' => 'info','confirm' => true, 'action' => 'unpendCommunity'];} 
-								elseif ($community->isApprovalRequired) {
-									$buttonParams = ['content' => 'Ask to Join','state' => 'info','confirm' => false, 'action' => 'joinCommunity'];}
-								else {
-									$buttonParams = ['content' => 'Join','state' => 'primary','confirm' => false, 'action' => 'joinCommunity'];} 
+								if ($community->Admin != $_SESSION['mixer_id']) {
+									if ($currentUser->isMember) { 
+										$buttonParams = ['content' => 'Leave', 'state' => 'danger', 'confirm' => true, 'action' => 'leaveCommunity'];} 
+									elseif ($currentUser->isBanned) {
+										$buttonParams = ['content' => 'Banned', 'state' => 'dark', 'disabled' => true]; } 
+									elseif ($community->Status == 'closed') {
+										$buttonParams = ['content' => 'Closed','state' => 'secondary','disabled' => true];} 
+									elseif ($currentUser->isPending) {
+										$buttonParams = ['content' => '<i class="fas fa-circle-notch fa-spin"></i> Pending','state' => 'info','confirm' => true, 'action' => 'unpendCommunity'];} 
+									elseif ($community->isApprovalRequired) {
+										$buttonParams = ['content' => 'Ask to Join','state' => 'info','confirm' => false, 'action' => 'joinCommunity'];}
+									else {
+										$buttonParams = ['content' => 'Join','state' => 'primary','confirm' => false, 'action' => 'joinCommunity'];} 
 
-								echo action_button(array_merge($baseParams, $buttonParams));
-							}
+									echo action_button(array_merge($baseParams, $buttonParams));
+								} // if not admin
+							} // if is logged in
 						?> <span data-toggle="tooltip" title="Members"><i class="fas fa-users"></i> <span id="memberCount"><?php echo count($members); ?></span> Members</span></p>
 
 
@@ -61,11 +63,14 @@
 						<p>
 							<?php  
 								if (!empty($currentUser)) {
+									if ($community->Admin != $_SESSION['mixer_id']) {
+										
 									if ($currentUser->isFollower) { 
 										$buttonParams = ['content' => 'Unfollow','state' => 'danger','confirm' => true, 'action' => 'unfollowCommunity'];}
 										else { $buttonParams = ['content' => 'Follow','state' => 'primary','confirm' => false, 'action' => 'followCommunity']; }
 
-									echo action_button(array_merge($baseParams, $buttonParams));} ?> 
+									echo action_button(array_merge($baseParams, $buttonParams));}
+									} ?> 
 						<span data-toggle="tooltip" title="Followers"><i class="fas fa-heart"></i> <span id="followCount"><?php echo count($followers); ?></span> Followers</span></p>
 
 
@@ -138,15 +143,15 @@
 
 			<div id="allMembers" <?php if ($view != "allMembers") { ?>class="inactiveView"<?php } ?>>				
 				<h3>All Community Members</h3>
-
+				
 				<table class="table table-dark table-striped userList tablesorter">
 					<thead>
 						<tr>
-							<th>User</th>
-							<th>Last Online</th>
-							<th>Last Type</th>
-							<th>Followers</th>
-							<th>Views</th>
+							<th data-toggle="tooltip" title="Click to sort" >User</th>
+							<th data-toggle="tooltip" title="Click to sort">Last Online</th>
+							<th data-toggle="tooltip" title="Click to sort">Last Type</th>
+							<th data-toggle="tooltip" title="Click to sort">Followers</th>
+							<th data-toggle="tooltip" title="Click to sort">Views</th>
 						</tr>	
 					</thead>
 					<tbody>

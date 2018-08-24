@@ -154,7 +154,7 @@ class Version {
 			"Community Profile: Display online users, but default to news if no users online.",
 			"Community Profile: Table of all members now available, with sortable data.",
 			"community Profile: Member/Follower counts adjust when user changes follow/join status.",
-			"[PENDING] Community Profile: Display news for all members, along with filter options");
+			"Community Profile: Display news for all members.");
 		$patchNotes[] = $patch;
 
 		$patch = new stdClass();
