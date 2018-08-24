@@ -92,36 +92,44 @@ if ( ! function_exists('card')) {
 
 			if (!empty($params['stats'])) {
 				$stats = "";
+				$lastStat = "";
 				foreach ($params['stats'] as $key => $value) {
 
 					if ($params['size'] != 'xsm') {
-						if ($stats != '') { $stats .= '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'; }
-						$stats .= '<span data-toggle="tooltip" title="';
+						if ($stats != '' && $lastStat != 'currentType') { $stats .= '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'; }
+
+						$lastStat = $key;
+						$stats .= '<span class="miniStat" data-toggle="tooltip" title="';
 						switch ($key) {
+							case "currentType":
+								$stats .= 'Currently Streaming"><i class="fas fa-play-circle"></i> '.$params['stats']['currentType'].'<br>';
+								break;
+
 							case "online":
-								$stats .= 'Streams Online"><i class="fas fa-play-circle"></i> '.$params['stats']['online'];
+								$stats .= 'Streams Online"><i class="fas fa-play-circle"></i> '.number_format($params['stats']['online']);
 								break;
 
 							case "streamCount":
-								$stats .= 'Times Streamed"><i class="fas fa-play-circle"></i> '.$params['stats']['streamCount'];
+								$stats .= 'Times Streamed"><i class="fas fa-play-circle"></i> '.number_format($params['stats']['streamCount']);
 								break;
 
 							case "members":
-								$stats .= 'Members"><i class="fas fa-users"></i> '.$params['stats']['members'];
+								$stats .= 'Members"><i class="fas fa-users"></i> '.number_format($params['stats']['members']);
 								break;
 
 							case "viewers":
-								$stats .= 'Current Viewers"><i class="fas fa-eye"></i> '.$params['stats']['viewers'];
+								$stats .= 'Current Viewers"><i class="fas fa-eye"></i> '.number_format($params['stats']['viewers']);
 								break;
 
 							case "views":
-								$stats .= 'Total Views"><i class="fas fa-eye"></i> '.$params['stats']['views'];
+								$stats .= 'Total Views"><i class="fas fa-eye"></i> '.number_format($params['stats']['views']);
 								break;
 
 							case "followers":
-								$stats .= 'Followers"><i class="fas fa-heart"></i> '.$params['stats']['followers'];
+								$stats .= 'Followers"><i class="fas fa-heart"></i> '.number_format($params['stats']['followers']);
 								break;
 						} //switch ($key)
+						$stats .= '</span>';
 					} else {
 						if ($stats != '') { $stats .= '<br>'; }
 						switch ($key) {
@@ -156,7 +164,9 @@ if ( ! function_exists('card')) {
 			
 			if ($params['size'] != 'xsm') {
 				$str .= '<p class="typeName"><a href="'.$params['url'].'">'.$params['name'].'</a></p>';
+				if (!empty($params['type'])) { $str .= '<p class="subName">'.$params['type']->name.'</p>'; }
 				$str .= '<p class="stats">'.$stats.'</p>'; }
+
 			$str .= '</div>'; 
 		}
 

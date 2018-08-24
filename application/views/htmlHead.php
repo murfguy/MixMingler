@@ -75,6 +75,7 @@
 	<?php echo link_tag('assets/css/communities.css'); ?>
 	<?php echo link_tag('assets/css/news.css'); ?>
 	<?php echo link_tag('assets/css/types.css'); ?>
+	<?php echo link_tag('assets/css/infoCards.css'); ?>
 </head>
 
 <body>

@@ -90,6 +90,16 @@ table.adminTable tbody {
 	font-size: 14px;
 }
 
+
+/* ---------------------------------------
+-- Common Elements -----------------------
+--------------------------------------- */
+img.coverArt {
+    /*border-radius: 10px;
+    border: 3px solid white;*/
+    overflow: hidden;
+    width: 100%;
+}
 /* ---------------------------------------
 -- OLDER STYLES - Refactor These ---------
 --------------------------------------- */
