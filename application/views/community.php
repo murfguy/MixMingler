@@ -23,20 +23,21 @@
 
 	<div class="row">
 		<div id="sidebar" class="col-3 streamerList">
-			<img src="/assets/graphics/covers/<?php echo $community->Slug.'.'.$community->CoverFileType; ?>" <?php echo imgBackup('community') ?>class="coverArt" />
-			<p class="summary"><?php echo $community->Summary ?></p>
+			<img src="/assets/graphics/covers/<?php echo $community->Slug.'.'.$community->CoverFileType; ?>" <?php echo imgBackup('community') ?>class="coverArt lrg" />
+			
 	
 
 			<div class="infoBox">
 				<h4 class="infoHeader">Community Info</h4>
 				<div class="infoInterior">
-					
+					<!--<p class="summary"><?php echo $community->Summary ?></p>-->
 				
 
 					<p> 
 						<?php
-							$baseParams = ['displayType' => 'text','size' => 'sm','communityId'=>$community->ID, 'userId'=> $_SESSION['mixer_id']];
+
 							if (!empty($currentUser)) {
+								$baseParams = ['displayType' => 'text','size' => 'sm','communityId'=>$community->ID, 'userId'=> $_SESSION['mixer_id']];
 								if ($currentUser->isMember) { 
 									$buttonParams = ['content' => 'Leave', 'state' => 'danger', 'confirm' => true, 'action' => 'leaveCommunity'];} 
 								elseif ($currentUser->isBanned) {
@@ -74,11 +75,9 @@
 
 					
 
-					<hr style="background-color: white">
 
 					<?php if (!empty($community->Discord)) { ?><button type="button" class="btn btn-sm btn-primary btn-block" data-toggle="tooltip" title="Join the Discord for this community!" onclick="window.open('https://discord.gg/<?php echo $community->Discord; ?>')"><i class="fab fa-discord"></i> Discord Server</button><?php } ?>
 
-					<hr style="background-color: white">
 
 
 					<h6>Moderated By:</h6>
@@ -132,7 +131,9 @@
 			
 			<div id="communityNews" <?php if ($view != "communityNews") { ?>class="inactiveView"<?php } ?>>				
 				<h3>Community News</h3>
-				<p class="devNote">Coming soon</p>
+
+				<div id="communityNewsFeed" data-feedtype="community" data-limit="25" data-communityId="<?php echo $community->ID; ?>" data-displaysize="lrg">
+				</div>
 			</div><!-- recentlyOnline -->
 
 			<div id="allMembers" <?php if ($view != "allMembers") { ?>class="inactiveView"<?php } ?>>				

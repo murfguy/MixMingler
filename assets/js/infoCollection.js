@@ -104,6 +104,7 @@ function getTypeNewsFeed(target) {
 function runNewsCollection() {
 	console.log("runNewsCollection()");
 	getNewsFeed($('div#userNewsFeed'));
+	getNewsFeed($('div#communityNewsFeed'));
 }
 
 function getNewsFeed(tgt) {
@@ -126,6 +127,10 @@ function getNewsFeed(tgt) {
 					communityId: tgt.data('communityid')}
 				break;
 		}
+		feedParams['limit'] = 10;
+		if (tgt.data('limit') > 0) { feedParams['limit'] = tgt.data('limit') }
+
+		feedParams['']
 
 		if (tgt.data('displaysize') == undefined) { displaySize = "med"; }
 			else { displaySize = tgt.data('displaysize')}

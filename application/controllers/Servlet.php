@@ -1008,15 +1008,15 @@ class Servlet extends CI_Controller {
 
 		switch ($feedType) {
 			case "user":
-				$news = $this->news->getNewsFeedForUser($feedParams['mixerId']);
+				$news = $this->news->getNewsFeedForUser($feedParams['mixerId'], $feedParams['limit']);
 				break;
 
 			case "community":
-				$news = $this->news->getNewsFeedForCommunity($feedParams['communityId']);
+				$news = $this->news->getNewsFeedForCommunity($feedParams['communityId'], $feedParams['limit']);
 				break;
 
 			case "type":
-				$news = $this->news->getNewsFeedForType($feedParams['typeId']);
+				$news = $this->news->getNewsFeedForType($feedParams['typeId'], $feedParams['limit']);
 				break;
 		}
 

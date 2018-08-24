@@ -739,6 +739,8 @@ function updateButtonView(tgt, serverData) {
 				} else {
 					tgt.addClass('btn-danger');
 					tgt.html('Leave');
+
+					$('span#memberCount').html(parseInt($('span#memberCount').html(), 10)+1)
 				}
 
 				
@@ -765,6 +767,8 @@ function updateButtonView(tgt, serverData) {
 					followTgt.addClass('btn-danger');
 					followTgt.html('Unfollow');
 				}
+
+				$('span#followCount').html(parseInt($('span#followCount').html(), 10)+1)
 			}
 			break;
 
@@ -811,6 +815,9 @@ function updateButtonView(tgt, serverData) {
 				coreTgt.attr('disabled', '');
 				coreTgt.addClass('btn-danger');
 				coreTgt.html('<i class="fas fa-minus-circle"></i>');
+
+
+					$('span#memberCount').html(parseInt($('span#memberCount').html(), 10)-1)
 			}
 			break;
 
@@ -826,6 +833,8 @@ function updateButtonView(tgt, serverData) {
 				tgt.addClass('btn-danger');
 				tgt.html('Unfollow');
 			}
+
+			$('span#followCount').html(parseInt($('span#followCount').html(), 10)+1)
 			break;
 
 		case "unfollowCommunity":
@@ -839,6 +848,8 @@ function updateButtonView(tgt, serverData) {
 				tgt.addClass('btn-primary');
 				tgt.html('Follow');
 			}
+
+				$('span#followCount').html(parseInt($('span#followCount').html(), 10)-1)
 			break;
 
 		case "setAsCore":

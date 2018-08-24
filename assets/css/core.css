@@ -94,11 +94,21 @@ table.adminTable tbody {
 /* ---------------------------------------
 -- Common Elements -----------------------
 --------------------------------------- */
-img.coverArt {
-    /*border-radius: 10px;
-    border: 3px solid white;*/
+img.coverArt.lrg {
+	border: 2px solid #90a9d2;
+	border-radius: 16px;
     overflow: hidden;
     width: 100%;
+    margin-bottom: 15px;
+}
+
+p.summary {
+	text-align: center;
+	font-style: italic;
+	font-family: Georgia, sans-serif;
+	margin-top: 10px;
+	padding: 15px 3px;
+	font-size: 14px;
 }
 
 
@@ -288,7 +298,17 @@ div.infoInterior.row {
 }
 
 .infoBox p {
-	margin: 0 0 4px 0;
+	margin: 0 0 6px 0;
+}
+
+
+.infoInterior h1,
+.infoInterior h2,
+.infoInterior h3,
+.infoInterior h4,
+.infoInterior h5,
+.infoInterior h6 {
+	margin-top: 8px;
 }
 
 .miniStreamInfo {

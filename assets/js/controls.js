@@ -190,14 +190,18 @@ function addUserTableSorter() {
 	});
 
 	$('.userList').tablesorter({
-		
+		theme: 'blue',
 		headers: {
-			0 : { sorter: 'data' },
+			0 : { ignoreArticles : 'en' },
 		 	1 : { sorter: 'data' },
 		 	3 : { sorter: 'fancyNumber' },
 		 	4 : { sorter: 'fancyNumber' },
 		},
-		widgets: ['zebra']
+		widgets: ['zebra'],
+		sortList: [[1,0]],
+		 textExtraction: {
+	      0: function(node, table, cellIndex) { return $(node).find("a").text(); }
+	    }
 	});
 
 }

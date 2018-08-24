@@ -90,19 +90,6 @@ class Communities {
 		return $query->result();
 	}
 
-	/*public function getCommunityMembersFromList($list, $sortOn = 'lastSeenOnline', $direction = 'DESC') {
-		if (!empty($list)) {
-			$sql_query = "SELECT mixer_id, name_token, numFollowers, avatarURL FROM mixer_users WHERE mixer_id IN ? ORDER BY $sortOn $direction";
-			//echo "<p>".str_replace('?', $list, $sql_query)."</p>";
-			$query = $this->CI->db->query($sql_query, array(explode(',', $list)));
-			//echo "<p>$list</p>";
-			//print_r($query->result());
-			return $query->result();
-		} else {
-			return null;
-		}
-	}*/
-
 	// --- Junction Table Refactor for: getCommunityMembersFromList
 	public function getCommunityMembersByGroup($communityId, $group, $sortOn = 'Username', $direction = 'ASC') {
 		$sql_query = "SELECT Users.* 
@@ -134,45 +121,6 @@ class Communities {
 			$memberIDs[] = $member->ID;
 		}
 		return $memberIDs;
-	}
-
-
-
-	public function getCommunityLeads($communityId) {
-		$sql_query = "SELECT m.name_token, c.long_name, MixerID, MemberState 
-FROM `UserCommunities` 
-JOIN mixer_users AS m ON m.mixer_id = UserCommunities.MixerID
-JOIN communities AS c ON c.id = UserCommunities.CommunityID
-WHERE (MemberState = 'admin' OR MemberState='moderator') AND CommunityID=?";
-		$query = $this->CI->db->query($sql_query, array($communityId));
-		return $query->result();
-	}
-
-	public function setScanTime($communityID) {
-		$timestamp = date('Y-m-d H:i:s');
-
-		$sql_query = "UPDATE communities SET lastScanned=?  WHERE id=?";
-		$query = $this->CI->db->query($sql_query, array($timestamp, $communityID));
-	}
-
-	public function getCommunityNews($communityId) {
-		//get list of member ids
-		$sql_query = "SELECT *  FROM `mixer_users` WHERE FIND_IN_SET((SELECT id FROM communities WHERE id=?), `joinedCommunities`) > 0 ORDER BY name_token ASC";
-		$members = $this->CI->db->query($sql_query, array($communityId));
-
-		$listOfIds = "";
-		$membersCounted = 0;
-		foreach ($members as $member) {
-			$listOfIds .= $member->mixer_id;
-			$membersCounted++;
-			if ($membersCounted<=count($members)) {
-				$listOfIds .= ",";
-			}
-		}
-
-		$sql_query = "SELECT * FROM timeline_events WHERE mixer_id IN (listOfIds) ORDER BY id DESC LIMIT 0,10;";
-		$query = $this->CI->db->query($sql_query, array($timestamp, $communityID));
-		return $query->result();
 	}
 
 	public function createNewCommunity($commData) {
@@ -242,5 +190,7 @@ WHERE (MemberState = 'admin' OR MemberState='moderator') AND CommunityID=?";
 		$this->db->where('ID', $communityId);
 		$this->db->update('Communities', $details);
 	}
+
+
 
 }?>

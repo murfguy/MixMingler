@@ -110,7 +110,8 @@ class Version {
 		--- Community Details Page ------------------------------------------------------
 			UI/UX overhaul -- Target: Ongoing/Phase 3
 				-- View: Top Streams (if any online, default here)
-				-- View: Member List (if no online members, default here)
+				-- View: Community News (if no online members, default here)
+				-- View: Member List (default sort should be most recently online)
 					-- Sort on: Recently online, number of follows, number of views, community rank (admin, mod, core, member)
 					-- Show as grid
 						-- Avatar, name
@@ -150,7 +151,10 @@ class Version {
 		$patch->date = date($date_string, strtotime('2018-08-24'));
 		$patch->notes = array(
 			"Community Profile: Design overhauled.",
-			"Community Profile: Table of all members now available.");
+			"Community Profile: Display online users, but default to news if no users online.",
+			"Community Profile: Table of all members now available, with sortable data.",
+			"community Profile: Member/Follower counts adjust when user changes follow/join status.",
+			"[PENDING] Community Profile: Display news for all members, along with filter options");
 		$patchNotes[] = $patch;
 
 		$patch = new stdClass();
