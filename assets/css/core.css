@@ -100,6 +100,10 @@ img.coverArt {
     overflow: hidden;
     width: 100%;
 }
+
+
+
+
 /* ---------------------------------------
 -- OLDER STYLES - Refactor These ---------
 --------------------------------------- */
@@ -284,7 +288,7 @@ div.infoInterior.row {
 }
 
 .infoBox p {
-	margin: 0;
+	margin: 0 0 4px 0;
 }
 
 .miniStreamInfo {

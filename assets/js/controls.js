@@ -8,6 +8,9 @@ var baseActionUrl = baseURL+"/servlet/";
 
 	$('[data-toggle="tooltip"]').tooltip();
 
+	// $(".userlist").tablesorter(); 
+	addUserTableSorter();
+
 	// Convert follow/ignore type buttons based on display state
 	console.log("classes: " + $("div.actionButtons.types").attr("class"));
 	if ( $("div.actionButtons.types").hasClass("followed") ) {
@@ -123,4 +126,78 @@ function logout(tgtUser) {
 function hidePharError() {
 	//console.log('hidePharError()');
 	//$("p:contains('Message: Module')").parent().css("background-color", "#000");
+}
+
+function addUserTableSorter() {
+	$.tablesorter.addParser({
+		// set a unique id
+		id: 'data',
+		is: function(s, table, cell, $cell) {
+			// return false so this parser is not auto detected
+			return false;
+		},
+		format: function(s, table, cell, cellIndex) {
+		  var $cell = $(cell);
+			// I could have used $(cell).data(), then we get back an object which contains both
+			// data-lastname & data-date; but I wanted to make this demo a bit more straight-forward
+			// and easier to understand.
+
+			// first column (zero-based index) has lastname data attribute
+			if (cellIndex === 0) {
+			// returns lastname data-attribute, or cell text (s) if it doesn't exist
+			return $cell.attr('data-username') || s;
+
+			// third column has date data attribute
+			} else if (cellIndex === 1) {
+			// return "mm-dd" that way we don't need to use "new Date()" to process it
+			return $cell.attr('data-time') || s;
+			
+
+			// third column has date data attribute
+			} else if (cellIndex === 2) {
+			// return "mm-dd" that way we don't need to use "new Date()" to process it
+			return $cell.attr('data-date') || s;
+
+			// third column has date data attribute
+			} else if (cellIndex === 3) {
+			// return "mm-dd" that way we don't need to use "new Date()" to process it
+			return $cell.attr('data-followers') || s;
+			
+			// third column has date data attribute
+			} else if (cellIndex === 4) {
+			// return "mm-dd" that way we don't need to use "new Date()" to process it
+			return $cell.attr('data-views') || s;
+			}
+
+			// return cell text, just in case
+			return s;
+		},
+		// flag for filter widget (true = ALWAYS search parsed values; false = search cell text)
+		parsed: false,
+		// set type, either numeric or text
+		type: 'text'
+	});
+
+	jQuery.tablesorter.addParser({
+	  id: "fancyNumber",
+	  is: function(s) {
+	    return /^[0-9]?[0-9,\.]*$/.test(s);
+	  },
+	  format: function(s) {
+	    return jQuery.tablesorter.formatFloat( s.replace(/,/g,'') );
+	  },
+	  type: "numeric"
+	});
+
+	$('.userList').tablesorter({
+		
+		headers: {
+			0 : { sorter: 'data' },
+		 	1 : { sorter: 'data' },
+		 	3 : { sorter: 'fancyNumber' },
+		 	4 : { sorter: 'fancyNumber' },
+		},
+		widgets: ['zebra']
+	});
+
 }

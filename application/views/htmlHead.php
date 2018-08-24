@@ -55,6 +55,7 @@
 
 	<!-- JS Libraries -->
 	<script type="text/javascript" src="<?php echo base_url();?>assets/js/tether.min.js" ></script>
+	<script type="text/javascript" src="<?php echo base_url();?>assets/js/tablesorter/jquery.tablesorter.min.js"></script> 
 
 
 	<!-- MixMingler Internal Javascript -->
@@ -73,6 +74,7 @@
 	<!-- Custom CSS -->
 	<?php echo link_tag('assets/css/core.css'); ?>
 	<?php echo link_tag('assets/css/communities.css'); ?>
+	<?php echo link_tag('assets/css/users.css'); ?>
 	<?php echo link_tag('assets/css/news.css'); ?>
 	<?php echo link_tag('assets/css/types.css'); ?>
 	<?php echo link_tag('assets/css/infoCards.css'); ?>
