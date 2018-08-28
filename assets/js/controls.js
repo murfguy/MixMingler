@@ -94,6 +94,10 @@ var baseActionUrl = baseURL+"/servlet/";
 	setViewToggleListeners();
 	setFormListeners();
 
+	$( ".typeInfo" ).hover(function() { 
+		$(this).children('.btnGroupContainer').slideToggle(); });
+
+
 	// When the user scrolls down 20px from the top of the document, show the button
 	window.onscroll = function() {scrollFunction()};
 

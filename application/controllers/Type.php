@@ -115,10 +115,16 @@ class Type extends CI_Controller {
 			
 			foreach ($allActiveTypes as $type) {
 				$displayType = true;
+				$type['FollowState'] = 'none';
 
-				// If type is either followed or ignored, it shouldn't show up in the full list.
+				// If type is ignored, it shouldn't show up in the full list.
 				if ($currentUser != null) {
-					if (array_search($type['id'], explode(";", $ignoredTypeIDs)) > - 1) { $displayType = false; }
+					if (array_search($type['id'], explode(";", $ignoredTypeIDs)) > - 1) { 
+						$displayType = false; 
+						$type['FollowState'] = 'ignored'; }
+
+					if (array_search($type['id'], explode(";", $followedTypeIDs)) > - 1) { $type['FollowState'] = 'followed'; }
+
 				}
 
 				// Let's add any types we don't recognize.

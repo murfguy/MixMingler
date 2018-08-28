@@ -89,6 +89,7 @@ if ( ! function_exists('card')) {
 		} else {
 			if (empty($params['category'])) { $params['category']= ""; }
 			if (empty($params['size'])) { $params['size'] = 'med'; }
+			if (empty($params['followState'])) { $params['followState'] = "none"; }
 
 			if (!empty($params['stats'])) {
 				$stats = "";
@@ -151,6 +152,10 @@ if ( ! function_exists('card')) {
 				if (!empty($params['extraClasses'])) {  
 					foreach ($params['extraClasses'] as $class) {
 						$str.= ' '.$class;	}}
+
+				if (in_array($params['followState'], ["followed", "ignored"])) {  
+					$str .= ' '.$params['followState']; }
+
 			$str .= '" ';
 			if ($params['size'] == 'xsm') {
 				$str .= 'data-toggle="tooltip" data-placement="top" data-html="true" title="'.$params['name']."<br>".$stats.'"';
@@ -159,6 +164,31 @@ if ( ! function_exists('card')) {
 			}
 
 			$str .= '>';
+
+			if (isset($_SESSION['mixer_id']) && !empty($params['typeid'])) {
+				$str .= '<div class="btnGroupContainer">';
+				$str .= '<div class="cardActionButtons btn-group d-flex" role="group">';
+
+				switch ($params['followState']) {
+					case "followed":
+						$str .= '<button type="button" btnType="mini" class="action btn btn-danger" action="unfollowType" userid="'.$_SESSION['mixer_id'].'" typeid="'.$params['typeid'].'" data-toggle="tooltip" title="Unfollow" ><i class="fas fa-thumbs-down"></i></button>';
+						$str .= '<button type="button" btnType="mini" class="action btn btn-warning" action="ignoreType" userid="'.$_SESSION['mixer_id'].'" typeid="'.$params['typeid'].'" data-toggle="tooltip" title="Ignore" style="display:none;><i class="fas fa-ban"></i></button>';
+						break;
+
+					case "ignored":
+						$str .= '<button type="button" btnType="mini" class="action btn btn-primary" action="followType" userid="'.$_SESSION['mixer_id'].'" typeid="'.$params['typeid'].'" data-toggle="tooltip" title="Follow" style="display:none;><i class="fas fa-thumbs-up" "></i></button>';
+						$str .= '<button type="button" btnType="mini" class="action btn btn-danger" action="unignoreType" userid="'.$_SESSION['mixer_id'].'" typeid="'.$params['typeid'].'" data-toggle="tooltip" title="Unignore"><i class="fas fa-thumbs-down"></i></button>';
+						break;
+
+					default:
+						$str .= '<button type="button" btnType="mini" class="action btn btn-primary" action="followType" userid="'.$_SESSION['mixer_id'].'" typeid="'.$params['typeid'].'" data-toggle="tooltip" title="Follow"><i class="fas fa-thumbs-up"></i></button>';
+						$str .= '<button type="button" btnType="mini" class="action btn btn-warning" action="ignoreType" userid="'.$_SESSION['mixer_id'].'" typeid="'.$params['typeid'].'" data-toggle="tooltip" title="Ignore"><i class="fas fa-ban"></i></button>';
+						break;
+				}
+				$str .= '</div>';
+				$str .= '</div>';
+			}
+
 			$str .= '<a href="'.$params['url'].'"><img src="'.$params['cover'].'" '.imgBackup($params['kind']).'class="coverArt" /></a>';
 			
 			

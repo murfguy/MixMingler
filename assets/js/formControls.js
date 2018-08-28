@@ -630,6 +630,8 @@ function setConfirmationActions () {
 
 		if ($(this).hasClass('confirm')) {
 			$.confirm({
+				animation: 'rotateY',
+    			closeAnimation: 'rotateYR',
 				title: 'Are you sure?',
 				content: message,
 				theme: 'dark',
@@ -872,26 +874,44 @@ function updateButtonView(tgt, serverData) {
 
 		case "followType":
 			tgt.removeClass('confirm btn-danger');
-			tgt.attr('action', 'unfollowType');
 			tgt.addClass('btn-danger confirm');
-			tgt.html('Unfollow');
+			tgt.attr('action', 'unfollowType');
+			
+			if (tgt.attr('btnType') == 'mini') {
+				tgt.html('<i class="fas fa-thumbs-down"></i>');
+				tgt.siblings('button').hide();
+				tgt.closest('.typeInfo').addClass("followed");
+			} else {
+				tgt.html('Unfollow');
 
-			tgt.closest('tr').children('td.followState').text('Followed');
+				tgt.closest('tr').children('td.followState').text('Followed');
 
-			tgtIgnore = $("button[typeid='"+serverData.typeID+"'][action='ignoreType']");
-			tgtIgnore.hide();
+				tgtIgnore = $("button[typeid='"+serverData.typeID+"'][action='ignoreType']");
+				tgtIgnore.hide();
+			}
+
+
+			
 			break;
 
 		case "unfollowType":
 			tgt.removeClass('confirm btn-danger');
 			tgt.attr('action', 'followType');
 			tgt.addClass('btn-primary');
-			tgt.html('Follow');
 
-			tgt.closest('tr').children('td.followState').text('n/a');
+			if (tgt.attr('btnType') == 'mini') {
+				tgt.html('<i class="fas fa-thumbs-up"></i>');
+				tgt.siblings('button').show();
+				tgt.closest('.typeInfo').removeClass("followed");
 
-			tgtIgnore = $("button[typeid='"+serverData.typeID+"'][action='ignoreType']");
-			tgtIgnore.show();
+			} else {
+				tgt.html('Follow');
+				tgt.closest('tr').children('td.followState').text('n/a');
+
+				tgtIgnore = $("button[typeid='"+serverData.typeID+"'][action='ignoreType']");
+				tgtIgnore.show();
+			}
+			
 			break;
 
 		case "ignoreType":

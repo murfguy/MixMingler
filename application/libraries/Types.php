@@ -326,6 +326,10 @@ class Types {
 			$type['coverUrl'] == "https://mixer.com/_latest/assets/images/main/types/default.jpg";
 		}
 
+		if (empty($type['FollowState'])) {
+			$type['FollowState'] = "none";
+		}
+
 		return array(
 			'id' => $type['id'],
 			'name' => $type['name'],
@@ -333,7 +337,8 @@ class Types {
 			'online' => $type['online'],
 			'viewersCurrent' => $type['viewersCurrent'],
 			'coverUrl' => $type['coverUrl'],
-			'backgroundUrl' => $type['backgroundUrl']
+			'backgroundUrl' => $type['backgroundUrl'],
+			'followState' => $type['FollowState']
 		);
 	}
 }
