@@ -189,6 +189,13 @@ class Communities {
 		$this->db->update('Communities', $details);
 	}
 
+	public function getPendingMemberCountAlerts($mixerId) {
+		/*$this->db
+			->select('')
+			->from('')
+			->where()*/
+	}
+
 
 
 }?>

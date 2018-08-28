@@ -16,6 +16,7 @@
 			<div class="infoBox">
 				<h4 class="infoHeader bg-danger">Alerts <i class="fas fa-bell"></i></h4>
 				<div class="infoInterior">
+
 					<?php if (!empty($alerts['pendingRequests'])) { ?>
 						<h6>Site Admin</h6>
 						<p><a href="/admin/">Community Requests</a> <span class="badge badge-danger"><?php echo $alerts['pendingRequests']; ?></span></p>
@@ -38,8 +39,8 @@
 									break;
 							} ?>
 							</p>
-						<?php } ?>
-					<?php } ?>
+						<?php } // foreach unfounded communities ?>
+					<?php } // if !empty unfounded communities ?>
 				</div>
 			</div><!-- .infoBox Alerts -->
 			<?php } ?>
@@ -50,9 +51,11 @@
 				<div class="infoInterior">
 					<?php
 						if (!empty($communities->follower)) {
-							foreach ($communities->follower as $community) {
-								echo '<p>'.communityListLink($community).'</p>';
-							}
+							echo "<p>";
+							foreach ($communities->follower as $community) { ?>
+								<a href="#" class="newsToggle" data-newstype="community" data-id="<?php echo $community->ID; ?>"><?php echo $community->Name; ?></a><br>
+								<?php } // foreach 
+							echo "</p>"; 
 						} else {
 							echo "<p>You haven't followed any communities.</p>";
 						}
@@ -69,7 +72,7 @@
 						echo "<div class=\"icons row\">";
 							foreach ($mixerTypeData as $type) {
 								if (empty($type['coverUrl'])) { $type['coverUrl'] = 'https://mixer.com/_latest/assets/images/main/types/default.jpg'; }
-								echo "<div class=\"miniTypeInfo \"><a class=\"newsToggle\" data-newstype=\"typeNews\" data-typeid=\"".$type['id']."\"><img class=\"miniCover";
+								echo "<div class=\"miniTypeInfo \"><a class=\"newsToggle\" data-newstype=\"type\" data-id=\"".$type['id']."\"><img class=\"miniCover";
 
 								if ($type['online'] == 0) {
 									echo " offline";
@@ -118,22 +121,52 @@
 				<h4 class="infoHeader">News Feed</h4>
 				<div class="infoInterior">
 					<p>Select a <b>Game</b> to the left in order to see specific information.</p>
+					<!--<div id="communityNewsFeed" data-feedtype="community" data-limit="25" data-communityid="1" data-displaysize="lrg">-->
 					<?php 
-						if (!empty($followedTypes)) {	
-							foreach ($followedTypes as $type) { ?>
+						
+						if (!empty($communities->follower)) {	
+							foreach ($communities->follower as $community) { ?>
 								
-								<div class="newsFeed gamesFeed" id="typeNews-<?php echo $type->ID; ?>">
-									<h4 class="subHeader"><a href="/type/<?php echo $type->ID."/". $type->Slug; ?>"><?php echo $type->Name; ?></a></h4>
+								<div class="newsFeed gamesFeed" id="community-<?php echo $community->ID; ?>">
+									<h4 class="subHeader"><a href="/community/"<?php echo $community->Slug; ?>"><?php echo $community->Name; ?></a></h4>
 
 									<h5>Top Streams</h5>
-									<div class="topStreams" id="type-<?php echo $type->ID; ?>">
-										<div class="spinner type alert alert-warning">
+									<div class="topStreams" id="streams-<?php echo $community->ID; ?>">
+										<div class="spinner streams alert alert-warning">
 											<p><i class="fas fa-circle-notch fa-spin"></i> Checking Mixer for top streams. One moment please.</p>
 										</div><!-- alert -->
 									</div><!-- .topStreams -->
 
 									<h5>Recent Activity</h5>
-									<div class="typeNews" id="news-<?php echo $type->ID; ?>">
+									<div class="typeNews" id="news-<?php echo $community->ID; ?>" data-feedtype="community" data-limit="15" data-communityid="<?php echo $community->ID; ?>" data-displaysize="med">
+										<div class="spinner news alert alert-warning">
+											<p><i class="fas fa-circle-notch fa-spin"></i> Checking MixMingler for recent news. One moment please.</p>
+										</div><!-- alert -->
+									</div><!-- .typeNews -->
+								</div><!-- .newsFeed -->
+
+							<?php } /* foreach */
+
+						} else { ?>
+							<div class="alert alert-warning"><p>You haven't followed any games yet!</p></div>
+					<?php }	
+
+
+						if (!empty($followedTypes)) {	
+							foreach ($followedTypes as $type) { ?>
+								
+								<div class="newsFeed gamesFeed" id="type-<?php echo $type->ID; ?>">
+									<h4 class="subHeader"><a href="/type/<?php echo $type->ID."/". $type->Slug; ?>"><?php echo $type->Name; ?></a></h4>
+
+									<h5>Top Streams</h5>
+									<div class="topStreams" id="streams-<?php echo $type->ID; ?>">
+										<div class="spinner streams alert alert-warning">
+											<p><i class="fas fa-circle-notch fa-spin"></i> Checking Mixer for top streams. One moment please.</p>
+										</div><!-- alert -->
+									</div><!-- .topStreams -->
+
+									<h5>Recent Activity</h5>
+									<div class="typeNews" id="news-<?php echo $type->ID; ?>" data-feedtype="type" data-limit="15" data-typeid="<?php echo $type->ID; ?>" data-displaysize="med"> 
 										<div class="spinner news alert alert-warning">
 											<p><i class="fas fa-circle-notch fa-spin"></i> Checking MixMingler for recent news. One moment please.</p>
 										</div><!-- alert -->

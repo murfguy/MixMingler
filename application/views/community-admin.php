@@ -55,9 +55,7 @@
 						?>
 						</div>
 				</div>
-				<ul>
-					<li>Coming soon: Add cover art!</li>
-				</ul>
+				<p>After you've founded your community, you'll be able to edit some additional details such as adding cover art and setting a Discord channel.</p>
 				<button class="foundButton btn btn-lg btn-primary">Found the "<?php echo $community->Name; ?>" Community!</button>
 				<?php echo form_close(); ?>
 			</div>

@@ -150,7 +150,9 @@ class Version {
 		$patch->version = "0.2.4";
 		$patch->date = date($date_string, strtotime('2018-08-31'));
 		$patch->notes = array(
-			"Community List: Now shows number of online streams.");
+			"Community List: Now shows number of online streams.",
+			"Home Page: Can now view community top streams/news from home page.",
+			"Community Foundation: Reloads page after founding community.");
 		$patchNotes[] = $patch;
 
 
