@@ -94,3 +94,9 @@ if (! function_exists('getTypeIDList')) {
 		return implode($seperator, $typeIDList);
 	}
 }
+
+if (! function_exists('versionParam')) {
+	function versionParam($version) {
+		return "?v=".$version;
+	}
+}

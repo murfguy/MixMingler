@@ -6,6 +6,7 @@ class Account extends CI_Controller {
 		$this->load->library('users');
 		$this->load->library('communities');
 		$this->load->library('types');
+		$this->load->library('version');
 		$this->load->database();
 		
 		if (isset($_SESSION['mixer_id'])) {
@@ -24,9 +25,8 @@ class Account extends CI_Controller {
 			$viewData->types = $this->users->getUserTypesInformation($_SESSION['mixer_id']);
 
 
-			$this->load->view('htmlHead');
+			$this->load->view('htmlHead', $this->version->getVersion());
 			$this->load->view('account', $viewData);
-			$this->load->library('version');
 			$this->load->view('htmlFoot', $this->version->getVersion());
 		} else {
 			header('Location: /');

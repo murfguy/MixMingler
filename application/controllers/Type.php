@@ -15,6 +15,7 @@ class Type extends CI_Controller {
 		$this->load->library('news');
 		$this->load->library('tools');
 		$this->load->library('types');
+		$this->load->library('version');
 
 		// if user is logged in
 		if (isset($_SESSION['mixer_user'])) {
@@ -141,20 +142,18 @@ class Type extends CI_Controller {
 	}
 
 	private function displayType($displayData) {
-		$this->load->view('htmlHead');
+		$this->load->view('htmlHead', $this->version->getVersion());
 		
 		$this->load->view('type', $displayData);
 		
-		$this->load->library('version');
 		$this->load->view('htmlFoot', $this->version->getVersion());
 	}
 
 	private function displayTypes($displayData) {
-		$this->load->view('htmlHead');
+		$this->load->view('htmlHead', $this->version->getVersion());
 		
 		$this->load->view('types', $displayData);
 		
-		$this->load->library('version');
 		$this->load->view('htmlFoot', $this->version->getVersion());
 	}
 }

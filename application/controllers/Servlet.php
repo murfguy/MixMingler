@@ -528,10 +528,11 @@ class Servlet extends CI_Controller {
 
 			if (!empty($_POST)) {
 				$community = $this->communities->getCommunity($_POST['commId']);
+				$this->returnData->community = $community;
 				if ($mixerID == $community->Admin) {
 					if (!in_array($community->Status, array('open', 'closed', 'rejected'))) {
 						$this->returnData->success = true;
-						$this->returnData->message = "Community has been founded!";
+						$this->returnData->message = "Community has been founded! You will be redirected to the full admin page in a few seconds.";
 
 						$requireApproval = 0;
 						if ($_POST['requireApproval'] == "yes") {
@@ -541,6 +542,7 @@ class Servlet extends CI_Controller {
 						$this->returnData->status = $_POST['status'];
 						$this->returnData->isApprovalRequired = $requireApproval;
 						$this->returnData->community_id = $_POST['commId'];
+
 
 						// Found community!
 						$data = array(
@@ -961,10 +963,27 @@ class Servlet extends CI_Controller {
 
 	public function getTopStreamsForType($typeId) {
 		//sleep(1);
-		$this->returnData->typeID = $typeId;
+		$this->returnData->group = 'type';
+		$this->returnData->id = $typeId;
 		$this->returnData->success = true;
 		$this->returnData->message = "Got streams from mixer.";
 		$this->returnData->streams = $this->types->getActiveStreamsFromMixerByTypeId($typeId, 6);
+
+		$this->returnData();
+	}
+
+	public function getTopStreamsForCommunity($communityId) {
+		//sleep(1);
+
+		$members = $this->communities->getCommunityMembersByGroup($communityId, 'member');
+
+
+		$this->returnData->group = 'community';
+		$this->returnData->id = $communityId;
+		//$this->returnData->members = $members;
+		$this->returnData->success = true;
+		$this->returnData->message = "Got streams from mixer.";
+		$this->returnData->streams = $this->types->getActiveStreamsFromMixer('userID', $members, 6);
 
 		$this->returnData();
 	}
@@ -978,6 +997,8 @@ class Servlet extends CI_Controller {
 		$this->returnData->typeID = $typeId;
 		$this->returnData->success = false;
 		$this->returnData->message = "Failed to get news.";
+		$this->returnData->group = 'type';
+		$this->returnData->id = $typeId;
 
 		$typeNews = $this->news->getNewsFeedForType($typeId);
 

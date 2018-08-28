@@ -150,6 +150,60 @@ class Types {
 		return $allStreams;
 	}
 
+	public function getActiveStreamsFromMixer($groupBy = null, $criteria = null, $totalLimit = 0) {
+		$url = "https://mixer.com/api/v1/";
+		$currentPage = 0;
+		$maxPage = 2;
+		$foundAllStreams = false;
+		$allStreams = array();
+
+		if ($totalLimit > 0) {
+			$urlParameters = "?limit=$totalLimit";
+			$maxPage = 1;
+		} else {
+			$urlParameters = "?limit=100";
+		}
+
+		switch ($groupBy) {
+			case "userID":
+				$url .= "channels";
+				$batch = "";
+				foreach ($criteria as $streamer) {
+					if (!empty($batch)) { $batch .= ";"; }
+					$batch .= $streamer->ID; }
+				$urlParameters .="&where=id:in:$batch,online:eq:true";
+				break;
+
+			case "type":
+				$url .= "types/".$criteria."/channels";
+				break;
+
+			case "default":
+				$url .= "channels";
+				break;
+		}
+				$urlParameters .="&fields=id,token,typeId,audience,numFollowers,viewersCurrent";
+
+		$urlParameters .= "&order=viewersCurrent:DESC,numFollowers:DESC,token:ASC";
+
+		//echo $url.$urlParameters;
+
+		while (!$foundAllStreams) {
+			$content = file_get_contents($url.$urlParameters."&page=".$currentPage);
+			$newList = json_decode($content, true);
+
+			$allStreams = array_merge($allStreams, $newList);
+
+			$currentPage = $currentPage + 1;
+
+			if (count($newList) < 100 || $currentPage >= $maxPage) {
+				// We've got all known types
+				$foundAllStreams = true;
+			}
+		}
+		return $allStreams;
+	}
+
 	public function getAllActiveTypesFromMixer() {
 		$url = "https://mixer.com/api/v1/types";
 		$currentPage = 0;

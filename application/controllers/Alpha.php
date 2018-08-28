@@ -12,7 +12,7 @@ class Alpha extends CI_Controller {
 		$viewData->versionHistory = $versionHistory;
 		$viewData->currentVersion = $this->version->getVersion();
 
-		$this->load->view('htmlHead');
+		$this->load->view('htmlHead', $this->version->getVersion());
 		
 		$this->load->view('alpha', $viewData);
 		

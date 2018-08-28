@@ -6,8 +6,7 @@ class Welcome extends CI_Controller {
 	public function index()
 	{
 		$this->load->library('version');
-
-		$this->load->view('htmlHead');
+		$this->load->view('htmlHead', $this->version->getVersion());
 		if (isset($_SESSION['mixer_user'])) {
 			// If logged in:
 			// Show main user view
@@ -34,14 +33,16 @@ class Welcome extends CI_Controller {
 		if (in_array($_SESSION['site_role'], array('owner', 'admin')) ) {
 			$pendingRequests = $this->communities->getCommunitiesByStatus('pending');
 			if (!empty($pendingRequests)) {
-				$alerts['pendingRequests'] = count($pendingRequests);
-			}
-		}
+				$alerts['pendingRequests'] = count($pendingRequests);}}
 
 		$unfoundedCommunities = $this->users->getUsersCreatedCommunitiesByStatus($mixerID, 'unfounded');
 		if (!empty($unfoundedCommunities)) {
-			$alerts['unfoundedCommunities'] = $unfoundedCommunities;
-		}
+			$alerts['unfoundedCommunities'] = $unfoundedCommunities;}
+
+		/*$pending = $this->communities->getPendingMembersList($_SESSION['mixer_id']);
+		if (!empty($pending)) {
+			//$alerts['pending'] = $pending;
+		}*/
 
 		$viewData->communities = createCommunityObjects($this->users->getUsersCommunitiesInformation($_SESSION['mixer_id']));
 		$viewData->newCommunities = $this->communities->getNewCommunities($user->PreviousLogin);

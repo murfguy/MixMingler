@@ -13,6 +13,7 @@ class User extends CI_Controller {
 		$this->load->library('users');
 		$this->load->library('news');
 		$this->load->library('tools');
+		$this->load->library('version');
 
 		if ($method != "index") {
 			// Just want to rename this var for clarity's sake.
@@ -73,19 +74,17 @@ class User extends CI_Controller {
 				$streamer->LastSeenElapsed = getElapsedTimeString($streamer->LastSeenOnline);
 			}
 
-			$this->load->view('htmlHead');
+			$this->load->view('htmlHead', $this->version->getVersion());
 			$this->load->view('users', $displayData);
 
-			$this->load->library('version');
 			$this->load->view('htmlFoot', $this->version->getVersion());
 	}
 
 	private function displayUser($user) {
-		$this->load->view('htmlHead');
+		$this->load->view('htmlHead', $this->version->getVersion());
 
 		$this->load->view('user', $user);
 
-		$this->load->library('version');
 		$this->load->view('htmlFoot', $this->version->getVersion());
 	}
 }

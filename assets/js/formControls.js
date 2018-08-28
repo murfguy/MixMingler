@@ -314,6 +314,10 @@ function foundCommunity(e, form) {
 					//submitButton.text("Apply Role");
 					//displayAlert($( "form#requestCommunity"), json.message, 'success');
 					parent.hide();
+
+					setTimeout(function () {
+				       window.location.reload(false); 
+				    }, 3000); 
 				} else {
 					submitButton.text("Try Again");
 					displayAlert(form, json.message, 'danger');

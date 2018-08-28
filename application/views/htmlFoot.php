@@ -1,3 +1,4 @@
+<button class="btn btn-info btn-lg" onclick="topFunction()" id="topButton" data-toggle="tooltip" title="Go to top"><i class="fas fa-angle-double-up"></i></button>
 <footer class="footer">
 	<div class="container">
 		<div class="row" style="text-align: center;">
@@ -9,6 +10,6 @@
 		<p><span class="mixBlue">Alpha Test:</span> All features/styles currently present are not finalized. By using this site you agree that any information/input you provide may kept/deleted/used at the discretion of the development team.</p>
 	</div>
 </footer>
-	<script type="text/javascript" src="<?php echo base_url();?>assets/js/controls.js" ></script>
+	<script type="text/javascript" src="<?php echo base_url();?>assets/js/controls.js?v=<?php echo $version ?>" ></script>
 </body>
 </html>
