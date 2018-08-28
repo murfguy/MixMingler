@@ -232,7 +232,7 @@ class Community extends CI_Controller {
 
 	// Returns data for all communites, with member counts
 	private function loadAllCommunities() {
-		$sql_query = "SELECT C.*,
+		/*$sql_query = "SELECT C.*,
 			CC.name as CategoryName,
 			CC.slug as CategorySlug,
 			count(UC.MixerID) as MemberCount
@@ -243,7 +243,26 @@ class Community extends CI_Controller {
 			GROUP BY CommunityID
 			ORDER BY memberCount DESC";
 
-		$query = $this->db->query($sql_query);
+		$query = $this->db->query($sql_query);*/
+
+		$query = $this->db
+			->select('Communities.*')
+			->select('CommunityCategories.Name as CategoryName')
+			->select('CommunityCategories.Slug as CategorySlug')
+			->select('count(UserCommunities.MixerID) as MemberCount')
+			->select('count(IF ( Users.LastSeenOnline > DATE_SUB(NOW(), INTERVAL 10 MINUTE), 1, null)) as MembersOnline')
+			->from('Communities')
+			->join('CommunityCategories', 'Communities.CategoryID = CommunityCategories.ID')
+			->join('UserCommunities', 'UserCommunities.CommunityID = Communities.ID')
+			->join('Users', "UserCommunities.MixerID = Users.ID AND UserCommunities.MemberState='member'")
+			->where('Communities.Status', 'open')
+			->or_where('Communities.Status', 'closed')
+			->group_by('Communities.ID')
+			->order_by('MembersOnline', 'DESC')
+			->order_by('MemberCount', 'DESC')
+			->get();
+
+
 		$displayData = new stdClass();
 		$displayData->communities = $query->result();
 

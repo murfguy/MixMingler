@@ -19,10 +19,13 @@ class Communities {
 	public function getCommunity($communityID) {
 		$query = $this->db
 			->select('Communities.*')
+			->select('count(IF ( Users.LastSeenOnline > DATE_SUB(NOW(), INTERVAL 1 DAY), 1, null)) as MembersOnline')
 			->from('Communities')
 			->select('CommunityCategories.Name AS CategoryName')
 			->select('CommunityCategories.Slug AS CategorySlug')
 			->join('CommunityCategories', 'CommunityCategories.ID = Communities.CategoryID')
+			->join('UserCommunities', 'UserCommunities.CommunityID = Communities.ID')
+			->join('Users', 'UserCommunities.MixerID = Users.ID AND UserCommunities.MemberState="member"')
 			->where('Communities.ID', $communityID)
 			->get();
 
@@ -84,12 +87,6 @@ class Communities {
 		return $query->result();
 	}
 
-	public function getCommunityMembers($communitySlug) {
-		$sql_query = "SELECT *  FROM `mixer_users` WHERE FIND_IN_SET((SELECT id FROM Communities WHERE slug=?), `joinedCommunities`) > 0 ORDER BY name_token ASC";
-		$query = $this->CI->db->query($sql_query, array($communitySlug));
-		return $query->result();
-	}
-
 	// --- Junction Table Refactor for: getCommunityMembersFromList
 	public function getCommunityMembersByGroup($communityId, $group, $sortOn = 'Username', $direction = 'ASC') {
 		$sql_query = "SELECT Users.* 
@@ -101,6 +98,7 @@ class Communities {
 		$query = $this->CI->db->query($sql_query, array($communityId, $group));
 		return $query->result();
 	}
+
 
 	public function getAllCommunityMemberStates($communityId) {
 		$query = $this->db

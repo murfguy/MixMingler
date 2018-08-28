@@ -15,7 +15,7 @@ class Version {
 
 		$this->major = 0;
 		$this->minor = 2;
-		$this->revision = 4;
+		$this->revision = 5;
 		$this->stage = "Types";
 
 		// Load Database
@@ -145,6 +145,14 @@ class Version {
 		---------------------------------------------------------------------------------
 		--- </end> v0.3 Task List -------------------------------------------------------
 		--------------------------------------------------------------------------------- */
+
+		$patch = new stdClass();
+		$patch->version = "0.2.4";
+		$patch->date = date($date_string, strtotime('2018-08-31'));
+		$patch->notes = array(
+			"Community List: Now shows number of online streams.");
+		$patchNotes[] = $patch;
+
 
 		$patch = new stdClass();
 		$patch->version = "0.2.4";
