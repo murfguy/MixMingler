@@ -147,12 +147,13 @@ class Version {
 		--------------------------------------------------------------------------------- */
 
 		$patch = new stdClass();
-		$patch->version = "0.2.4";
-		$patch->date = date($date_string, strtotime('2018-08-31'));
+		$patch->version = "0.2.5";
+		$patch->date = date($date_string, strtotime('2018-08-28'));
 		$patch->notes = array(
 			"Community List: Now shows number of online streams.",
 			"Home Page: Can now view community top streams/news from home page.",
-			"Community Foundation: Reloads page after founding community.");
+			"Community Foundation: Reloads page after founding community.",
+			"General: Added a 'Back to Top' button for when users scroll below the fold.");
 		$patchNotes[] = $patch;
 
 

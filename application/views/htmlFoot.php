@@ -1,3 +1,4 @@
+<button class="btn btn-info btn-lg" onclick="topFunction()" id="topButton" data-toggle="tooltip" title="Go to top"><i class="fas fa-angle-double-up"></i></button>
 <footer class="footer">
 	<div class="container">
 		<div class="row" style="text-align: center;">

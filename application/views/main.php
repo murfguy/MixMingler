@@ -108,12 +108,6 @@
 				</div> <!-- .infoInterior -->
 			</div><!-- .infoBox -->
 
-			<div class="infoBox">
-				<h4 class="infoHeader">Your Activity</h4>
-				<div class="infoInterior">
-					<p class="devNote" data-toggle="tooltip" title="Planned for v0.3" data-placement="left">Coming soon</p>
-				</div><!-- .infoInterior -->
-			</div><!-- .infoBox -->
 		</div> <!-- #leftColumn -->
 	
 		<div class="col-7 userFeed" id="centerColumn">

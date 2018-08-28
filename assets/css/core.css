@@ -78,6 +78,15 @@ div.btn-group, div.btn-group-vertical {
 	border: 1px ;
 }
 
+
+#topButton {
+    display: none; /* Hidden by default */
+    position: fixed; /* Fixed/sticky position */
+    bottom: 50px;
+    right: 60px;
+    z-index: 99; /* Make sure it does not overlap */
+}
+
 /* ---------------------------------------
 -- Tables --------------------------------
 --------------------------------------- */
