@@ -3,7 +3,7 @@
 		<h1>Alpha Version Information</h1>
 	</div>
 
-	<p>refer: <?php $_SERVER["REQUEST_URI"]; ?></p>
+	
 	<nav id="categoryNav">
 		<a class="viewToggle" category="info">Alpha Info</a> | 
 		<a class="viewToggle" category="version">Version History</a> | 

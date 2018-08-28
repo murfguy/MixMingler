@@ -6,8 +6,7 @@ class Welcome extends CI_Controller {
 	public function index()
 	{
 		$this->load->library('version');
-
-		$this->load->view('htmlHead');
+		$this->load->view('htmlHead', $this->version->getVersion());
 		if (isset($_SESSION['mixer_user'])) {
 			// If logged in:
 			// Show main user view

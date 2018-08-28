@@ -7,16 +7,18 @@ class Community extends CI_Controller {
 		// sort by community size
 		
 		// show list of communities 
-		//$this->load->view('htmlHead');
+		//$this->load->view('htmlHead', $this->version->getVersion());
 		//$this->load->view('htmlFoot');
 	}
 
 	public function _remap($method, $params = array()) {
-		$this->load->view('htmlHead');
 		$this->load->database();
 		$this->load->library('communities');
 		$this->load->library('news');
 		$this->load->library('users');
+		$this->load->library('version');
+		
+		$this->load->view('htmlHead', $this->version->getVersion());
 
 		if ($method != "index") {
 			if ($method != 'create') {
@@ -28,7 +30,6 @@ class Community extends CI_Controller {
 			$this->loadAllCommunities();
 		}
 		
-		$this->load->library('version');
 		$this->load->view('htmlFoot', $this->version->getVersion());
 	}
 

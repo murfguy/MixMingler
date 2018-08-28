@@ -6,6 +6,7 @@ class Admin extends CI_Controller {
 		$this->load->library('users');
 		$this->load->library('news');
 		$this->load->library('communities');
+		$this->load->library('version');
 		$this->load->helper('form');
 		$this->load->database();
 		
@@ -21,9 +22,8 @@ class Admin extends CI_Controller {
 
 					$viewData->pendingCommunities = $this->communities->getCommunitiesByStatus('pending');
 
-					$this->load->view('htmlHead');
+					$this->load->view('htmlHead', $this->version->getVersion());
 					$this->load->view('admin', $viewData);
-					$this->load->library('version');
 					$this->load->view('htmlFoot', $this->version->getVersion());
 					break;
 

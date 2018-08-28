@@ -25,6 +25,8 @@
 				$ga_tracking = "UA-124100080-1";
 				break;
 		}
+
+		$v = "?v=".$version;
 	?>
 
 	<title>MixMingler</title>
@@ -59,9 +61,9 @@
 
 
 	<!-- MixMingler Internal Javascript -->
-	<script type="text/javascript" src="<?php echo base_url();?>assets/js/viewControls.js" ></script>
-	<script type="text/javascript" src="<?php echo base_url();?>assets/js/formControls.js" ></script>
-	<script type="text/javascript" src="<?php echo base_url();?>assets/js/infoCollection.js" ></script>
+	<script type="text/javascript" src="<?php echo base_url();?>assets/js/viewControls.js<?php echo $v; ?>" ></script>
+	<script type="text/javascript" src="<?php echo base_url();?>assets/js/formControls.js<?php echo $v; ?>" ></script>
+	<script type="text/javascript" src="<?php echo base_url();?>assets/js/infoCollection.js<?php echo $v; ?>" ></script>
 
 
 	<!-- Font Awesome -->
@@ -72,12 +74,12 @@
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-confirm/3.3.0/jquery-confirm.min.js"></script>
 
 	<!-- Custom CSS -->
-	<?php echo link_tag('assets/css/core.css'); ?>
-	<?php echo link_tag('assets/css/communities.css'); ?>
-	<?php echo link_tag('assets/css/users.css'); ?>
-	<?php echo link_tag('assets/css/news.css'); ?>
-	<?php echo link_tag('assets/css/types.css'); ?>
-	<?php echo link_tag('assets/css/infoCards.css'); ?>
+	<?php echo link_tag('assets/css/core.css'.$v); ?>
+	<?php echo link_tag('assets/css/communities.css'.$v); ?>
+	<?php echo link_tag('assets/css/users.css'.$v); ?>
+	<?php echo link_tag('assets/css/news.css'.$v); ?>
+	<?php echo link_tag('assets/css/types.css'.$v); ?>
+	<?php echo link_tag('assets/css/infoCards.css'.$v); ?>
 </head>
 
 <body>

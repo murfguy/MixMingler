@@ -10,6 +10,6 @@
 		<p><span class="mixBlue">Alpha Test:</span> All features/styles currently present are not finalized. By using this site you agree that any information/input you provide may kept/deleted/used at the discretion of the development team.</p>
 	</div>
 </footer>
-	<script type="text/javascript" src="<?php echo base_url();?>assets/js/controls.js" ></script>
+	<script type="text/javascript" src="<?php echo base_url();?>assets/js/controls.js?v=<?php echo $version ?>" ></script>
 </body>
 </html>
