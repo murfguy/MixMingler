@@ -158,5 +158,15 @@ class Communications {
 		$query = $this->db->get();
 		return $query->result();
 	}
+
+	public function getFreshCommunicationSettings() {
+		return [
+			"requestCommunity" => 1,
+			"requestProcessed" => 1,
+			"newMemberJoined" => 1,
+			"newMemberRequest" => 1,
+			"pendingMembershipProcessed" => 1,
+			"moderatorStatusChanged" => 1];
+	}
 }
 ?>

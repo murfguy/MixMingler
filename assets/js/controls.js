@@ -112,7 +112,7 @@ function logout(tgtUser) {
 		.done(function (json){
 			console.log('logout - AJAX done');
 			document.cookie = 'mixer_user=;expires=Thu, 01 Jan 1970 00:00:01 GMT;';
-			window.location.href = "/";
+			location.reload();
 			if (json.success == true) {
 				//console.log(json);
 			}	

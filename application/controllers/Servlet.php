@@ -1065,9 +1065,27 @@ class Servlet extends CI_Controller {
 	// --------------------------------------------------------------- 
 
 	// --------------------------------------------------------------- 
-	// --- User Information Collection Functions ---------------------- 
+	// --- User Information Functions -------------------------------- 
 	// ---------------------------------------------------------------
 
+	public function applyUserSettings() {
+		if (isset($_SESSION['mixer_id'])) {
+			if (!empty($_POST)) {
+
+				$this->returnData->group = $_POST['group'];
+				$this->returnData->settings = $_POST['settings'];
+
+				$this->users->applyUserSettings($_POST['group'], $_POST['settings']);
+				$this->returnData->message = "Settings Applied";
+				//$this->returnData->success = true;
+
+			} else { $this->getWarningText("badData"); } // provided data is bad 
+		} else { $this->getWarningText("notLoggedIn"); }// not logged in
+
+
+
+		$this->returnData();
+	}
 
 	// --------------------------------------------------------------- 
 	// --- Return Functions ------------------------------------------ 

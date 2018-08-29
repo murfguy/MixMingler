@@ -446,5 +446,14 @@ class Users {
 		$this->db->update('Users', $data);
 
 	}
+
+	public function applyUserSettings($group, $settingsData) {
+		if (isset($_SESSION['mixer_id'])) {
+			$data = ['Settings_'.ucfirst($group) => json_encode($settingsData)];
+
+			$this->db->where('ID', $_SESSION['mixer_id']);
+			$this->db->update('Users', $data);
+		}
+	}
 }
 ?>

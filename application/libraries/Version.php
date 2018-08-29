@@ -151,7 +151,8 @@ class Version {
 		$patch->date = date($date_string, strtotime('2018-08-31'));
 		$patch->notes = array(
 			"Type List: Can follow/ignore from info card.",
-			"Home Page: Shows number of pending member requests for communities a user manages.",);
+			"Home Page: Shows number of pending member requests for communities a user manages.",
+			"Login/Logout: redirects to page user was viewing when action was started.",);
 		$patchNotes[] = $patch;
 
 		$patch = new stdClass();

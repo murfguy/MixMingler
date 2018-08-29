@@ -21,6 +21,9 @@ function setFormListeners() {
 	// Set the listeners for the moderation buttons
 	setCommunityModerationButtonListeners();
 
+	// Set the listeners for user setting adjustments
+	setSettingsAdjustmentListeners();
+
 	// set listeners for apply role form on admin panel
 	$("form#applyRole").submit(function (event) { applyUserRole(event, $(this))} );
 	
@@ -1217,4 +1220,69 @@ function setCommunityActionButtonListeners() {
 
 		submitCommunityAction(actionUrl, $(this).attr('commId'));
 	});
+}
+
+function setSettingsAdjustmentListeners() {
+	console.log("setSettingsAdjustmentListeners()");
+	actionUrl = baseActionUrl + "applyUserSettings/";
+	$('.changeSettings').change(function () {
+		newSettings = {};
+		keys = [];
+		vals = [];
+
+		if ($(this).hasClass('communications')) {
+			
+			$('input:checkbox.communications').each(function () {
+				//var sThisVal = (this.checked ? $(this).val() : "");
+				val = 0;
+				if ($(this).is(':checked')) {
+					val = 1;
+				}
+				console.log($(this).attr('name')+": "+val);
+				keys.push($(this).attr('name'));
+				vals.push(val);
+			});
+
+			for (i=0; i<keys.length; i++) {
+				newSettings[keys[i]] = vals[i];
+			}
+
+			//console.log(newSettings);
+
+			submitUserSettings('communications', newSettings);
+		}
+	})
+}
+
+function submitUserSettings(settingsGroup, newSettings) {
+	console.log("submitUserSettings("+settingsGroup+", "+newSettings+")")
+
+	console.log(newSettings);
+	settings = {};
+	settings['group'] = settingsGroup;
+	settings['settings'] = newSettings;
+
+	console.log(settings);
+
+	$.ajax({
+		url: actionUrl,
+		type: "POST",
+		dataType: "json",
+		data: settings
+	})
+		.done(function (json){
+			console.log('applyUserSettings - AJAX done');			
+		})
+
+		.fail(function (json){
+			console.log('applyUserSettings - AJAX failed');
+			//displayAlert($("#userHeader"), "There was an issue communicating with the server. Reload and try again.", "danger", 0)
+		})
+
+		.always(function (json){
+			console.log('applyUserSettings - AJAX always');
+			console.log(json);
+			//console.log(json.message);
+
+		});
 }

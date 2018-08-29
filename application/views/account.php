@@ -1,20 +1,24 @@
+<?php
+	$view = "settingsManager";
+?>
+
 <main role="main" class="container">
 	<div id="userHeader" class="pageHeader">
 		<h1>Account Management <?php echo devNotes('account'); ?></h1>
 	</div>
 	
 		<div class="btn-group d-flex" role="group">
-			<button type="button" class="btn btn-info displayToggle" target="summaryView" disabled>Summary</button>
-			<button type="button" class="btn btn-info displayToggle" target="settingsManager">Settings</button>
-			<button type="button" class="btn btn-info displayToggle" target="typeManager">Games/Types</button>
-			<button type="button" class="btn btn-info displayToggle" target="commManager">Communities</button>
+			<button type="button" class="btn btn-info displayToggle" target="summaryView" <?php if ($view == "summaryView") { echo 'disabled'; } ?>>Summary</button>
+			<button type="button" class="btn btn-info displayToggle" target="settingsManager" <?php if ($view == "settingsManager") {echo 'disabled'; } ?>>Settings</button>
+			<button type="button" class="btn btn-info displayToggle" target="typeManager" <?php if ($view == "typeManager") {echo 'disabled'; } ?>>Games/Types</button>
+			<button type="button" class="btn btn-info displayToggle" target="commManager" <?php if ($view == "commManager") {echo 'disabled'; } ?>>Communities</button>
 		</div>
 
 	<div class="row">
 
 		<div class="col">
 
-			<div id="summaryView">
+			<div id="summaryView" class="<?php if ($view != "summaryView") {echo 'inactiveView'; } ?>">
 				<h2>Account Summary</h2>
 				<h3>Quick Overview</h3>
 				<div class="row">
@@ -72,7 +76,7 @@
 				</div>
 			</div>
 
-			<div id="typeManager" class="inactiveView">
+			<div id="typeManager" class="<?php if ($view != "typeManager") {echo 'inactiveView'; } ?>">
 					
 				<h2>Manage Games/Types</h2>
 
@@ -132,7 +136,7 @@
 				</table>
 			</div>
 
-			<div id="commManager" class="inactiveView">
+			<div id="commManager" class="<?php if ($view != "commManager") {echo 'inactiveView'; } ?>">
 				<h2>Manage Communities</h2>
 				<p>Click a button to toggle status.</p>
 
@@ -241,9 +245,107 @@
 				</table>
 			</div>
 
-			<div id="settingsManager" class="inactiveView">
+			<div id="settingsManager" class="<?php if ($view != "settingsManager") {echo 'inactiveView'; } ?>">
 				<h2>Manage Settings</h2>
 				<p class="devNote">Settings management are pending once more features are implemented.</p>
+				<h4>Communications</h4>
+
+				<?php
+					$settings_communications = json_decode($user->Settings_Communications);
+				?>
+				<table class="table table-dark table-striped " width="50%">
+					<thead>
+						<tr>
+							<th colspan="2">Notify me by email when:</th>
+						</tr>
+					</thead>
+					<tbody>
+						<tr>
+							<td><?php echo form_label('I submit a new Community Request', 'requestCommunity'); ?></td>
+							<td><?php 
+								$data = array(
+							        'name'          => 'requestCommunity',
+							        'id'            => 'requestCommunity',
+							        'class'			=> 'changeSettings communications',
+							        'value'         => '1',
+							        'checked'       => $settings_communications->requestCommunity
+								);
+
+								echo form_checkbox($data);
+							 ?></td>
+						</tr>
+						<tr>
+							<td><?php echo form_label('My new Community Request is processed', 'requestCommunity'); ?></td>
+							<td><?php 
+								$data = array(
+							        'name'          => 'requestProcessed',
+							        'id'            => 'requestProcessed',
+							        'class'			=> 'changeSettings communications',
+							        'value'         => '1',
+							        'checked'       => $settings_communications->requestCommunity
+								);
+
+								echo form_checkbox($data);
+							 ?></td>
+						</tr>
+						<tr>
+							<td><?php echo form_label('A new member joins my community', 'newMemberJoined'); ?></td>
+							<td><?php 
+								$data = array(
+							        'name'          => 'newMemberJoined',
+							        'id'            => 'newMemberJoined',
+							        'class'			=> 'changeSettings communications',
+							        'value'         => '1',
+							        'checked'       => $settings_communications->newMemberJoined
+								);
+
+								echo form_checkbox($data);
+							 ?></td>
+						</tr>
+						<tr>
+							<td><?php echo form_label('A new member requests to join a community I manage', 'newMemberRequest'); ?></td>
+							<td><?php 
+								$data = array(
+							        'name'          => 'newMemberRequest',
+							        'id'            => 'newMemberRequest',
+							        'class'			=> 'changeSettings communications',
+							        'value'         => '1',
+							        'checked'       => $settings_communications->newMemberRequest
+								);
+
+								echo form_checkbox($data);
+							 ?></td>
+						</tr>
+						<tr>
+							<td><?php echo form_label('Your pending membership request is processed', 'pendingMembershipProcessed'); ?></td>
+							<td><?php 
+								$data = array(
+							        'name'          => 'pendingMembershipProcessed',
+							        'id'            => 'pendingMembershipProcessed',
+							        'class'			=> 'changeSettings communications',
+							        'value'         => '1',
+							        'checked'       => $settings_communications->pendingMembershipProcessed
+								);
+
+								echo form_checkbox($data);
+							 ?></td>
+						</tr>
+						<tr>
+							<td><?php echo form_label('A moderator\'s status is changed in a community I manage', 'moderatorStatusChanged'); ?></td>
+							<td><?php 
+								$data = array(
+							        'name'          => 'moderatorStatusChanged',
+							        'id'            => 'moderatorStatusChanged',
+							        'class'			=> 'changeSettings communications',
+							        'value'         => 'accept',
+							        'checked'       => $settings_communications->moderatorStatusChanged
+								);
+
+								echo form_checkbox($data);
+							 ?></td>
+						</tr>
+					</tbody>
+				</table>
 			</div>
 		</div>
 	</div>

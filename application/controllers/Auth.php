@@ -33,6 +33,7 @@ class Auth extends CI_Controller {
 
 			// Get the state generated for you and store it to the session.
 			$_SESSION['oauth2state'] = $provider->getState();
+			$_SESSION['returnUrl'] = $_SERVER['HTTP_REFERER'];
 
 			// Redirect the user to the authorization URL.
 			header('Location: ' . $authorizationUrl);
@@ -53,6 +54,7 @@ class Auth extends CI_Controller {
 				// Load Libraries
 				$this->load->library('users');
 				$this->load->library('news');
+				$this->load->library('communications');
 
 				// Try to get an access token using the authorization code grant.
 				$accessToken = $provider->getAccessToken('authorization_code', [
@@ -108,15 +110,29 @@ class Auth extends CI_Controller {
 				$emailSynced = $this->users->syncEmailAddress($owner['email'], $owner['channel']['id']);
 
 				$minglerData = $this->users->getUserFromMingler($owner['channel']['id']);
+
+
 				$this->users->loggedIn($owner['channel']['id']);
 
 				$_SESSION['mixer_user'] = $owner['username'];
 				$_SESSION['mixer_id'] = $owner['channel']['id'];
 				$_SESSION['mixer_userId'] = $owner['id'];
 				$_SESSION['site_role'] = $minglerData->SiteRole;
+
+
+				if (is_null($minglerData->Settings_Communications)) {
+					$this->users->applyUserSettings('communications', $this->communications->getFreshCommunicationSettings());}				
 				
 
-				header('Location: /');
+				if (strpos(parse_url($_SESSION['returnUrl'], PHP_URL_HOST), 'mixmingler') !== false) {
+					$returnLocation = $_SESSION['returnUrl'];
+					unset($_SESSION['returnUrl']);
+
+					header('Location: '.$returnLocation);
+				} else {
+					header('Location: /');					
+				}
+
 				//var_export($resourceOwner->toArray());
 
 			} catch (\League\OAuth2\Client\Provider\Exception\IdentityProviderException $e) {
