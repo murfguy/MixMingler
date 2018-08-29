@@ -1,7 +1,7 @@
 <?php 
 $followingGames = false;
 	if (isset($_SESSION['mixer_id'])) { 
-		$followingGames = (!empty($currentUser->followedTypeList) || !empty($currentUser->offlineFollowedTypeList));
+		$followingGames = (!empty($currentUser->followedTypeList) || !empty($currentUser->offlineFollowedTypeList)); }
 
 	if ($followingGames) { 
 		$view = "followed";
@@ -9,7 +9,7 @@ $followingGames = false;
 		$view = "allActive";
 	}
 
-	$view = "allActive";
+	//$view = "allActive";
 ?>
 <main role="main" class="container">
 	<div id="userHeader" class="pageHeader">
@@ -20,7 +20,6 @@ $followingGames = false;
 		<button type="button" class="btn btn-info displayToggle" target="followed" <?php if ($view == "followed") { echo "disabled"; }?>>Following</button>
 		<button type="button" class="btn btn-info displayToggle" target="allActive"  <?php if ($view == "allActive") { echo "disabled"; }?>>All Online Games</button>
 	</div>
-	<?php }  ?>
 	<div class="row">
 		<div class="col">
 			<?php if ($followingGames) { ?>
@@ -34,6 +33,8 @@ $followingGames = false;
 									'id' => $type['id'],
 									'name' => $type['name'],
 									'kind' => 'type',
+									'followState' => 'followed',
+									'typeid' => $type['id'],
 									'url' => "/type/".$type['id']."/".$type['slug'],
 									'stats' => array(
 										'online' => $type['online'],
@@ -55,6 +56,8 @@ $followingGames = false;
 									'name' => $type['name'],
 									'size' => 'sml',
 									'kind' => 'type',
+									'followState' => 'followed',
+									'typeid' => $type['id'],
 									'url' => "/type/".$type['id']."/".$type['slug'],
 									'stats' => array(
 										'online' => $type['online'],
@@ -70,7 +73,7 @@ $followingGames = false;
 				</div> <!-- type list -->
 			</div> <!-- followed -->
 			<?php } else { ?>
-			<div id="followed" class="typeView inactiveView"> 
+			<div id="followed" class="typeView <?php if ($view != "followed") { echo "inactiveView"; }?>"> 
 				<h4>You haven't followed any games yet!</h4>
 				<p>Visit any game to follow them!</p>
 			</div> <!-- followed -->

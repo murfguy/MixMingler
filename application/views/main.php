@@ -41,6 +41,13 @@
 							</p>
 						<?php } // foreach unfounded communities ?>
 					<?php } // if !empty unfounded communities ?>
+
+					<?php if (!empty($alerts['pendingMembers'])) { ?>
+						<h6>Pending Members</h6>
+						<?php foreach ($alerts['pendingMembers'] as $community) { ?>
+							<p><a href="/community/<?php echo $community->Slug ?>/mod"><?php echo $community->Name ?></a>  <span class="badge badge-danger"><?php echo $community->PendingCount; ?></span></p>
+						<?php } // foreach pending members
+					 } // if !empty pending members ?>
 				</div>
 			</div><!-- .infoBox Alerts -->
 			<?php } ?>

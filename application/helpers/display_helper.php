@@ -171,18 +171,18 @@ if ( ! function_exists('card')) {
 
 				switch ($params['followState']) {
 					case "followed":
-						$str .= '<button type="button" btnType="mini" class="action btn btn-danger" action="unfollowType" userid="'.$_SESSION['mixer_id'].'" typeid="'.$params['typeid'].'" data-toggle="tooltip" title="Unfollow" ><i class="fas fa-thumbs-down"></i></button>';
-						$str .= '<button type="button" btnType="mini" class="action btn btn-warning" action="ignoreType" userid="'.$_SESSION['mixer_id'].'" typeid="'.$params['typeid'].'" data-toggle="tooltip" title="Ignore" style="display:none;><i class="fas fa-ban"></i></button>';
+						$str .= '<button type="button" btnType="mini" class="action no-alert btn btn-danger" action="unfollowType" userid="'.$_SESSION['mixer_id'].'" typeid="'.$params['typeid'].'" data-toggle="tooltip" title="Unfollow" ><i class="fas fa-thumbs-down"></i></button>';
+						$str .= '<button type="button" btnType="mini" class="action btn btn-warning" action="ignoreType" userid="'.$_SESSION['mixer_id'].'" typeid="'.$params['typeid'].'" data-toggle="tooltip" title="Ignore" style="display:none;"><i class="fas fa-ban"></i></button>';
 						break;
 
 					case "ignored":
-						$str .= '<button type="button" btnType="mini" class="action btn btn-primary" action="followType" userid="'.$_SESSION['mixer_id'].'" typeid="'.$params['typeid'].'" data-toggle="tooltip" title="Follow" style="display:none;><i class="fas fa-thumbs-up" "></i></button>';
-						$str .= '<button type="button" btnType="mini" class="action btn btn-danger" action="unignoreType" userid="'.$_SESSION['mixer_id'].'" typeid="'.$params['typeid'].'" data-toggle="tooltip" title="Unignore"><i class="fas fa-thumbs-down"></i></button>';
+						$str .= '<button type="button" btnType="mini" class="action no-alert btn btn-primary" action="followType" userid="'.$_SESSION['mixer_id'].'" typeid="'.$params['typeid'].'" data-toggle="tooltip" title="Follow" style="display:none;"><i class="fas fa-thumbs-up"></i></button>';
+						$str .= '<button type="button" btnType="mini" class="action no-alert btn btn-danger" action="unignoreType" userid="'.$_SESSION['mixer_id'].'" typeid="'.$params['typeid'].'" data-toggle="tooltip" title="Unignore"><i class="fas fa-thumbs-down"></i></button>';
 						break;
 
 					default:
-						$str .= '<button type="button" btnType="mini" class="action btn btn-primary" action="followType" userid="'.$_SESSION['mixer_id'].'" typeid="'.$params['typeid'].'" data-toggle="tooltip" title="Follow"><i class="fas fa-thumbs-up"></i></button>';
-						$str .= '<button type="button" btnType="mini" class="action btn btn-warning" action="ignoreType" userid="'.$_SESSION['mixer_id'].'" typeid="'.$params['typeid'].'" data-toggle="tooltip" title="Ignore"><i class="fas fa-ban"></i></button>';
+						$str .= '<button type="button" btnType="mini" class="action no-alert btn btn-primary" action="followType" userid="'.$_SESSION['mixer_id'].'" typeid="'.$params['typeid'].'" data-toggle="tooltip" title="Follow"><i class="fas fa-thumbs-up"></i></button>';
+						$str .= '<button type="button" btnType="mini" class="action no-alert btn btn-warning" action="ignoreType" userid="'.$_SESSION['mixer_id'].'" typeid="'.$params['typeid'].'" data-toggle="tooltip" title="Ignore"><i class="fas fa-ban"></i></button>';
 						break;
 				}
 				$str .= '</div>';

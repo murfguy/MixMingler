@@ -630,8 +630,8 @@ function setConfirmationActions () {
 
 		if ($(this).hasClass('confirm')) {
 			$.confirm({
-				animation: 'rotateY',
-    			closeAnimation: 'rotateYR',
+				animateFromElement: false,
+				scrollToPreviousElement: false,
 				title: 'Are you sure?',
 				content: message,
 				theme: 'dark',
@@ -641,6 +641,8 @@ function setConfirmationActions () {
 						btnClass: 'btn-danger',
 						action: function () {
 							$.alert({
+								animateFromElement: false,
+								scrollToPreviousElement: false,
 								title: alertTitle,
 								theme: 'dark',
 								autoClose: 'ok|8000',
@@ -675,33 +677,43 @@ function setConfirmationActions () {
 				}
 			});
 		} else {
-			$.alert({
-				title: alertTitle,
-				theme: 'dark',
-				autoClose: 'ok|8000',
-				content: function(){
-					var self = this;
-					
-					return $.ajax({
-						url: baseActionUrl + action,
-						dataType: 'json',
-						method: 'post',
-						data: actionData
-					}).done(function (response) {
-						if (response.success) {
-							self.setContentAppend('<div>'+response.message+'</div>');
-							updateButtonView(targetButton, response);
-						} else {
-							self.setContentAppend('<div>There was an issue with completing your requested action! <br><b>Server Message:</b> '+response.message+'</div>');
-						}
-					}).fail(function(){
-						self.setContentAppend('<div>There was a problem with communicating with the server.</div>');
-					}).always(function(response){
-						//self.setContentAppend('<div>Always!</div>');
-						console.log(response)
-					});
-				}
-			})
+			alertTime = "5000";
+			if ($(this).hasClass('no-alert')) {
+				alertTime = "250"; }
+			//console.log("alertTime: "+alertTime)
+			//console.log("$(this).hasClass('no-alert': "+$(this).hasClass('no-alert'));
+
+				$.alert({
+					animateFromElement: false,
+					scrollToPreviousElement: false,
+					title: alertTitle,
+					theme: 'dark',
+					autoClose: 'ok|'+alertTime,
+					content: function(){
+						var self = this;
+						
+						return $.ajax({
+							url: baseActionUrl + action,
+							dataType: 'json',
+							method: 'post',
+							data: actionData
+						}).done(function (response) {
+							if (response.success) {
+								self.setContentAppend('<div>'+response.message+'</div>');
+								updateButtonView(targetButton, response);
+							} else {
+								self.setContentAppend('<div>There was an issue with completing your requested action! <br><b>Server Message:</b> '+response.message+'</div>');
+							}
+						}).fail(function(){
+							self.setContentAppend('<div>There was a problem with communicating with the server.</div>');
+						}).always(function(response){
+							//self.setContentAppend('<div>Always!</div>');
+							console.log(response)
+						});
+					}
+				})
+			
+			
 		}
 	})
 }
@@ -881,6 +893,9 @@ function updateButtonView(tgt, serverData) {
 				tgt.html('<i class="fas fa-thumbs-down"></i>');
 				tgt.siblings('button').hide();
 				tgt.closest('.typeInfo').addClass("followed");
+				tgt.removeAttr("data-original-title");
+				tgt.attr("title", "Unfollow");
+				tgt.removeClass('confirm');
 			} else {
 				tgt.html('Unfollow');
 
@@ -889,8 +904,6 @@ function updateButtonView(tgt, serverData) {
 				tgtIgnore = $("button[typeid='"+serverData.typeID+"'][action='ignoreType']");
 				tgtIgnore.hide();
 			}
-
-
 			
 			break;
 
@@ -903,6 +916,9 @@ function updateButtonView(tgt, serverData) {
 				tgt.html('<i class="fas fa-thumbs-up"></i>');
 				tgt.siblings('button').show();
 				tgt.closest('.typeInfo').removeClass("followed");
+				tgt.removeAttr("data-original-title");
+				tgt.attr("title", "Follow");
+				tgt.removeClass('confirm');
 
 			} else {
 				tgt.html('Follow');
@@ -915,28 +931,50 @@ function updateButtonView(tgt, serverData) {
 			break;
 
 		case "ignoreType":
-			tgt.removeClass('confirm btn-danger');
+			tgt.removeClass('confirm btn-danger btn-warning');
 			tgt.attr('action', 'unignoreType');
 			tgt.addClass('btn-danger');
-			tgt.html('Unignore');
 
-			tgt.closest('tr').children('td.followState').text('Ignored');
+			if (tgt.attr('btnType') == 'mini') {
+				tgt.html('<i class="fas fa-window-close"></i>');
+				tgt.siblings('button').hide();
+				tgt.closest('.typeInfo').addClass("ignored");
+				tgt.removeAttr("data-original-title");
+				tgt.attr("title", "Unignore");
+				tgt.removeClass('confirm');
+			} else {
+				tgt.html('Unignore');
+				tgt.closest('tr').children('td.followState').text('Ignored');
 
-			tgtFollow = $("button[typeId='"+serverData.typeID+"'][action='followType']");
-			tgtFollow.hide();
+				tgtFollow = $("button[typeId='"+serverData.typeID+"'][action='followType']");
+				tgtFollow.hide();
+			}
+
+			
 
 			break;
 
 		case "unignoreType":
-			tgt.removeClass('confirm btn-danger');
+			tgt.removeClass('confirm btn-danger btn-warning');
 			tgt.attr('action', 'ignoreType');
 			tgt.addClass('btn-warning confirm');
-			tgt.html('Ignore');
+		
+			if (tgt.attr('btnType') == 'mini') {
+				tgt.html('<i class="fas fa-ban"></i>');
+				tgt.siblings('button').show();
+				tgt.closest('.typeInfo').removeClass("ignored");
+				tgt.removeAttr("data-original-title");
+				tgt.attr("title", "Ignore");
+				tgt.removeClass('confirm');
+			} else {
+				tgt.html('Ignore');
+				tgt.closest('tr').children('td.followState').text('n/a');
 
-			tgt.closest('tr').children('td.followState').text('n/a');
+				tgtFollow = $("button[typeId='"+serverData.typeID+"'][action='followType']");
+				tgtFollow.show();;
+			}
 
-			tgtFollow = $("button[typeId='"+serverData.typeID+"'][action='followType']");
-			tgtFollow.show();
+			
 			break;
 
 
