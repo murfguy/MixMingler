@@ -89,6 +89,7 @@ if ( ! function_exists('card')) {
 		} else {
 			if (empty($params['category'])) { $params['category']= ""; }
 			if (empty($params['size'])) { $params['size'] = 'med'; }
+			if (empty($params['followState'])) { $params['followState'] = "none"; }
 
 			if (!empty($params['stats'])) {
 				$stats = "";
@@ -151,6 +152,10 @@ if ( ! function_exists('card')) {
 				if (!empty($params['extraClasses'])) {  
 					foreach ($params['extraClasses'] as $class) {
 						$str.= ' '.$class;	}}
+
+				if (in_array($params['followState'], ["followed", "ignored"])) {  
+					$str .= ' '.$params['followState']; }
+
 			$str .= '" ';
 			if ($params['size'] == 'xsm') {
 				$str .= 'data-toggle="tooltip" data-placement="top" data-html="true" title="'.$params['name']."<br>".$stats.'"';
@@ -159,6 +164,31 @@ if ( ! function_exists('card')) {
 			}
 
 			$str .= '>';
+
+			if (isset($_SESSION['mixer_id']) && !empty($params['typeid'])) {
+				$str .= '<div class="btnGroupContainer">';
+				$str .= '<div class="cardActionButtons btn-group d-flex" role="group">';
+
+				switch ($params['followState']) {
+					case "followed":
+						$str .= '<button type="button" btnType="mini" class="action no-alert btn btn-danger" action="unfollowType" userid="'.$_SESSION['mixer_id'].'" typeid="'.$params['typeid'].'" data-toggle="tooltip" title="Unfollow" ><i class="fas fa-thumbs-down"></i></button>';
+						$str .= '<button type="button" btnType="mini" class="action btn btn-warning" action="ignoreType" userid="'.$_SESSION['mixer_id'].'" typeid="'.$params['typeid'].'" data-toggle="tooltip" title="Ignore" style="display:none;"><i class="fas fa-ban"></i></button>';
+						break;
+
+					case "ignored":
+						$str .= '<button type="button" btnType="mini" class="action no-alert btn btn-primary" action="followType" userid="'.$_SESSION['mixer_id'].'" typeid="'.$params['typeid'].'" data-toggle="tooltip" title="Follow" style="display:none;"><i class="fas fa-thumbs-up"></i></button>';
+						$str .= '<button type="button" btnType="mini" class="action no-alert btn btn-danger" action="unignoreType" userid="'.$_SESSION['mixer_id'].'" typeid="'.$params['typeid'].'" data-toggle="tooltip" title="Unignore"><i class="fas fa-thumbs-down"></i></button>';
+						break;
+
+					default:
+						$str .= '<button type="button" btnType="mini" class="action no-alert btn btn-primary" action="followType" userid="'.$_SESSION['mixer_id'].'" typeid="'.$params['typeid'].'" data-toggle="tooltip" title="Follow"><i class="fas fa-thumbs-up"></i></button>';
+						$str .= '<button type="button" btnType="mini" class="action no-alert btn btn-warning" action="ignoreType" userid="'.$_SESSION['mixer_id'].'" typeid="'.$params['typeid'].'" data-toggle="tooltip" title="Ignore"><i class="fas fa-ban"></i></button>';
+						break;
+				}
+				$str .= '</div>';
+				$str .= '</div>';
+			}
+
 			$str .= '<a href="'.$params['url'].'"><img src="'.$params['cover'].'" '.imgBackup($params['kind']).'class="coverArt" /></a>';
 			
 			
@@ -306,44 +336,40 @@ if (!function_exists('devNotes')) {
 			$devNotes[] = array('view'=>'login', 'version'=>$v['0.4'], 'note'=>'Showcase a random selection of streamers and communities');
 
 			//Home Page
-			$devNotes[] = array('view'=>'main', 'version'=>$v['0.3'], 'note'=>'View event feeds for followed communities.');
-			$devNotes[] = array('view'=>'main', 'version'=>$v['0.3'], 'note'=>'View personal event feed.');
+			//$devNotes[] = array('view'=>'main', 'version'=>$v['0.3'], 'note'=>'View event feeds for followed communities.');
+			//$devNotes[] = array('view'=>'main', 'version'=>$v['0.3'], 'note'=>'View personal event feed.');
 
 			//All Users
 			$devNotes[] = array('view'=>'users', 'version'=>$v['0.4'], 'note'=>'Showcase followed streamers who are online.');
 			$devNotes[] = array('view'=>'users', 'version'=>$v['0.4'], 'note'=>'Implement a form of filtering and/or smart suggestions.');
 
 			//Single User
-			$devNotes[] = array('view'=>'user', 'version'=>$v['0.3'], 'note'=>'Add icons to indicate special community membership states.');
+			$devNotes[] = array('view'=>'user', 'version'=>$v['0.4'], 'note'=>'Add icons to indicate special community membership states.');
 			$devNotes[] = array('view'=>'user', 'version'=>$v['0.4'], 'note'=>'Showcase teams.');
 
 			//Types Page
-			$devNotes[] = array('view'=>'types', 'version'=>$v['0.3'], 'note'=>'Default to All Online view if no followed games are online.');
+			//$devNotes[] = array('view'=>'types', 'version'=>$v['0.3'], 'note'=>'Default to All Online view if no followed games are online.');
 			$devNotes[] = array('view'=>'types', 'version'=>$v['0.5'], 'note'=>'Search field to find offline games.');
 
 			//Single Type
 			$devNotes[] = array('view'=>'type', 'version'=>$v['0.5'], 'note'=>'Overhaul design to smartly adapt if streamer count is low, or non-existant.');
 
 			//Community List
-			$devNotes[] = array('view'=>'communities', 'version'=>$v['0.3'], 'note'=>'Update type filter UI.');
+			$devNotes[] = array('view'=>'communities', 'version'=>$v['0.5'], 'note'=>'Update type filter UI.');
 
 			//Single Community
-			$devNotes[] = array('view'=>'community', 'version'=>$v['0.3'], 'note'=>'General design overhaul.');
-			$devNotes[] = array('view'=>'community', 'version'=>$v['0.3'], 'note'=>'Implement news feed for community only information (joins, moderators, etc).');
-			$devNotes[] = array('view'=>'community', 'version'=>$v['0.3'], 'note'=>'Implement news feed for that showcases all info related to members.');
+			//$devNotes[] = array('view'=>'community', 'version'=>$v['0.3'], 'note'=>'General design overhaul.');
+			//$devNotes[] = array('view'=>'community', 'version'=>$v['0.3'], 'note'=>'Implement news feed for community only information (joins, moderators, etc).');
+			//$devNotes[] = array('view'=>'community', 'version'=>$v['0.3'], 'note'=>'Implement news feed for that showcases all info related to members.');
 
 			//Community Admin
-			
-			$devNotes[] = array('view'=>'community-admin', 'version'=>$v['0.3'], 'note'=>'Implement summary view.');
+			$devNotes[] = array('view'=>'community-admin', 'version'=>$v['0.4'], 'note'=>'Implement summary view.');
+			//$devNotes[] = array('view'=>'community-admin', 'version'=>$v['0.3'], 'note'=>'Implement settings panel.');
+			//$devNotes[] = array('view'=>'community-admin', 'version'=>$v['0.3'], 'note'=>'Return to community link/button.'); 
 
 			//Account Management
 			$devNotes[] = array('view'=>'account', 'version'=>$v['0.4'], 'note'=>'Implement user summary view.');
 			$devNotes[] = array('view'=>'account', 'version'=>$v['0.5'], 'note'=>'Implement user specific settings.');
-
-			
-			// --- completed v0.2.3 ---- 
-			//$devNotes[] = array('view'=>'community-admin', 'version'=>$v['0.3'], 'note'=>'Implement settings panel.');
-			//$devNotes[] = array('view'=>'community-admin', 'version'=>$v['0.3'], 'note'=>'Return to community link/button.'); 
 
 
 			$notes = "";
@@ -374,6 +400,45 @@ if (! function_exists('devNotesButton')) {
 			$str .= $note[0]." | ".$note[1]."<br>";
 		}
 		$str .= '"">Hover for DevNotes</button>';
+
+		return $str;
+	}
+}
+
+if (! function_exists('settingSelection')) {
+	function settingSelection($data) {
+		//$settings =$data['values'][$data['name']];
+		$key = $data['name'];
+
+		if (array_key_exists ($key, $data['values'])) {
+			$isChecked = $data['values']->{$key};
+		} else {
+			// set default check state by group
+			switch ($data['group']) {
+				case "communications":
+					$isChecked = true;
+					break;
+
+				default:
+					$isChecked = false;
+					break;
+			}
+		}
+
+
+		$str = "<tr>";
+		$str .= "<td>".form_label($data['summary'], $data['name'])."</td>";
+
+			$formData = array(
+				'name'          => $data['name'],
+		        'id'            => $data['name'],
+		        'class'			=> 'changeSettings '.$data['group'],
+		        'value'         => '1',
+		        'checked'       => $isChecked
+			);
+
+		$str .= "<td>".form_checkbox($formData)."</td>";
+		$str .= "</tr>";
 
 		return $str;
 	}

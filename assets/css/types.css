@@ -15,6 +15,7 @@ div.typeInfo {
 	margin: 8px;
 	padding-bottom: 5px;
 	overflow: hidden;
+	position: relative;
 }
 
 div.typeInfo:hover {
@@ -50,6 +51,32 @@ div.typeInfo > p.stats {
 div.typeInfo > p.stats > span.onlineStat {
 	cursor: pointer;
 }
+
+div.typeInfo.followed {
+	border: 4px solid rgb(10, 236, 69)
+}
+
+div.typeInfo.ignored {
+	border: 4px solid rgb(236, 10, 10)
+}
+
+
+div.typeInfo > div.btnGroupContainer {
+	width: 100%;
+	position: absolute; 
+	display: none;
+	top: 0;
+	left: 0;
+	margin: 0;
+	padding: 0;
+    z-index: 90;
+}
+
+.cardActionButtons button {
+	width: 100%;
+}
+
+
 
 /* -- SIZE SPECIFIC STYLES -- 
 	Examples of sizes:

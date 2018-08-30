@@ -21,6 +21,9 @@ function setFormListeners() {
 	// Set the listeners for the moderation buttons
 	setCommunityModerationButtonListeners();
 
+	// Set the listeners for user setting adjustments
+	setSettingsAdjustmentListeners();
+
 	// set listeners for apply role form on admin panel
 	$("form#applyRole").submit(function (event) { applyUserRole(event, $(this))} );
 	
@@ -35,6 +38,9 @@ function setFormListeners() {
 
 	// set listeners for founding community from community moderation pages
 	$("form#editCommunity").submit(function (event) { editCommunity(event, $(this))} );
+
+
+	$("form#setNewAdmin").submit(function (event) { setNewAdmin(event, $(this))} );
 }
 
 function applyUserRole(e, form) {
@@ -284,6 +290,68 @@ function editCommunity(e, form) {
 	});
 }
 
+function setNewAdmin(e, form) {
+	e.preventDefault();
+	actionUrl = baseActionUrl+"transferCommunityOwnership/";
+
+
+	processingTitle = 'Starting Transfer...';
+	buttonClass = 'btn-warning';
+	buttonText = "Request Transfer";
+
+	$.confirm({
+		title: 'Are you sure?',
+		content: "All provided data will be applied to your community.",
+		theme: 'dark',
+		buttons: {
+			yes: {
+				text: buttonText,
+				btnClass: buttonClass,
+				action: function () {
+					$.alert({
+						title: processingTitle,
+						theme: 'dark',
+						autoClose: 'ok|8000',
+						content: function(){
+							var self = this;
+							
+							return $.ajax({
+								url: actionUrl,
+								dataType: 'json',
+								method: 'POST',
+								data: form.serialize()
+							}).done(function (response) {
+								if (response.success) {
+									self.setContentAppend('<div>'+response.message+'</div>');
+									//updateButtonView(targetButton, response);
+
+									if (response.success) {
+										$("#transferForm").empty();
+										$("#transferForm").html("<p>You have a pending transfer in progress. We are waiting for "+response.newAdmin.Username+" to approve the transfer.</p>")
+										//parent = form.closest("div.infoBox").children('.infoInterior').html(response.message);
+										//$("tr#notice-"+response.originalSlug).html('<td colspan="8">'+response.Name+" was approved.</td>")
+									}
+								} else {
+									self.setContentAppend('<div>There was an issue with completing your requested action! <br><b>Server Message:</b> '+response.message+'</div>');
+								}
+							}).fail(function(){
+								self.setContentAppend('<div>There was a problem with communicating with the server.</div>');
+							}).always(function(response){
+								//self.setContentAppend('<div>Always!</div>');
+								console.log(response)
+							});
+						}
+					})
+				}
+			},
+			no: {
+				text: "Nevermind"
+			}
+		}
+	});
+}
+
+
 function foundCommunity(e, form) {
 	e.preventDefault();
 	actionUrl = baseActionUrl+"foundCommunity/";
@@ -476,6 +544,32 @@ function setConfirmationActions () {
 				}
 				break;
 
+			case "acceptTransfer":
+				action = "processTransfer/";
+				message = "You will become the owner of this community.";
+				confirmText = "Become Owner";
+				cancelText = "Nevermind";
+				alertTitle = "Transfering Ownership...";
+				actionData = {
+					action: $(this).attr('action'),
+					communityId: $(this).attr('communityId'),
+					userId: $(this).attr('userId')
+				}
+				break;
+
+			case "rejectTransfer":
+				action = "processTransfer/";
+				message = "The current admin will remain as owner.";
+				confirmText = "Deny Request";
+				cancelText = "Nevermind";
+				alertTitle = "Rejecting Request...";
+				actionData = {
+					action: $(this).attr('action'),
+					communityId: $(this).attr('communityId'),
+					userId: $(this).attr('userId')
+				}
+				break;
+
 			// ==============================================================
 			// --- Type Related Actions -------------------------------------
 			// ==============================================================
@@ -630,6 +724,8 @@ function setConfirmationActions () {
 
 		if ($(this).hasClass('confirm')) {
 			$.confirm({
+				animateFromElement: false,
+				scrollToPreviousElement: false,
 				title: 'Are you sure?',
 				content: message,
 				theme: 'dark',
@@ -639,6 +735,8 @@ function setConfirmationActions () {
 						btnClass: 'btn-danger',
 						action: function () {
 							$.alert({
+								animateFromElement: false,
+								scrollToPreviousElement: false,
 								title: alertTitle,
 								theme: 'dark',
 								autoClose: 'ok|8000',
@@ -673,33 +771,43 @@ function setConfirmationActions () {
 				}
 			});
 		} else {
-			$.alert({
-				title: alertTitle,
-				theme: 'dark',
-				autoClose: 'ok|8000',
-				content: function(){
-					var self = this;
-					
-					return $.ajax({
-						url: baseActionUrl + action,
-						dataType: 'json',
-						method: 'post',
-						data: actionData
-					}).done(function (response) {
-						if (response.success) {
-							self.setContentAppend('<div>'+response.message+'</div>');
-							updateButtonView(targetButton, response);
-						} else {
-							self.setContentAppend('<div>There was an issue with completing your requested action! <br><b>Server Message:</b> '+response.message+'</div>');
-						}
-					}).fail(function(){
-						self.setContentAppend('<div>There was a problem with communicating with the server.</div>');
-					}).always(function(response){
-						//self.setContentAppend('<div>Always!</div>');
-						console.log(response)
-					});
-				}
-			})
+			alertTime = "5000";
+			if ($(this).hasClass('no-alert')) {
+				alertTime = "250"; }
+			//console.log("alertTime: "+alertTime)
+			//console.log("$(this).hasClass('no-alert': "+$(this).hasClass('no-alert'));
+
+				$.alert({
+					animateFromElement: false,
+					scrollToPreviousElement: false,
+					title: alertTitle,
+					theme: 'dark',
+					autoClose: 'ok|'+alertTime,
+					content: function(){
+						var self = this;
+						
+						return $.ajax({
+							url: baseActionUrl + action,
+							dataType: 'json',
+							method: 'post',
+							data: actionData
+						}).done(function (response) {
+							if (response.success) {
+								self.setContentAppend('<div>'+response.message+'</div>');
+								updateButtonView(targetButton, response);
+							} else {
+								self.setContentAppend('<div>There was an issue with completing your requested action! <br><b>Server Message:</b> '+response.message+'</div>');
+							}
+						}).fail(function(){
+							self.setContentAppend('<div>There was a problem with communicating with the server.</div>');
+						}).always(function(response){
+							//self.setContentAppend('<div>Always!</div>');
+							console.log(response)
+						});
+					}
+				})
+			
+			
 		}
 	})
 }
@@ -820,8 +928,8 @@ function updateButtonView(tgt, serverData) {
 				coreTgt.addClass('btn-danger');
 				coreTgt.html('<i class="fas fa-minus-circle"></i>');
 
-
-					$('span#memberCount').html(parseInt($('span#memberCount').html(), 10)-1)
+				if (serverData.completedAction == "leaveCommunity") {
+					$('span#memberCount').html(parseInt($('span#memberCount').html(), 10)-1);}
 			}
 			break;
 
@@ -872,51 +980,95 @@ function updateButtonView(tgt, serverData) {
 
 		case "followType":
 			tgt.removeClass('confirm btn-danger');
-			tgt.attr('action', 'unfollowType');
 			tgt.addClass('btn-danger confirm');
-			tgt.html('Unfollow');
+			tgt.attr('action', 'unfollowType');
+			
+			if (tgt.attr('btnType') == 'mini') {
+				tgt.html('<i class="fas fa-thumbs-down"></i>');
+				tgt.siblings('button').hide();
+				tgt.closest('.typeInfo').addClass("followed");
+				tgt.removeAttr("data-original-title");
+				tgt.attr("title", "Unfollow");
+				tgt.removeClass('confirm');
+			} else {
+				tgt.html('Unfollow');
 
-			tgt.closest('tr').children('td.followState').text('Followed');
+				tgt.closest('tr').children('td.followState').text('Followed');
 
-			tgtIgnore = $("button[typeid='"+serverData.typeID+"'][action='ignoreType']");
-			tgtIgnore.hide();
+				tgtIgnore = $("button[typeid='"+serverData.typeID+"'][action='ignoreType']");
+				tgtIgnore.hide();
+			}
+			
 			break;
 
 		case "unfollowType":
 			tgt.removeClass('confirm btn-danger');
 			tgt.attr('action', 'followType');
 			tgt.addClass('btn-primary');
-			tgt.html('Follow');
 
-			tgt.closest('tr').children('td.followState').text('n/a');
+			if (tgt.attr('btnType') == 'mini') {
+				tgt.html('<i class="fas fa-thumbs-up"></i>');
+				tgt.siblings('button').show();
+				tgt.closest('.typeInfo').removeClass("followed");
+				tgt.removeAttr("data-original-title");
+				tgt.attr("title", "Follow");
+				tgt.removeClass('confirm');
 
-			tgtIgnore = $("button[typeid='"+serverData.typeID+"'][action='ignoreType']");
-			tgtIgnore.show();
+			} else {
+				tgt.html('Follow');
+				tgt.closest('tr').children('td.followState').text('n/a');
+
+				tgtIgnore = $("button[typeid='"+serverData.typeID+"'][action='ignoreType']");
+				tgtIgnore.show();
+			}
+			
 			break;
 
 		case "ignoreType":
-			tgt.removeClass('confirm btn-danger');
+			tgt.removeClass('confirm btn-danger btn-warning');
 			tgt.attr('action', 'unignoreType');
 			tgt.addClass('btn-danger');
-			tgt.html('Unignore');
 
-			tgt.closest('tr').children('td.followState').text('Ignored');
+			if (tgt.attr('btnType') == 'mini') {
+				tgt.html('<i class="fas fa-window-close"></i>');
+				tgt.siblings('button').hide();
+				tgt.closest('.typeInfo').addClass("ignored");
+				tgt.removeAttr("data-original-title");
+				tgt.attr("title", "Unignore");
+				tgt.removeClass('confirm');
+			} else {
+				tgt.html('Unignore');
+				tgt.closest('tr').children('td.followState').text('Ignored');
 
-			tgtFollow = $("button[typeId='"+serverData.typeID+"'][action='followType']");
-			tgtFollow.hide();
+				tgtFollow = $("button[typeId='"+serverData.typeID+"'][action='followType']");
+				tgtFollow.hide();
+			}
+
+			
 
 			break;
 
 		case "unignoreType":
-			tgt.removeClass('confirm btn-danger');
+			tgt.removeClass('confirm btn-danger btn-warning');
 			tgt.attr('action', 'ignoreType');
 			tgt.addClass('btn-warning confirm');
-			tgt.html('Ignore');
+		
+			if (tgt.attr('btnType') == 'mini') {
+				tgt.html('<i class="fas fa-ban"></i>');
+				tgt.siblings('button').show();
+				tgt.closest('.typeInfo').removeClass("ignored");
+				tgt.removeAttr("data-original-title");
+				tgt.attr("title", "Ignore");
+				tgt.removeClass('confirm');
+			} else {
+				tgt.html('Ignore');
+				tgt.closest('tr').children('td.followState').text('n/a');
 
-			tgt.closest('tr').children('td.followState').text('n/a');
+				tgtFollow = $("button[typeId='"+serverData.typeID+"'][action='followType']");
+				tgtFollow.show();;
+			}
 
-			tgtFollow = $("button[typeId='"+serverData.typeID+"'][action='followType']");
-			tgtFollow.show();
+			
 			break;
 
 
@@ -976,6 +1128,24 @@ function updateButtonView(tgt, serverData) {
 			break;
 		case "unbanMember":
 			tgt.closest('tr').html('<td>'+serverData.memberName+' was unbanned from the community.</td>');
+			break;
+
+		case "acceptTransfer":
+			$("#processTransfer").empty();
+			$("#processTransfer").removeClass('alert-warning');
+
+			$("#processTransfer").addClass('alert-success');
+			$("#processTransfer").html("<p>Transfer was approved! You are now the admin, this page will reload shortly.");
+			setTimeout(function () {
+		       window.location.reload(false); 
+		    }, 5000); 
+			break;
+
+		case "rejectTransfer":
+			$("#processTransfer").empty();
+			$("#processTransfer").removeClass('alert-warning');
+			$("#processTransfer").addClass('alert-success');
+			$("#processTransfer").html("<p>Transfer was succesfully denied.</p>");
 			break;
 	}
 }
@@ -1159,4 +1329,69 @@ function setCommunityActionButtonListeners() {
 
 		submitCommunityAction(actionUrl, $(this).attr('commId'));
 	});
+}
+
+function setSettingsAdjustmentListeners() {
+	console.log("setSettingsAdjustmentListeners()");
+	actionUrl = baseActionUrl + "applyUserSettings/";
+	$('.changeSettings').change(function () {
+		newSettings = {};
+		keys = [];
+		vals = [];
+
+		if ($(this).hasClass('communications')) {
+			
+			$('input:checkbox.communications').each(function () {
+				//var sThisVal = (this.checked ? $(this).val() : "");
+				val = 0;
+				if ($(this).is(':checked')) {
+					val = 1;
+				}
+				console.log($(this).attr('name')+": "+val);
+				keys.push($(this).attr('name'));
+				vals.push(val);
+			});
+
+			for (i=0; i<keys.length; i++) {
+				newSettings[keys[i]] = vals[i];
+			}
+
+			//console.log(newSettings);
+
+			submitUserSettings('communications', newSettings);
+		}
+	})
+}
+
+function submitUserSettings(settingsGroup, newSettings) {
+	console.log("submitUserSettings("+settingsGroup+", "+newSettings+")")
+
+	console.log(newSettings);
+	settings = {};
+	settings['group'] = settingsGroup;
+	settings['settings'] = newSettings;
+
+	console.log(settings);
+
+	$.ajax({
+		url: actionUrl,
+		type: "POST",
+		dataType: "json",
+		data: settings
+	})
+		.done(function (json){
+			console.log('applyUserSettings - AJAX done');			
+		})
+
+		.fail(function (json){
+			console.log('applyUserSettings - AJAX failed');
+			//displayAlert($("#userHeader"), "There was an issue communicating with the server. Reload and try again.", "danger", 0)
+		})
+
+		.always(function (json){
+			console.log('applyUserSettings - AJAX always');
+			console.log(json);
+			//console.log(json.message);
+
+		});
 }

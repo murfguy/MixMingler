@@ -178,6 +178,18 @@ class Communities {
 		return $query->result();
 	}
 
+	public function getPendingMemberCounts($listOfCommunities) {
+		$query = $this->db
+			->select('*, count(*) AS PendingCount')
+			->from('UserCommunities')
+			->where('MemberState', 'pending')
+			->where('CommunityID IN ('.$listOfCommunities.')')
+			->join('Communities', 'Communities.ID = UserCommunities.CommunityID')
+			->group_by('UserCommunities.CommunityID')
+			->get();
+		return $query->result();
+	}
+
 	public function setCommunityStatus($communityId, $status) {
 		$data = array( 'Status' => $status);
 		$this->db->where('ID', $communityId);
@@ -188,14 +200,6 @@ class Communities {
 		$this->db->where('ID', $communityId);
 		$this->db->update('Communities', $details);
 	}
-
-	public function getPendingMemberCountAlerts($mixerId) {
-		/*$this->db
-			->select('')
-			->from('')
-			->where()*/
-	}
-
 
 
 }?>

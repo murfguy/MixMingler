@@ -29,6 +29,9 @@ class Welcome extends CI_Controller {
 		$mixerID = $_SESSION['mixer_id'];
 		$user = $this->users->getUserFromMingler($mixerID);
 
+		$viewData->communities = createCommunityObjects($this->users->getUsersCommunitiesInformation($_SESSION['mixer_id']));
+		$viewData->newCommunities = $this->communities->getNewCommunities($user->PreviousLogin);
+
 		$alerts = array();
 		if (in_array($_SESSION['site_role'], array('owner', 'admin')) ) {
 			$pendingRequests = $this->communities->getCommunitiesByStatus('pending');
@@ -39,13 +42,18 @@ class Welcome extends CI_Controller {
 		if (!empty($unfoundedCommunities)) {
 			$alerts['unfoundedCommunities'] = $unfoundedCommunities;}
 
-		/*$pending = $this->communities->getPendingMembersList($_SESSION['mixer_id']);
-		if (!empty($pending)) {
-			//$alerts['pending'] = $pending;
-		}*/
+		if (!empty($viewData->communities->manager)) {
+			$pending = $this->communities->getPendingMemberCounts(getIdList($viewData->communities->manager));
+			if (!empty($pending)) { $alerts['pendingMembers'] = $pending; }
 
-		$viewData->communities = createCommunityObjects($this->users->getUsersCommunitiesInformation($_SESSION['mixer_id']));
-		$viewData->newCommunities = $this->communities->getNewCommunities($user->PreviousLogin);
+			$userIsNewAdmin = $this->users->getUsersNewAdminCommunities($mixerID);
+			if (!empty($userIsNewAdmin)) { $alerts['userIsNewAdmin'] = $userIsNewAdmin; }
+
+			$userIsOldAdmin = $this->users->getUsersOutgoingAdminCommunities($mixerID);
+			if (!empty($userIsOldAdmin)) { $alerts['userIsOldAdmin'] = $userIsOldAdmin; }
+		}
+
+
 		
 		// Collect types infromation
 		$viewData->followedTypes = $this->users->getUserTypesInformation($_SESSION['mixer_id'], 'followed');

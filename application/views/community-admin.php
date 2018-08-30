@@ -1,3 +1,7 @@
+<?php
+	$view = "memberManager";
+	$subView = "allMembers";
+?>
 <main role="main" class="container">
 	<div class="pageHeader">
 		<h1><?php echo $community->Name; ?> Moderation Page <?php echo devNotes('community-admin'); ?></h1>
@@ -105,32 +109,67 @@
 				echo " You are a moderator.";
 			}
 		?></p>
+
+		<?php if ($currentUser->isNewAdmin) { ?>
+			<div id="processTransfer" class="alert alert-warning">
+				<h2>Community Ownership Transfer Request</h2>
+				<p>The community admin has initiated a transfer of ownership to you. Please approve or deny the request.</p>
+				<p>
+					<?php 
+					$baseParams = [
+						'communityId' 		=> $community->ID,
+						'userId'			=> $_SESSION['mixer_id'],
+						'confirm'			=> 'true',
+						'displayType'		=> 'text',
+					];
+					
+					$buttonParams = [
+						'state'				=> 'success',
+						'action'			=> 'acceptTransfer',
+						'content'			=> 'I Accept Ownership',];
+
+					echo action_button(array_merge($baseParams, $buttonParams)); 
+
+					$buttonParams = [
+						'state'				=> 'danger',
+						'action'			=> 'rejectTransfer',
+						'content'			=> 'I Reject Ownership',];
+
+					echo " ".action_button(array_merge($baseParams, $buttonParams)); 
+
+
+					?></p>
+			</div>
+
+		<?php } ?>
+
+
 		<div class="btn-group d-flex" role="group">
 			<button type="button" class="btn btn-primary" onclick="window.location.href = '/community/<?php echo $community->Slug; ?>/';" data-toggle="tooltip" title="Back to Community Page"><i class="fas fa-arrow-left"></i></button>
-			<button type="button" class="btn btn-info displayToggle" target="summaryView" disabled>Summary</button>
-			<button type="button" class="btn btn-info displayToggle" target="memberManager" >Members</button>
-			<?php if ($currentUser->isAdmin) { ?><button type="button" class="btn btn-info displayToggle" target="settingsManager">Settings</button><?php } ?>
+			<button type="button" class="btn btn-info displayToggle" target="summaryView" <?php if ($view == "summaryView") { echo "disabled"; } ?>>Summary</button>
+			<button type="button" class="btn btn-info displayToggle" target="memberManager" <?php if ($view == "memberManager") { echo "disabled"; } ?>>Members</button>
+			<?php if ($currentUser->isAdmin) { ?><button type="button" class="btn btn-info displayToggle" target="settingsManager"<?php if ($view == "settingsManager") { echo "disabled"; } ?>>Settings</button><?php } ?>
 		</div>
 
 
 	<div class="row">
 
 		<div class="col">
-			<div id="summaryView" class="">
+			<div id="summaryView" class="<?php if ($view != "summaryView") { echo "inactiveView"; } ?>">
 				<h2>Community Summary</h2>
 				<p class="devNote">coming soon</p>
 			</div> <!-- summary view -->
 
-			<div id="memberManager" class="inactiveView">
+			<div id="memberManager" class="<?php if ($view != "memberManager") { echo "inactiveView"; } ?>">
 
 				<div class="pageHeader">
 					<h2>Member Management</h2>
 				</div>
 
 				<div class="btn-group btn-group-justified" style="width:50%" role="group">
-					<button type="button" class="btn btn-info displayToggle" target="allMembers" disabled>All Members</button>
-					<?php if ($community->isApprovalRequired) { ?><button type="button" class="btn btn-info displayToggle" target="pendingMembers">Pending Members</button><?php } ?>
-					<button type="button" class="btn btn-info displayToggle" target="bannedMembers">Banned Members</button>
+					<button type="button" class="btn btn-info displayToggle" target="allMembers" <?php if ($subView == "allMembers") { echo "disabled"; } ?>>All Members</button>
+					<?php if ($community->isApprovalRequired) { ?><button type="button" class="btn btn-info displayToggle" target="pendingMembers" <?php if ($subView == "pendingMembers") { echo "disabled"; } ?>>Pending Members</button><?php } ?>
+					<button type="button" class="btn btn-info displayToggle" target="bannedMembers" <?php if ($subView == "bannedMembers") { echo "disabled"; } ?>>Banned Members</button>
 				</div>
 
 
@@ -143,7 +182,7 @@
 							'displayType' => 'icon'
 						];
 					?>
-					<div id="allMembers">
+					<div id="allMembers" class="<?php if ($subView != "allMembers") { echo "inactiveView"; } ?>">
 						<?php
 						if (!empty($members)) { ?>
 						<h4>All Members</h4>
@@ -271,7 +310,7 @@
 						<?php }  ?>
 					</div> <!-- allMembers -->
 
-					<div id="pendingMembers" class="inactiveView">
+					<div id="pendingMembers" class=" <?php if ($subView != "pendingMembers") { echo "inactiveView"; } ?>">
 						<h4>Pending Members</h4>
 							<?php if (!empty($pendingMembers)) { ?>
 							
@@ -327,7 +366,7 @@
 						<?php } ?>
 					</div> <!-- pending members -->
 
-					<div id="bannedMembers" class="inactiveView">
+					<div id="bannedMembers" class=" <?php if ($subView != "bannedMembers") { echo "inactiveView"; } ?>">
 						<h4>Banned Members</h4>
 							<?php if (!empty($bannedMembers)) { ?>
 							
@@ -365,7 +404,7 @@
 			</div> <!-- member mananger -->
 
 			<?php if ($currentUser->isAdmin) { ?>
-			<div id="settingsManager" class="inactiveView">
+			<div id="settingsManager" class="<?php if ($view != "settingsManager") { echo "inactiveView"; } ?>">
 				<h2>Community Settings</h2>
 
 				<div id="editCommunityForm">
@@ -537,8 +576,62 @@
 				<?php echo form_close(); ?>
 			</div> <!-- edit community -->
 				<h2>Transfer Community Ownership</h2>
+				<div id="transferForm">
+				<?php if (empty($newAdmin)) { ?>
 				<p>You may transfer community administration rights to one of your moderators. The moderator you select will approve the request, at which point you will be demoted to a moderator.</p>
-				<p class="devNote">Coming Soon</p>
+		
+					<?php if (!empty($moderators)) { ?>
+					
+					<p>Select a moderator to transfer ownership to:</p>
+
+						<?php
+							$attributes = array('id' => 'setNewAdmin');
+							
+							$hidden = array(
+								'communityId' => $community->ID,
+								'mixerUser_id' => $_SESSION['mixer_id']
+							);
+
+							echo form_open('', $attributes, $hidden); 
+
+							$modList = array();
+							foreach ($moderators as $mod) {
+								$modList[$mod->ID] = $mod->Username;
+							}
+
+							$js = array(
+								'class'	=> 'form-control',
+							    'id'       => 'newAdmin'
+							);
+
+							echo "<p>".form_dropdown('newAdmin', $modList, null, $js)."</p>";
+
+
+							$js = array(
+								'class'	=> 'form-control btn btn-primary',
+							    'id'       => 'startTransfer'
+							);
+							echo "<p>".form_submit('startTransfer', 'Start Transfer', $js)."<p>";
+
+							echo form_close();
+						 } else { ?>
+						<p>Your community has no moderators.</p>
+					<?php } // if !empty moderators
+					} else {  // if empty $newAdmin  ?>
+					<p>You have a pending transfer in progress. We are waiting for <?php echo $newAdmin[0]->Username; ?> to approve the transfer.</p>
+				<?php }  // if empty $newAdmin ?>
+				</div> <!-- transferForm -->
+
+				<h2>Delete Community</h2>
+				<p class="alert alert-danger">This action is non-reversable. You may delete this community as you please. All related news, memberships, etc will also be deleted. Site Admins cannot restore a deleted community, when it's gone, it's gone. You will be warned ONCE and only ONCE if you hit the button below. This is your second-to-last warning.</p><p><?php 
+					$buttonParams = [
+						'communityId' => $community->ID,
+						'confirm' => true,
+						'action' => 'deleteCommunity',
+						'content' => 'Delete Community',
+						'state' => 'danger'
+					];
+					echo action_button($buttonParams); ?></p>
 			</div> <!-- settings -->
 			<?php } // is admin ?>
 		</div> <!-- col -->

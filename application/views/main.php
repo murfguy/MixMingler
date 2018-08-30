@@ -41,6 +41,24 @@
 							</p>
 						<?php } // foreach unfounded communities ?>
 					<?php } // if !empty unfounded communities ?>
+
+					<?php if (!empty($alerts['userIsNewAdmin']) || !empty($alerts['userIsOldAdmin']) ) { ?>
+						<h6>Transfer Requests</h6>
+
+						<?php if (!empty($alerts['userIsNewAdmin'])) { foreach ($alerts['userIsNewAdmin'] as $community) { ?>
+							<p><a href="/community/<?php echo $community->Slug ?>/mod"><?php echo $community->Name ?></a> <span class="badge badge-warning"><i class="fas fa-exclamation-circle"></i></span></p>
+						<?php }} ?>	
+						<?php if (!empty($alerts['userIsOldAdmin'])) { foreach ($alerts['userIsOldAdmin'] as $community) { ?>
+							<p><a href="/community/<?php echo $community->Slug ?>/mod"><?php echo $community->Name ?></a> <span class="badge badge-info"><i class="fas fa-circle-notch fa-spin"></i></span></p>
+						<?php }} ?>	
+					<?php } ?>
+
+					<?php if (!empty($alerts['pendingMembers'])) { ?>
+						<h6>Pending Members</h6>
+						<?php foreach ($alerts['pendingMembers'] as $community) { ?>
+							<p><a href="/community/<?php echo $community->Slug ?>/mod"><?php echo $community->Name ?></a>  <span class="badge badge-danger"><?php echo $community->PendingCount; ?></span></p>
+						<?php } // foreach pending members
+					 } // if !empty pending members ?>
 				</div>
 			</div><!-- .infoBox Alerts -->
 			<?php } ?>
@@ -122,7 +140,7 @@
 							foreach ($communities->follower as $community) { ?>
 								
 								<div class="newsFeed gamesFeed" id="community-<?php echo $community->ID; ?>">
-									<h4 class="subHeader"><a href="/community/"<?php echo $community->Slug; ?>"><?php echo $community->Name; ?></a></h4>
+									<h4 class="subHeader"><a href="/community/<?php echo $community->Slug; ?>"><?php echo $community->Name; ?></a></h4>
 
 									<h5>Top Streams</h5>
 									<div class="topStreams" id="streams-<?php echo $community->ID; ?>">
@@ -179,13 +197,29 @@
 			<div class="infoBox">
 				<h4 class="infoHeader">MixMingler Alpha Development Notices</h4>
 				<div class="infoInterior">
+					<div class="userFeedItem notices alert alert-success">
+						<h5 class="postTime">30 August 2018</h5>
+						<p class="post">v0.2.6 is released and is a Release Candidate for v0.3-Communities. A stable and full suite of features revolving around Communities are now available. Please visit the <a href="https://discord.gg/hcS64t9">MixMingler Discord</a> OR report issues on the <a href="https://github.com/murfguy/MixMingler/issues">MixMingler GitHub page</a>.</p>
+
+						<p class="post">Here is a summary of features and updates for v0.3:</p>
+						<ul>
+							<li>Users may join/follow Communities of similar streamers.</li>
+							<li>Users can manage thier communities from the Account Management area.</li>
+							<li>Users can now select up to four Core Communities, which are communities most associated to the type of content they stream.</li>
+							<li>Users can now view top streams and news feed for followed communities from their home page.</li>
+							<li>Users may opt to request a new community, which will be approved by site admins.</li>
+							<li>Community Admins can update and modify community details.</li>
+							<li>Community Admin/Moderators can moderate community members</li>
+							<li>The community details page has received a layout and functionality overhaul.</li>
+							<li>Users can follow/ignore games directly from thumbnails on the "All Types" page.</li>
+							<li>Users now receive email communications around personal community activity.</li>
+							<li>Users may also modify individual email settings from their account management page.</li>
+							<li>A complete overhaul to the database was performed in v0.2.2, resulting in a clean slate of data starting on Aug. 16, 2018</li>
+						</ul>
+					</div>
 					<div class="userFeedItem notices alert alert-danger">
 						<h5 class="postTime">16 August 2018</h5>
 						<p class="post">v0.2.2 is released. This update included a large scale overhaul to the database struture. Due to this, all data has been purged from the database in order to accommodate these changes. This includes games followed, communities created, even registration to the site. This is a clean slate.</p>
-					</div>
-					<div class="userFeedItem notices alert alert-danger">
-						<h5 class="postTime">1 August 2018</h5>
-						<p class="post">v0.2.1 is released. This update has made substantial changes to the backend functionality for communities. As such, in preparation for this release, all data related to communities has been purged.</p>
 					</div>
 				</div><!-- .infoInterior -->
 			</div><!-- .infoBox -->

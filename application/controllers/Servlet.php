@@ -683,6 +683,139 @@ class Servlet extends CI_Controller {
 
 	public function transferCommunityOwnership() {
 		// Only for admins
+		if (isset($_SESSION['mixer_id'])) {
+			$mixerID = $_SESSION['mixer_id'];
+			$this->returnData->currentUserId = $mixerID;
+
+			if (!empty($_POST['communityId']) && !empty($_POST['newAdmin'])) {
+				$community = $this->communities->getCommunity($_POST['communityId']);
+				if (!empty($community)) {
+					$this->returnData->community = $community;
+
+					if ($mixerID == $community->Admin) {
+						$newAdmin = $this->users->getUserFromMingler($_POST['newAdmin']);
+
+						$this->returnData->newAdmin = $newAdmin;
+
+						$data = array(
+					        'MixerID' => $_POST['newAdmin'],
+					        'CommunityID' => $_POST['communityId'],
+					        'MemberState' => 'newAdmin'
+						);
+
+						$this->db->insert('UserCommunities', $data);
+
+						$this->returnData->success = true;
+						$this->returnData->message = "You selected ".$newAdmin->Username." as the new owner of this community. Ownership will be transfered upon their approval.";
+
+					} else { $this->getWarningText("insufficientRights"); } // not the admin
+				} else { $this->getWarningText("emptyCommunity"); }
+			} else { $this->getWarningText("badData"); } // provided data is bad 
+		} else { $this->getWarningText("notLoggedIn"); }// not logged in
+
+		$this->returnData();
+	}
+
+	public function processTransfer() {
+		if (isset($_SESSION['mixer_id'])) {
+			$mixerID = $_SESSION['mixer_id'];
+			$this->returnData->currentUserId = $mixerID;
+
+			if (!empty($_POST['communityId']) && !empty($_POST['userId']) && !empty($_POST['action'])) {
+				$this->returnData->communityId = $_POST['communityId'];
+
+				$community = $this->communities->getCommunity($_POST['communityId']);
+				$user = $this->users->getUserFromMingler($_POST['userId']);
+
+				$query = $this->db
+					->select('MixerID as ID')
+					->from('UserCommunities')
+					->where('CommunityID', $_POST['communityId'])
+					->where('MixerID', $_POST['userId'])
+					->where('MemberState', 'newAdmin')
+					->get();
+
+				$newAdmin = $query->result();
+				
+				if (!empty($community) && !empty($user) && !empty($newAdmin)) {
+
+					if ($mixerID == $newAdmin[0]->ID) {
+
+						// remove current user as "newAdmin"
+						$this->db
+							->where('MixerID', $_POST['userId'])
+							->where('CommunityID', $_POST['communityId'])
+							->where('MemberState', 'newAdmin')
+							->delete('UserCommunities');
+
+						$this->returnData->success = true;
+						$this->returnData->completedAction = $_POST['action'];
+
+						switch ($_POST['action']) {
+							case "acceptTransfer":
+
+								// --- Alter the Current Admin ----
+
+								$currentAdmin = $this->users->getUserFromMingler($community->Admin);
+								// remove old admin from community statuses
+								$this->db
+									->where('MixerID', $currentAdmin->ID)
+									->where('CommunityID', $_POST['communityId'])
+									->where('MemberState', 'admin')
+									->delete('UserCommunities');
+
+								// insert old admin as moderator in community statuses
+								$data = array(
+							        'MixerID' => $currentAdmin->ID,
+							        'CommunityID' => $_POST['communityId'],
+							        'MemberState' => 'moderator'
+								);
+								$this->db->insert('UserCommunities', $data);
+
+
+
+								// --- Alter the New Admin ----
+
+								// remove current user as a "moderator"
+								$this->db
+									->where('MixerID', $_POST['userId'])
+									->where('CommunityID', $_POST['communityId'])
+									->where('MemberState', 'moderator')
+									->delete('UserCommunities');
+
+								//replace old admin in community data
+								$data = ['Admin' => $_POST['userId']];
+								$this->db->where('ID', $_POST['communityId'])
+										->update('Communities', $data);
+
+								// insert new admin info in communitie statuses
+								$data = array(
+							        'MixerID' => $_POST['userId'],
+							        'CommunityID' => $_POST['communityId'],
+							        'MemberState' => 'admin'
+								);
+								$this->db->insert('UserCommunities', $data);
+
+								// Add news item 
+								$params = ['CommunityID'=>$_POST['communityId'], 'MessageParams'=>array('admin', $_POST['communityId'])];
+								$this->news->addNews($_POST['userId'], "newCommRole", "community", $params);
+
+								$this->returnData->message = "Congrats! You are officially the new owner of this community.";
+								break;
+
+							case "rejectTransfer":
+								// remove current user as "newAdmin"
+								$this->returnData->message = "You have successfully denied the transfer request.";
+								break;
+						}
+
+
+					} else { $this->getWarningText("insufficientRights"); } // not the new admin
+				} else { $this->getWarningText("emptyResult"); } // database data was empty
+			} else { $this->getWarningText("badData"); } // provided data is bad 
+		} else { $this->getWarningText("notLoggedIn"); }// not logged in
+
+		$this->returnData();
 	}
 
 	public function changeMemberStatus() {
@@ -1065,9 +1198,27 @@ class Servlet extends CI_Controller {
 	// --------------------------------------------------------------- 
 
 	// --------------------------------------------------------------- 
-	// --- User Information Collection Functions ---------------------- 
+	// --- User Information Functions -------------------------------- 
 	// ---------------------------------------------------------------
 
+	public function applyUserSettings() {
+		if (isset($_SESSION['mixer_id'])) {
+			if (!empty($_POST)) {
+
+				$this->returnData->group = $_POST['group'];
+				$this->returnData->settings = $_POST['settings'];
+
+				$this->users->applyUserSettings($_POST['group'], $_POST['settings']);
+				$this->returnData->message = "Settings Applied";
+				//$this->returnData->success = true;
+
+			} else { $this->getWarningText("badData"); } // provided data is bad 
+		} else { $this->getWarningText("notLoggedIn"); }// not logged in
+
+
+
+		$this->returnData();
+	}
 
 	// --------------------------------------------------------------- 
 	// --- Return Functions ------------------------------------------ 

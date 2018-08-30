@@ -95,6 +95,17 @@ if (! function_exists('getTypeIDList')) {
 	}
 }
 
+if (! function_exists('getIdList')) {
+	function getIdList($groupData, $seperator = ",") {
+		$IdList = array();
+		foreach ($groupData as $item) {
+			$IdList[] = $item->ID;
+		}
+
+		return implode($seperator, $IdList);
+	}
+}
+
 if (! function_exists('versionParam')) {
 	function versionParam($version) {
 		return "?v=".$version;

@@ -6,7 +6,7 @@ This file should house CSS relevent to:
 	user pages
 ----------------- */
 
-table.userList {
+table.table {
 	border-collapse: collapse;
 	border-radius: 1em;
 	overflow: hidden;
@@ -14,15 +14,15 @@ table.userList {
 	font-size: 14px;
 }
 
-table.userList thead {
+table.table thead {
 	background-color: rgb(54, 78, 174);
 	border-bottom: 1px solid rgb(141, 154, 206);
 }
-table.userList thead th {
+table.table thead th {
 	cursor: pointer;
 	border-right: 1px solid rgb(141, 154, 206);
 }
 
-table.userList td {
+table.table td {
 	padding: 9px;
 }

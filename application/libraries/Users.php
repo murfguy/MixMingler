@@ -356,11 +356,32 @@ class Users {
 		return $query->result();
 	}
 
+	public function getUsersNewAdminCommunities($mixerId) {
+		$query = $this->db
+			->select('Communities.*')
+			->from('UserCommunities')
+			->join('Communities', 'Communities.ID = UserCommunities.CommunityID')
+			->where('MixerID', $mixerId)
+			->where('MemberState', 'newAdmin')
+			->get();
+		return $query->result();
+	}
+
+	public function getUsersOutgoingAdminCommunities($mixerId) {
+		$query = $this->db
+			->select('Communities.*')
+			->from('UserCommunities')
+			->join('Communities', 'Communities.ID = UserCommunities.CommunityID AND Admin='.$mixerId)
+			->where('MemberState', 'newAdmin')
+			->get();
+		return $query->result();
+	}
+
 	public function getUsersCommunitiesInformation($mixerId, $communityID = null) {
 		if ($communityID != null) { $this->db->where('UserCommunities.CommunityID', $communityID); }
 
 		$query = $this->db
-			->select('*')
+			->select('Communities.*')
 			->select('GROUP_CONCAT( UserCommunities.MemberState) as MemberStates')
 			->from('UserCommunities')
 			->join('Communities', 'Communities.ID = UserCommunities.CommunityID')
@@ -445,6 +466,15 @@ class Users {
 		$this->db->where('ID', $mixerID);
 		$this->db->update('Users', $data);
 
+	}
+
+	public function applyUserSettings($group, $settingsData) {
+		if (isset($_SESSION['mixer_id'])) {
+			$data = ['Settings_'.ucfirst($group) => json_encode($settingsData)];
+
+			$this->db->where('ID', $_SESSION['mixer_id']);
+			$this->db->update('Users', $data);
+		}
 	}
 }
 ?>
