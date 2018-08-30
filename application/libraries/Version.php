@@ -93,12 +93,15 @@ class Version {
 
 		$patch = new stdClass();
 		$patch->version = "0.2.6";
-		$patch->date = date($date_string, strtotime('2018-08-31'));
+		$patch->date = date($date_string, strtotime('2018-08-30'));
 		$patch->notes = array(
-			"Type List: Can follow/ignore from info card.",
+			"<b>v0.3 Release Candidate 1</b>",
+			"Type List: Can follow/ignore from type info card.",
 			"Home Page: Shows number of pending member requests for communities a user manages.",
 			"Login/Logout: redirects to page user was viewing when action was started.",
-			"Account Settings: Users may now manage email communication settings.");
+			"Account Settings: Users may now manage email communication settings.",
+			"Community Admin: Ownership transfer is now possible.",
+			"Community Admin: Admins are now able to delete their communities.");
 		$patchNotes[] = $patch;
 
 		$patch = new stdClass();
