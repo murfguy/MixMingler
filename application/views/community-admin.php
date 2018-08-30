@@ -138,9 +138,7 @@
 					echo " ".action_button(array_merge($baseParams, $buttonParams)); 
 
 
-					?>
-
-					<!--<button class="btn btn-success">I Accept Ownership</button> <button class="btn btn-danger">I Reject Ownership</button>--></p>
+					?></p>
 			</div>
 
 		<?php } ?>
@@ -623,6 +621,17 @@
 					<p>You have a pending transfer in progress. We are waiting for <?php echo $newAdmin[0]->Username; ?> to approve the transfer.</p>
 				<?php }  // if empty $newAdmin ?>
 				</div> <!-- transferForm -->
+
+				<h2>Delete Community</h2>
+				<p class="alert alert-danger">This action is non-reversable. You may delete this community as you please. All related news, memberships, etc will also be deleted. Site Admins cannot restore a deleted community, when it's gone, it's gone. You will be warned ONCE and only ONCE if you hit the button below. This is your second-to-last warning.</p><p><?php 
+					$buttonParams = [
+						'communityId' => $community->ID,
+						'confirm' => true,
+						'action' => 'deleteCommunity',
+						'content' => 'Delete Community',
+						'state' => 'danger'
+					];
+					echo action_button($buttonParams); ?></p>
 			</div> <!-- settings -->
 			<?php } // is admin ?>
 		</div> <!-- col -->
