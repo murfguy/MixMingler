@@ -101,7 +101,8 @@ class Version {
 			"Login/Logout: redirects to page user was viewing when action was started.",
 			"Account Settings: Users may now manage email communication settings.",
 			"Community Admin: Ownership transfer is now possible.",
-			"Community Admin: Admins are now able to delete their communities.");
+			"Community Admin: Admins are now able to delete their communities.",
+			"General: Login/Logout returns you the the page you were viewing.");
 		$patchNotes[] = $patch;
 
 		$patch = new stdClass();

@@ -336,44 +336,40 @@ if (!function_exists('devNotes')) {
 			$devNotes[] = array('view'=>'login', 'version'=>$v['0.4'], 'note'=>'Showcase a random selection of streamers and communities');
 
 			//Home Page
-			$devNotes[] = array('view'=>'main', 'version'=>$v['0.3'], 'note'=>'View event feeds for followed communities.');
-			$devNotes[] = array('view'=>'main', 'version'=>$v['0.3'], 'note'=>'View personal event feed.');
+			//$devNotes[] = array('view'=>'main', 'version'=>$v['0.3'], 'note'=>'View event feeds for followed communities.');
+			//$devNotes[] = array('view'=>'main', 'version'=>$v['0.3'], 'note'=>'View personal event feed.');
 
 			//All Users
 			$devNotes[] = array('view'=>'users', 'version'=>$v['0.4'], 'note'=>'Showcase followed streamers who are online.');
 			$devNotes[] = array('view'=>'users', 'version'=>$v['0.4'], 'note'=>'Implement a form of filtering and/or smart suggestions.');
 
 			//Single User
-			$devNotes[] = array('view'=>'user', 'version'=>$v['0.3'], 'note'=>'Add icons to indicate special community membership states.');
+			$devNotes[] = array('view'=>'user', 'version'=>$v['0.4'], 'note'=>'Add icons to indicate special community membership states.');
 			$devNotes[] = array('view'=>'user', 'version'=>$v['0.4'], 'note'=>'Showcase teams.');
 
 			//Types Page
-			$devNotes[] = array('view'=>'types', 'version'=>$v['0.3'], 'note'=>'Default to All Online view if no followed games are online.');
+			//$devNotes[] = array('view'=>'types', 'version'=>$v['0.3'], 'note'=>'Default to All Online view if no followed games are online.');
 			$devNotes[] = array('view'=>'types', 'version'=>$v['0.5'], 'note'=>'Search field to find offline games.');
 
 			//Single Type
 			$devNotes[] = array('view'=>'type', 'version'=>$v['0.5'], 'note'=>'Overhaul design to smartly adapt if streamer count is low, or non-existant.');
 
 			//Community List
-			$devNotes[] = array('view'=>'communities', 'version'=>$v['0.3'], 'note'=>'Update type filter UI.');
+			$devNotes[] = array('view'=>'communities', 'version'=>$v['0.5'], 'note'=>'Update type filter UI.');
 
 			//Single Community
-			$devNotes[] = array('view'=>'community', 'version'=>$v['0.3'], 'note'=>'General design overhaul.');
-			$devNotes[] = array('view'=>'community', 'version'=>$v['0.3'], 'note'=>'Implement news feed for community only information (joins, moderators, etc).');
-			$devNotes[] = array('view'=>'community', 'version'=>$v['0.3'], 'note'=>'Implement news feed for that showcases all info related to members.');
+			//$devNotes[] = array('view'=>'community', 'version'=>$v['0.3'], 'note'=>'General design overhaul.');
+			//$devNotes[] = array('view'=>'community', 'version'=>$v['0.3'], 'note'=>'Implement news feed for community only information (joins, moderators, etc).');
+			//$devNotes[] = array('view'=>'community', 'version'=>$v['0.3'], 'note'=>'Implement news feed for that showcases all info related to members.');
 
 			//Community Admin
-			
-			$devNotes[] = array('view'=>'community-admin', 'version'=>$v['0.3'], 'note'=>'Implement summary view.');
+			$devNotes[] = array('view'=>'community-admin', 'version'=>$v['0.4'], 'note'=>'Implement summary view.');
+			//$devNotes[] = array('view'=>'community-admin', 'version'=>$v['0.3'], 'note'=>'Implement settings panel.');
+			//$devNotes[] = array('view'=>'community-admin', 'version'=>$v['0.3'], 'note'=>'Return to community link/button.'); 
 
 			//Account Management
 			$devNotes[] = array('view'=>'account', 'version'=>$v['0.4'], 'note'=>'Implement user summary view.');
 			$devNotes[] = array('view'=>'account', 'version'=>$v['0.5'], 'note'=>'Implement user specific settings.');
-
-			
-			// --- completed v0.2.3 ---- 
-			//$devNotes[] = array('view'=>'community-admin', 'version'=>$v['0.3'], 'note'=>'Implement settings panel.');
-			//$devNotes[] = array('view'=>'community-admin', 'version'=>$v['0.3'], 'note'=>'Return to community link/button.'); 
 
 
 			$notes = "";
