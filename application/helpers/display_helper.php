@@ -408,3 +408,42 @@ if (! function_exists('devNotesButton')) {
 		return $str;
 	}
 }
+
+if (! function_exists('settingSelection')) {
+	function settingSelection($data) {
+		//$settings =$data['values'][$data['name']];
+		$key = $data['name'];
+
+		if (array_key_exists ($key, $data['values'])) {
+			$isChecked = $data['values']->{$key};
+		} else {
+			// set default check state by group
+			switch ($data['group']) {
+				case "communications":
+					$isChecked = true;
+					break;
+
+				default:
+					$isChecked = false;
+					break;
+			}
+		}
+
+
+		$str = "<tr>";
+		$str .= "<td>".form_label($data['summary'], $data['name'])."</td>";
+
+			$formData = array(
+				'name'          => $data['name'],
+		        'id'            => $data['name'],
+		        'class'			=> 'changeSettings '.$data['group'],
+		        'value'         => '1',
+		        'checked'       => $isChecked
+			);
+
+		$str .= "<td>".form_checkbox($formData)."</td>";
+		$str .= "</tr>";
+
+		return $str;
+	}
+}

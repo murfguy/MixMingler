@@ -837,8 +837,8 @@ function updateButtonView(tgt, serverData) {
 				coreTgt.addClass('btn-danger');
 				coreTgt.html('<i class="fas fa-minus-circle"></i>');
 
-
-					$('span#memberCount').html(parseInt($('span#memberCount').html(), 10)-1)
+				if (serverData.completedAction == "leaveCommunity") {
+					$('span#memberCount').html(parseInt($('span#memberCount').html(), 10)-1);}
 			}
 			break;
 

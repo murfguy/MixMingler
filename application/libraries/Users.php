@@ -360,7 +360,7 @@ class Users {
 		if ($communityID != null) { $this->db->where('UserCommunities.CommunityID', $communityID); }
 
 		$query = $this->db
-			->select('*')
+			->select('Communities.*')
 			->select('GROUP_CONCAT( UserCommunities.MemberState) as MemberStates')
 			->from('UserCommunities')
 			->join('Communities', 'Communities.ID = UserCommunities.CommunityID')

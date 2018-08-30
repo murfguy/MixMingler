@@ -78,69 +78,14 @@ class Version {
 			Phase 3: Focus on final UI/UX for Candidate release [Form/Flow]
 
 		--- Site Admin Panel ---------------------------------------------------------------
-			Ban user from creating communities -- Target: Phase 1
+			Ban user from creating communities -- moved to v0.5
 
 		--- Community Moderation Panel -----------------------------------------------------
-			Moderation Tool: community summary analytics. -- Target: Phase 2
-				- Recently joined members
-				- Totals of: core members, members, followers, 
-				- Quick list of pending members
-				- (Further expansion in future version)
+			Moderation Tool: community summary analytics. -- moved to v0.4
 			Moderation Tool: adjust community settings. (Admins only) -- Target: Phase 1
-				- Cover art can be uploaded.
-				- Summary and description can be changed. 
-				- Status can be set to open or closed
-				- Can toggle 'requires approval' setting
-				- Transfer ownership
-				- Delete community
+				- Transfer ownership -- pending
+				- Delete community -- moved to v0.5
 			Moderation Tool: membership management controls (Moderators) -- completed
-				- Promote/demote
-				- Kick
-				- Ban
-				- Approve/Deny
-
-		--- Community List page ---------------------------------------------------------
-			UI/UX overhaul  -- Target: Ongoing/Phase 3
-				-- Showcase core/joined/followed communities
-				-- Showcase all communities
-				-- Slogan/Summary on hover
-				-- ?? show number of online members
-				-- ?? show number of current views
-		
-		--- Community Details Page ------------------------------------------------------
-			UI/UX overhaul -- Target: Ongoing/Phase 3
-				-- View: Top Streams (if any online, default here)
-				-- View: Community News (if no online members, default here)
-				-- View: Member List (default sort should be most recently online)
-					-- Sort on: Recently online, number of follows, number of views, community rank (admin, mod, core, member)
-					-- Show as grid
-						-- Avatar, name
-					-- Show as table
-						-- Avatar, Name, followers, views, top games (show top 5 games)
-
-
-		--- User Home Page --------------------------------------------------------------
-			Show pending admin requests (site admins)  -- Target: Phase 2
-			Show pending moderation requests (community admins/moderators) -- Target: Phase 2
-			Allow selection/view of community news feeds -- Target: Phase 2
-		
-		--- User Profile Page -----------------------------------------------------------
-			Display Core Communities -- completed
-
-		--- User Account Settings -------------------------------------------------------
-			Manage communities (leave/follow/unpend) -- completed
-			Select Core Communities -- completed
-
-		--- Type Details Page -----------------------------------------------------------
-			AJAX data collection -- Target: Phase 2
-
-		--- Email Notifications ---------------------------------------------------------
-			GENERAL -- Target: Phase 3
-			Adjust Email notification settings from account panel
-			Email notifications to site admins that a new community is awaiting approval.
-			Email notifications to community admins that thier community is approved/denied.
-			Email notifications to community admins that a member is awaiting approval.
-			Email notifications to community member that membership in a community is approved/denied/banned/promoted.
 
 		---------------------------------------------------------------------------------
 		--- </end> v0.3 Task List -------------------------------------------------------
@@ -152,7 +97,8 @@ class Version {
 		$patch->notes = array(
 			"Type List: Can follow/ignore from info card.",
 			"Home Page: Shows number of pending member requests for communities a user manages.",
-			"Login/Logout: redirects to page user was viewing when action was started.",);
+			"Login/Logout: redirects to page user was viewing when action was started.",
+			"Account Settings: Users may now manage email communication settings.");
 		$patchNotes[] = $patch;
 
 		$patch = new stdClass();

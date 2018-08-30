@@ -129,7 +129,7 @@
 							foreach ($communities->follower as $community) { ?>
 								
 								<div class="newsFeed gamesFeed" id="community-<?php echo $community->ID; ?>">
-									<h4 class="subHeader"><a href="/community/"<?php echo $community->Slug; ?>"><?php echo $community->Name; ?></a></h4>
+									<h4 class="subHeader"><a href="/community/<?php echo $community->Slug; ?>"><?php echo $community->Name; ?></a></h4>
 
 									<h5>Top Streams</h5>
 									<div class="topStreams" id="streams-<?php echo $community->ID; ?>">

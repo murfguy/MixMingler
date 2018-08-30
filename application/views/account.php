@@ -260,90 +260,42 @@
 						</tr>
 					</thead>
 					<tbody>
-						<tr>
-							<td><?php echo form_label('I submit a new Community Request', 'requestCommunity'); ?></td>
-							<td><?php 
-								$data = array(
-							        'name'          => 'requestCommunity',
-							        'id'            => 'requestCommunity',
-							        'class'			=> 'changeSettings communications',
-							        'value'         => '1',
-							        'checked'       => $settings_communications->requestCommunity
-								);
+						<?php
+							$baseData = [
+								'group' => 'communications',
+								'values' => $settings_communications];
 
-								echo form_checkbox($data);
-							 ?></td>
-						</tr>
-						<tr>
-							<td><?php echo form_label('My new Community Request is processed', 'requestCommunity'); ?></td>
-							<td><?php 
-								$data = array(
-							        'name'          => 'requestProcessed',
-							        'id'            => 'requestProcessed',
-							        'class'			=> 'changeSettings communications',
-							        'value'         => '1',
-							        'checked'       => $settings_communications->requestCommunity
-								);
+							$data = [
+								'name' => "requestCommunity",
+								'summary' => 'I submit a new Community Request'];
+							echo settingSelection(array_merge($baseData, $data));
 
-								echo form_checkbox($data);
-							 ?></td>
-						</tr>
-						<tr>
-							<td><?php echo form_label('A new member joins my community', 'newMemberJoined'); ?></td>
-							<td><?php 
-								$data = array(
-							        'name'          => 'newMemberJoined',
-							        'id'            => 'newMemberJoined',
-							        'class'			=> 'changeSettings communications',
-							        'value'         => '1',
-							        'checked'       => $settings_communications->newMemberJoined
-								);
+							$data = [
+								'name' => "requestProcessed",
+								'summary' => 'My new Community Request is processed'];
+							echo settingSelection(array_merge($baseData, $data));
 
-								echo form_checkbox($data);
-							 ?></td>
-						</tr>
-						<tr>
-							<td><?php echo form_label('A new member requests to join a community I manage', 'newMemberRequest'); ?></td>
-							<td><?php 
-								$data = array(
-							        'name'          => 'newMemberRequest',
-							        'id'            => 'newMemberRequest',
-							        'class'			=> 'changeSettings communications',
-							        'value'         => '1',
-							        'checked'       => $settings_communications->newMemberRequest
-								);
+							$data = [
+								'name' => "newMemberJoined",
+								'summary' => 'A new member joins my community'];
+							echo settingSelection(array_merge($baseData, $data));
 
-								echo form_checkbox($data);
-							 ?></td>
-						</tr>
-						<tr>
-							<td><?php echo form_label('Your pending membership request is processed', 'pendingMembershipProcessed'); ?></td>
-							<td><?php 
-								$data = array(
-							        'name'          => 'pendingMembershipProcessed',
-							        'id'            => 'pendingMembershipProcessed',
-							        'class'			=> 'changeSettings communications',
-							        'value'         => '1',
-							        'checked'       => $settings_communications->pendingMembershipProcessed
-								);
+							$data = [
+								'name' => "newMemberRequest",
+								'summary' => 'A new member requests to join a community I manage'];
+							echo settingSelection(array_merge($baseData, $data));
 
-								echo form_checkbox($data);
-							 ?></td>
-						</tr>
-						<tr>
-							<td><?php echo form_label('A moderator\'s status is changed in a community I manage', 'moderatorStatusChanged'); ?></td>
-							<td><?php 
-								$data = array(
-							        'name'          => 'moderatorStatusChanged',
-							        'id'            => 'moderatorStatusChanged',
-							        'class'			=> 'changeSettings communications',
-							        'value'         => 'accept',
-							        'checked'       => $settings_communications->moderatorStatusChanged
-								);
+							$data = [
+								'name' => "pendingMembershipProcessed",
+								'summary' => 'Your pending membership request is processed'];
+							echo settingSelection(array_merge($baseData, $data));
 
-								echo form_checkbox($data);
-							 ?></td>
-						</tr>
+							$data = [
+								'name' => "moderatorStatusChanged",
+								'summary' => 'A moderator\'s status is changed in a community I manage'];
+							echo settingSelection(array_merge($baseData, $data));
+
+						?>
 					</tbody>
 				</table>
 			</div>
