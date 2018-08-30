@@ -538,7 +538,44 @@
 			</div> <!-- edit community -->
 				<h2>Transfer Community Ownership</h2>
 				<p>You may transfer community administration rights to one of your moderators. The moderator you select will approve the request, at which point you will be demoted to a moderator.</p>
-				<p class="devNote">Coming Soon</p>
+				<?php if (!empty($moderators)) { ?>
+					<p>Select a moderator to transfer ownership to:</p>
+
+				<?php
+					$attributes = array('id' => 'editCommunity');
+					
+					$hidden = array(
+						'communityId' => $community->ID,
+						'mixerUser_id' => $_SESSION['mixer_id']
+					);
+
+					echo form_open_multipart('servlet/setNewAdmin', $attributes, $hidden); 
+
+					$modList = array();
+					foreach ($moderators as $mod) {
+						$modList[] = $mod->Username;
+					}
+
+					$js = array(
+						'class'	=> 'form-control',
+					    'id'       => 'newAdmin'
+					);
+
+					echo form_dropdown('newAdmin', $modList, null, $js);
+
+
+					$js = array(
+						'class'	=> 'form-control btn btn-primary',
+					    'id'       => 'startTransfer'
+					);
+					echo form_submit('startTransfer', 'Start Transfer', $js);
+
+					echo form_close();
+
+				 } else { ?>
+					<p>Your community has no moderators.</p>
+				<?php } ?>
+				
 			</div> <!-- settings -->
 			<?php } // is admin ?>
 		</div> <!-- col -->
