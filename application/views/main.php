@@ -42,6 +42,17 @@
 						<?php } // foreach unfounded communities ?>
 					<?php } // if !empty unfounded communities ?>
 
+					<?php if (!empty($alerts['userIsNewAdmin']) || !empty($alerts['userIsOldAdmin']) ) { ?>
+						<h6>Transfer Requests</h6>
+
+						<?php if (!empty($alerts['userIsNewAdmin'])) { foreach ($alerts['userIsNewAdmin'] as $community) { ?>
+							<p><a href="/community/<?php echo $community->Slug ?>/mod"><?php echo $community->Name ?></a> <span class="badge badge-warning"><i class="fas fa-exclamation-circle"></i></span></p>
+						<?php }} ?>	
+						<?php if (!empty($alerts['userIsOldAdmin'])) { foreach ($alerts['userIsOldAdmin'] as $community) { ?>
+							<p><a href="/community/<?php echo $community->Slug ?>/mod"><?php echo $community->Name ?></a> <span class="badge badge-info"><i class="fas fa-circle-notch fa-spin"></i></span></p>
+						<?php }} ?>	
+					<?php } ?>
+
 					<?php if (!empty($alerts['pendingMembers'])) { ?>
 						<h6>Pending Members</h6>
 						<?php foreach ($alerts['pendingMembers'] as $community) { ?>

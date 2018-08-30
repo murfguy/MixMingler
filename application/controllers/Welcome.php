@@ -45,7 +45,14 @@ class Welcome extends CI_Controller {
 		if (!empty($viewData->communities->manager)) {
 			$pending = $this->communities->getPendingMemberCounts(getIdList($viewData->communities->manager));
 			if (!empty($pending)) { $alerts['pendingMembers'] = $pending; }
+
+			$userIsNewAdmin = $this->users->getUsersNewAdminCommunities($mixerID);
+			if (!empty($userIsNewAdmin)) { $alerts['userIsNewAdmin'] = $userIsNewAdmin; }
+
+			$userIsOldAdmin = $this->users->getUsersOutgoingAdminCommunities($mixerID);
+			if (!empty($userIsOldAdmin)) { $alerts['userIsOldAdmin'] = $userIsOldAdmin; }
 		}
+
 
 		
 		// Collect types infromation

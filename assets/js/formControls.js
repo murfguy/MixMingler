@@ -38,6 +38,9 @@ function setFormListeners() {
 
 	// set listeners for founding community from community moderation pages
 	$("form#editCommunity").submit(function (event) { editCommunity(event, $(this))} );
+
+
+	$("form#setNewAdmin").submit(function (event) { setNewAdmin(event, $(this))} );
 }
 
 function applyUserRole(e, form) {
@@ -287,6 +290,68 @@ function editCommunity(e, form) {
 	});
 }
 
+function setNewAdmin(e, form) {
+	e.preventDefault();
+	actionUrl = baseActionUrl+"transferCommunityOwnership/";
+
+
+	processingTitle = 'Starting Transfer...';
+	buttonClass = 'btn-warning';
+	buttonText = "Request Transfer";
+
+	$.confirm({
+		title: 'Are you sure?',
+		content: "All provided data will be applied to your community.",
+		theme: 'dark',
+		buttons: {
+			yes: {
+				text: buttonText,
+				btnClass: buttonClass,
+				action: function () {
+					$.alert({
+						title: processingTitle,
+						theme: 'dark',
+						autoClose: 'ok|8000',
+						content: function(){
+							var self = this;
+							
+							return $.ajax({
+								url: actionUrl,
+								dataType: 'json',
+								method: 'POST',
+								data: form.serialize()
+							}).done(function (response) {
+								if (response.success) {
+									self.setContentAppend('<div>'+response.message+'</div>');
+									//updateButtonView(targetButton, response);
+
+									if (response.success) {
+										$("#transferForm").empty();
+										$("#transferForm").html("<p>You have a pending transfer in progress. We are waiting for "+response.newAdmin.Username+" to approve the transfer.</p>")
+										//parent = form.closest("div.infoBox").children('.infoInterior').html(response.message);
+										//$("tr#notice-"+response.originalSlug).html('<td colspan="8">'+response.Name+" was approved.</td>")
+									}
+								} else {
+									self.setContentAppend('<div>There was an issue with completing your requested action! <br><b>Server Message:</b> '+response.message+'</div>');
+								}
+							}).fail(function(){
+								self.setContentAppend('<div>There was a problem with communicating with the server.</div>');
+							}).always(function(response){
+								//self.setContentAppend('<div>Always!</div>');
+								console.log(response)
+							});
+						}
+					})
+				}
+			},
+			no: {
+				text: "Nevermind"
+			}
+		}
+	});
+}
+
+
 function foundCommunity(e, form) {
 	e.preventDefault();
 	actionUrl = baseActionUrl+"foundCommunity/";
@@ -472,6 +537,32 @@ function setConfirmationActions () {
 				confirmText = "Do it!";
 				cancelText = "Keep as Core";
 				alertTitle = "Removing as a Core Community...";
+				actionData = {
+					action: $(this).attr('action'),
+					communityId: $(this).attr('communityId'),
+					userId: $(this).attr('userId')
+				}
+				break;
+
+			case "acceptTransfer":
+				action = "processTransfer/";
+				message = "You will become the owner of this community.";
+				confirmText = "Become Owner";
+				cancelText = "Nevermind";
+				alertTitle = "Transfering Ownership...";
+				actionData = {
+					action: $(this).attr('action'),
+					communityId: $(this).attr('communityId'),
+					userId: $(this).attr('userId')
+				}
+				break;
+
+			case "rejectTransfer":
+				action = "processTransfer/";
+				message = "The current admin will remain as owner.";
+				confirmText = "Deny Request";
+				cancelText = "Nevermind";
+				alertTitle = "Rejecting Request...";
 				actionData = {
 					action: $(this).attr('action'),
 					communityId: $(this).attr('communityId'),
@@ -1037,6 +1128,24 @@ function updateButtonView(tgt, serverData) {
 			break;
 		case "unbanMember":
 			tgt.closest('tr').html('<td>'+serverData.memberName+' was unbanned from the community.</td>');
+			break;
+
+		case "acceptTransfer":
+			$("#processTransfer").empty();
+			$("#processTransfer").removeClass('alert-warning');
+
+			$("#processTransfer").addClass('alert-success');
+			$("#processTransfer").html("<p>Transfer was approved! You are now the admin, this page will reload shortly.");
+			setTimeout(function () {
+		       window.location.reload(false); 
+		    }, 5000); 
+			break;
+
+		case "rejectTransfer":
+			$("#processTransfer").empty();
+			$("#processTransfer").removeClass('alert-warning');
+			$("#processTransfer").addClass('alert-success');
+			$("#processTransfer").html("<p>Transfer was succesfully denied.</p>");
 			break;
 	}
 }

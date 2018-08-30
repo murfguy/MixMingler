@@ -47,6 +47,7 @@ class Community extends CI_Controller {
 			// Get all Community Members by their groupings
 			$founder = $this->communities->getCommunityMembersByGroup($community->ID, 'founder')[0];
 			$admin = $this->communities->getCommunityMembersByGroup($community->ID, 'admin')[0];
+			$newAdmin = $this->communities->getCommunityMembersByGroup($community->ID, 'newAdmin');
 			$moderators = $this->communities->getCommunityMembersByGroup($community->ID, 'moderator');
 			$coreMembers = $this->communities->getCommunityMembersByGroup($community->ID, 'core');
 			$members = $this->communities->getCommunityMembersByGroup($community->ID, 'member');
@@ -55,6 +56,7 @@ class Community extends CI_Controller {
 			$bannedMembers = $this->communities->getCommunityMembersByGroup($community->ID, 'banned');
 
 			$data->memberIdLists = array(
+				'newAdmin' => $this->communities->getArrayOfMemberIDs($newAdmin),
 				'moderators' => $this->communities->getArrayOfMemberIDs($moderators),
 				'core' => $this->communities->getArrayOfMemberIDs($coreMembers),
 				'members' => $this->communities->getArrayOfMemberIDs($members),
@@ -78,11 +80,13 @@ class Community extends CI_Controller {
 				$currentUser->isFollower = false;
 				$currentUser->isFounder = false;
 				$currentUser->isAdmin = false;
+				$currentUser->isNewAdmin = false;
 				$currentUser->isMod = false;
 				$currentUser->isBanned = false;
 
 				if ($_SESSION['mixer_id'] == $community->Founder) {	$currentUser->isFounder = true;	}
 				if ($_SESSION['mixer_id'] == $community->Admin) {$currentUser->isAdmin = true; }
+				if (in_array($_SESSION['mixer_id'], $data->memberIdLists['newAdmin'])) { $currentUser->isNewAdmin = true; }
 				if (in_array($_SESSION['mixer_id'], $data->memberIdLists['moderators'])) { $currentUser->isMod = true; }				
 				if (in_array($_SESSION['mixer_id'], $data->memberIdLists['banned'])) { $currentUser->isBanned = true; }
 				if (in_array($_SESSION['mixer_id'], $data->memberIdLists['members'])) { $currentUser->isMember = true; }			
@@ -114,6 +118,7 @@ class Community extends CI_Controller {
 			$data->members = $members;
 			$data->followers = $followers;
 			$data->admin = $admin;
+			$data->newAdmin = $newAdmin;
 			$data->moderators = $moderators;
 			$data->coreMembers = $coreMembers;
 			$data->pendingMembers = $pendingMembers;

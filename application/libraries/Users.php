@@ -356,6 +356,27 @@ class Users {
 		return $query->result();
 	}
 
+	public function getUsersNewAdminCommunities($mixerId) {
+		$query = $this->db
+			->select('Communities.*')
+			->from('UserCommunities')
+			->join('Communities', 'Communities.ID = UserCommunities.CommunityID')
+			->where('MixerID', $mixerId)
+			->where('MemberState', 'newAdmin')
+			->get();
+		return $query->result();
+	}
+
+	public function getUsersOutgoingAdminCommunities($mixerId) {
+		$query = $this->db
+			->select('Communities.*')
+			->from('UserCommunities')
+			->join('Communities', 'Communities.ID = UserCommunities.CommunityID AND Admin='.$mixerId)
+			->where('MemberState', 'newAdmin')
+			->get();
+		return $query->result();
+	}
+
 	public function getUsersCommunitiesInformation($mixerId, $communityID = null) {
 		if ($communityID != null) { $this->db->where('UserCommunities.CommunityID', $communityID); }
 
