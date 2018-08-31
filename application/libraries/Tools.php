@@ -12,7 +12,29 @@ class Tools {
 		$this->CI->load->database();
 	}
 
-	public function getElapsedTimeString($timestamp) {
+	public function removeValueFromList($value, $list) {
+		// Convert semi-colons to commas
+		$list = str_replace(";", ",", $list);
+
+		//Convert list list to PHP array
+		$array = explode(",", $list);
+		
+		// Remove the value from the array
+		if (($key = array_search($value, $array)) !== false) { unset($array[$key]); }
+		
+		// Restore to string.list and return
+		return implode(',', $array);
+	}
+
+	public function valueIsInList($value, $list) {
+		$array = explode(",", $list);
+		if (($key = array_search($value, $array)) !== false) { 
+			return true;
+		}
+		return false;
+	}
+
+	/*public function getElapsedTimeString($timestamp) {
 		$elapsedTime = time() - $timestamp;
 
 		// If under one minute
@@ -34,7 +56,7 @@ class Tools {
 		if ($elapsedTime >= 60 * 60 * 24) {
 			return number_format(ceil($elapsedTime/(60*60*24)))." days ago";
 		}
-	}
+	}*/
 
 	public function formatNumber($number, $dec = 0) {
 		return number_format($number, $dec, ".", ",");

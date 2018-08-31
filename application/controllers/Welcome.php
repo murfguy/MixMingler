@@ -6,8 +6,7 @@ class Welcome extends CI_Controller {
 	public function index()
 	{
 		$this->load->library('version');
-
-		$this->load->view('htmlHead');
+		$this->load->view('htmlHead', $this->version->getVersion());
 		if (isset($_SESSION['mixer_user'])) {
 			// If logged in:
 			// Show main user view
@@ -27,73 +26,42 @@ class Welcome extends CI_Controller {
 		
 		$viewData = new stdClass();
 		$viewData->userName = $_SESSION['mixer_user'];
-		$user = $this->users->getUserFromMingler($_SESSION['mixer_id']);
+		$mixerID = $_SESSION['mixer_id'];
+		$user = $this->users->getUserFromMingler($mixerID);
 
-		$communitiesData = new stdClass();
-		$communitiesData->core = null;
-		$communitiesData->joined = null;
-		$communitiesData->followed = null;
-		$communitiesData->new = $this->communities->getNewCommunities($user->previousLogin);
+		$viewData->communities = createCommunityObjects($this->users->getUsersCommunitiesInformation($_SESSION['mixer_id']));
+		$viewData->newCommunities = $this->communities->getNewCommunities($user->PreviousLogin);
 
-		if (!empty($user->coreCommunities)) {
-			$communitiesData->core = $this->communities->getCommunitiesFromList($user->coreCommunities);
-		} 
-		if (!empty($user->joinedCommunities)) {
-			$communitiesData->joined = $this->communities->getCommunitiesFromList($user->joinedCommunities);
-		} 
-		if (!empty($user->followedCommunities)) {
-			$communitiesData->followed = $this->communities->getCommunitiesFromList($user->followedCommunities);
-		} 
+		$alerts = array();
+		if (in_array($_SESSION['site_role'], array('owner', 'admin')) ) {
+			$pendingRequests = $this->communities->getCommunitiesByStatus('pending');
+			if (!empty($pendingRequests)) {
+				$alerts['pendingRequests'] = count($pendingRequests);}}
 
-		$followedTypes = $this->types->getSpecifiedTypesFromMixer($user->followedTypes);
-		//$followedTypes = array();
-		$gameNews = array();
-		$typeData = array();
-		$slugs = array();
+		$unfoundedCommunities = $this->users->getUsersCreatedCommunitiesByStatus($mixerID, 'unfounded');
+		if (!empty($unfoundedCommunities)) {
+			$alerts['unfoundedCommunities'] = $unfoundedCommunities;}
 
-		foreach ($followedTypes as $type) {
-			$slugs[$type['id']] = $this->types->createSlug($type['name']);
-			$followedGameNews = $this->news->getTypeNewsFeed($type['id']);
-			
-			$gameNewsDisplayItems = array();
+		if (!empty($viewData->communities->manager)) {
+			$pending = $this->communities->getPendingMemberCounts(getIdList($viewData->communities->manager));
+			if (!empty($pending)) { $alerts['pendingMembers'] = $pending; }
 
-			foreach($followedGameNews as $event) {
-				$gameNewsDisplayItems[] = $this->news->getNewsDisplay($event, "", "condensed");
-			}
+			$userIsNewAdmin = $this->users->getUsersNewAdminCommunities($mixerID);
+			if (!empty($userIsNewAdmin)) { $alerts['userIsNewAdmin'] = $userIsNewAdmin; }
 
-			$gameNews[$type['id']] = $gameNewsDisplayItems;
-		}
-		
-
-
-		$feedData = null;
-		$newsDisplayItems = null;
-		//$sql_query = "SELECT *, (SELECT name_token FROM mixer_users WHERE mixer_id=?) as username FROM `timeline_events` WHERE mixer_id=? ORDER BY id DESC, eventTime DESC";
-
-
-		
-		if (!empty($user->followedCommunities)) {
-			$sql_query = "SELECT *, (SELECT name_token AS username FROM mixer_users WHERE mixer_users.mixer_id=timeline_events.mixer_id) AS username, (SELECT avatarURL AS username FROM mixer_users WHERE mixer_users.mixer_id=timeline_events.mixer_id) AS avatar FROM `timeline_events` WHERE eventType='community' AND extraVars IN ($user->followedCommunities) ORDER BY eventTime DESC LIMIT 0,50";
-			$query = $this->db->query($sql_query);
-			$feedData = $query->result();
-
-			// We need to get the HTML version of these events so we can display them in the view.
-			if ($feedData != null) {
-				$newsDisplayItems = array();
-				foreach($feedData as $event) {
-					$newsDisplayItems[] = $this->news->getNewsDisplay($event, $event->avatar, "mini");
-				}
-			}
+			$userIsOldAdmin = $this->users->getUsersOutgoingAdminCommunities($mixerID);
+			if (!empty($userIsOldAdmin)) { $alerts['userIsOldAdmin'] = $userIsOldAdmin; }
 		}
 
+
 		
+		// Collect types infromation
+		$viewData->followedTypes = $this->users->getUserTypesInformation($_SESSION['mixer_id'], 'followed');
+		$viewData->mixerTypeData = $this->types->getSpecifiedTypesFromMixer(getTypeIDList($viewData->followedTypes));
 		
 		$viewData->user = $user;
-		$viewData->communitiesData = $communitiesData;
-		$viewData->newsItems = $newsDisplayItems;
-		$viewData->gameNews = $gameNews;
-		$viewData->followedTypes = $followedTypes;
-		$viewData->slugs = $slugs;
+		$viewData->alerts = $alerts;
+
 
 		$this->load->view('main', $viewData);
 	}

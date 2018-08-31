@@ -5,14 +5,45 @@ This file should house CSS relevent to:
 	news feeds
 ----------------- */
 
-div.userFeedItem {
-	border: 1px solid #5774a2;
-	border-radius: 6px;
-	margin-bottom: 16px;
-	padding: 6px 15px;
+div.event {
+	padding: 8px 6px 8px 0px;
+	border-bottom: 1px solid #5774a2;
 }
 
-div.feedItemHeader {
+div[data-displaysize="lrg"] div.event {
+	margin-bottom: 10px;
+	border: 2px solid #5774a2;
+	border-radius: 10px;
+	padding: 8px ;
+	background-color: rgb(21, 18, 60);
+}
+
+div.event img.newsAvatar {
+	float: left;
+	margin-right: 10px;
+}
+
+div.event p {
+	padding: 0;
+	padding-top: 2px;
+	padding-bottom: 2px;
+	margin: 0;
+	line-height: 1em;
+}
+
+div.event p.post {
+	padding-bottom: 4px;
+}
+
+div.event p.postTime {
+	color: rgb(167, 217, 234);
+	font-size: 75%;
+	padding-left: 7px; 
+}
+
+/* --- deprecated --- */
+
+/*div.feedItemHeader {
 	border-bottom: 1px solid #5774a2;
 	padding: 0;
 	margin: 0;
@@ -21,33 +52,20 @@ div.feedItemHeader {
 	overflow: auto;
 }
 
-div.userFeedItem p {
-	padding: 0;
-	padding-top: 8px;
-	margin: 0;
-	line-height: 1em;
-}
 
-div.userFeedItem p.post {
-	padding-bottom: 12px;
 
-}
 
-span.postTime {
-	color: rgb(140, 163, 171);
-	font-size: 65%;
-}
 
 div.feedItemHeader p > span.postTime {
 	color: rgb(140, 163, 171);
 	font-size: 65%;
-}
+}*/
 
 /* --------------------------------
 	Mini Feed 
 -----------------------------------*/
 
-div.userFeedItem.miniNews {
+/*div.event.miniNews {
 	border: 0;
 	border-radius: 0;
 	border-bottom: 1px solid #5774a2;
@@ -57,37 +75,37 @@ div.userFeedItem.miniNews {
 	font-size: 13px
 }
 
-div.userFeedItem.miniNews > p {
+div.event.miniNews > p {
 	padding: 0;
 	margin: 0;
 	line-height: 1.2em;
 }
 
-div.userFeedItem.miniNews > p.post {
+div.event.miniNews > p.post {
 	padding: 0;
 	margin: 0;
 	margin-bottom: 5px;
 }
 
-div.userFeedItem.miniNews > div.feedItemHeader {
+div.event.miniNews > div.feedItemHeader {
 	border-bottom: 0;
 	padding: 0;
 	margin: 0;
 }
 
-div.userFeedItem.miniNews > div.feedItemHeader p.postHead {
+div.event.miniNews > div.feedItemHeader p.postHead {
 	padding: 0;
 	margin: 0;
 }
 
-div.userFeedItem.miniNews > div.feedItemHeader p > span.postTime  {
+div.event.miniNews > div.feedItemHeader p > span.postTime  {
 	font-size: 85%;
-}
+}*/
 
 /* --------------------------------
 	Condensed Feed 
 -----------------------------------*/
-div.userFeedItem.condensedNews {
+/*div.event.condensedNews {
 	border: 0;
 	border-radius: 0;
 	border-bottom: 1px solid #5774a2;
@@ -97,14 +115,14 @@ div.userFeedItem.condensedNews {
 	font-size: 13px
 }
 
-div.userFeedItem.condensedNews > p {
+div.event.condensedNews > p {
 	padding: 0;
 	margin: 0;
 	line-height: 1.2em;
 }
 
-div.userFeedItem.condensedNews:last-child {
+div.event.condensedNews:last-child {
 
 	border-bottom: 0px solid #5774a2;
 	margin-bottom: 0px;
-}
+}*/

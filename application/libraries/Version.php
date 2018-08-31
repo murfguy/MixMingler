@@ -6,6 +6,7 @@ class Version {
 	private $major;
 	private $minor;
 	private $revision;
+	private $build;
 	private $stage;
 
 	public function __construct() {
@@ -13,9 +14,9 @@ class Version {
 		$this->CI =& get_instance();
 
 		$this->major = 0;
-		$this->minor = 2;
+		$this->minor = 3;
 		$this->revision = 0;
-		$this->stage = "Types";
+		$this->stage = "Communities";
 
 		// Load Database
 		//$this->CI->load->database();
@@ -34,6 +35,9 @@ class Version {
 				break;
 			case "0.4":
 				$stage = "Streamers";
+				break;
+			case "0.5":
+				$stage = "Not Even My Final Form";
 				break;
 		}
 	}
@@ -63,6 +67,121 @@ class Version {
 		$patch->notes[] = "note";
 		$patchNotes[] = $patch;
 		----- Template --------- */
+
+		/* --------------------------------------------------------------------------------- 
+		// --- v0.3 Task List -------------------------------------------------------------- 
+		// --------------------------------------------------------------------------------- 
+
+		Phase Approach:
+			Phase 1: Focus on data input/manipulation (Forms/Servlet) [Function]
+			Phase 2: Focus on data collection/display (Servlet/Views) [Display]
+			Phase 3: Focus on final UI/UX for Candidate release [Form/Flow]
+
+		--- Site Admin Panel ---------------------------------------------------------------
+			Ban user from creating communities -- moved to v0.5
+
+		--- Community Moderation Panel -----------------------------------------------------
+			Moderation Tool: community summary analytics. -- moved to v0.4
+			Moderation Tool: adjust community settings. (Admins only) -- Target: Phase 1
+				- Transfer ownership -- pending
+				- Delete community -- moved to v0.5
+			Moderation Tool: membership management controls (Moderators) -- completed
+
+		---------------------------------------------------------------------------------
+		--- </end> v0.3 Task List -------------------------------------------------------
+		--------------------------------------------------------------------------------- */
+
+		$patch = new stdClass();
+		$patch->version = "0.3.0";
+		$patch->date = date($date_string, strtotime('2018-08-31'));
+		$patch->notes = array(
+			"<b>v0.3-Communities Release!</b>",
+			"CSS: Adjusted info card highlight on hover.",
+			"CSS: Fixed spacing issues on Type details page.",
+			"Type Profile: Implemented icons for follows/views.");
+		$patchNotes[] = $patch;
+
+		$patch = new stdClass();
+		$patch->version = "0.2.6";
+		$patch->date = date($date_string, strtotime('2018-08-30'));
+		$patch->notes = array(
+			"<b>v0.3 Release Candidate 1</b>",
+			"Type List: Can follow/ignore from type info card.",
+			"Home Page: Shows number of pending member requests for communities a user manages.",
+			"Login/Logout: redirects to page user was viewing when action was started.",
+			"Account Settings: Users may now manage email communication settings.",
+			"Community Admin: Ownership transfer is now possible.",
+			"Community Admin: Admins are now able to delete their communities.",
+			"General: Login/Logout returns you the the page you were viewing.");
+		$patchNotes[] = $patch;
+
+		$patch = new stdClass();
+		$patch->version = "0.2.5";
+		$patch->date = date($date_string, strtotime('2018-08-28'));
+		$patch->notes = array(
+			"Community List: Now shows number of online streams.",
+			"Home Page: Can now view community top streams/news from home page.",
+			"Community Foundation: Reloads page after founding community.",
+			"General: Added a 'Back to Top' button for when users scroll below the fold.");
+		$patchNotes[] = $patch;
+
+
+		$patch = new stdClass();
+		$patch->version = "0.2.4";
+		$patch->date = date($date_string, strtotime('2018-08-24'));
+		$patch->notes = array(
+			"Community Profile: Design overhauled.",
+			"Community Profile: Display online users, but default to news if no users online.",
+			"Community Profile: Table of all members now available, with sortable data.",
+			"community Profile: Member/Follower counts adjust when user changes follow/join status.",
+			"Community Profile: Display news for all members.");
+		$patchNotes[] = $patch;
+
+		$patch = new stdClass();
+		$patch->version = "0.2.3";
+		$patch->date = date($date_string, strtotime('2018-08-23'));
+		$patch->notes = array(
+			"Community Admin: Now has a 'back' button to return to community profile page.",
+			"Community Admin: Can now edit community details.",
+			"Community Admin: Can now upload cover art while editing details.",
+			"Community Admin: Can now specify a related discord server.",
+			"Community Admin: Fixed bug where users were not being removed as 'pending'.",
+			"Auth/User Profile: Fixed a bug where users were not syncing.",
+			"Backend: Consolidated user sync into a single function.",
+			"Community Profile: Now displays cover art and link to discord server (if supplied).");
+		$patchNotes[] = $patch;
+
+		$patch = new stdClass();
+		$patch->version = "0.2.2";
+		$patch->date = date($date_string, strtotime('2018-08-16'));
+		$patch->notes = array(
+			"General/Backend: Complete overhaul to database structure and refactoring of associated server communication functions. (AKA: why this update took 2 weeks)",
+			"Types List: UX tweak: Shows active type list if user is not following any types.",
+			"General UX Update: Alerts and Confirmation prompts appear when communicating with backend.",
+			"General: UI adjustments for sub page navigation",
+			"General UI: icons may appear next to community lists to indicate your role in that community.",
+			"Home Page: Panel with alerts related to pending community requests now appears.",
+			"Account Page: Manage communities + Set/Unset Core Communities",
+			"Community Moderation: Manage Users (approve/deny/kick/ban/promote)",
+			"Login: Mixer email address synced upon login.",
+			"Email Notices: For community creation, and new members",
+			"User Profile: AJAX loaded news feed.");
+		$patchNotes[] = $patch;
+
+
+		$patch = new stdClass();
+		$patch->version = "0.2.1";
+		$patch->date = date($date_string, strtotime('2018-08-01'));
+		$patch->notes = array();
+		$patch->notes[] = "Admin Panel: user site roles assignable";
+		$patch->notes[] = "Home page: news feeds load asynchronously.";
+		$patch->notes[] = "New communities can be requested.";
+		$patch->notes[] = "Admin Panel: approve/reject community requests";
+		$patch->notes[] = "Communities can now be founded once approved.";
+		$patch->notes[] = "Community moderation page with limited functions added.";
+		$patch->notes[] = "Can approve or deny pending member requests for communities.";
+		$patch->notes[] = "Controls for join/leave/follow/unfollow fine-tuned and now also handled 'closed' and 'approval required' communities.";
+		$patchNotes[] = $patch;
 
 		$patch = new stdClass();
 		$patch->version = "0.2.0";
@@ -203,4 +322,6 @@ class Version {
 
 		return $patchNotes;
 	}
+
+	
 }?>

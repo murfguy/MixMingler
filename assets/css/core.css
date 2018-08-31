@@ -6,6 +6,10 @@ This file should house CSS relevent to:
 	common design elements
 ----------------- */
 
+/* ---------------------------------------
+-- General/Layout Settings ---------------
+--------------------------------------- */
+
 @import url('https://fonts.googleapis.com/css?family=Josefin+Sans|Roboto+Condensed');
 
 body {
@@ -13,6 +17,7 @@ body {
 	background-color: rgb(24, 46, 80);
 	color: white;
 	font-size: 16px;
+	padding-top: 70px;
 }
 
 span.mixBlue { color: rgb(37,188,235) !important; }
@@ -22,23 +27,117 @@ a:visited { color: rgb(37,188,235); }
 a:hover { color: rgb(197, 236, 249); }
 a:active { color: rgb(37,188,235);} 
 
-div.pageHeader {
-	border-bottom: 1px solid rgb(110, 131, 140);
-	padding: 0px 0px;
-	margin-top: 0;
-	margin-bottom: 15px;
-}
-
 h1,h2,h3,h4,h5,h6, button, header {
 	font-family: 'Josefin Sans', sans-serif;
 }
+
+h1,h2,h3,h4,h5,h6 {
+	border-bottom: 1px solid rgb(110, 131, 140);
+}
+
+footer.footer {
+	background-color: rgb(73, 103, 150);
+	padding: 20px 0 ;
+}
+
+.inactiveView {
+	display: none;
+}
+
+.isHidden {
+	display: none;
+}
+
+
+/* ---------------------------------------
+-- Bootstrap Overrides -------------------
+--------------------------------------- */
+
+.col {
+	padding: 0;
+}
+
+/* ---------------------------------------
+-- Navigation ----------------------------
+--------------------------------------- */
 
 header > nav.navbar {
 	background-color: rgb(73, 103, 150);
 }
 
+/* ---------------------------------------
+-- Buttons -------------------------------
+--------------------------------------- */
+
+button, .btn, .btn-group, .btn-group-vertical {
+	cursor: pointer;
+}
+
+div.btn-group, div.btn-group-vertical {
+	margin-bottom: 10px;
+	border: 1px ;
+}
+
+
+#topButton {
+    display: none; /* Hidden by default */
+    position: fixed; /* Fixed/sticky position */
+    bottom: 50px;
+    right: 60px;
+    z-index: 99; /* Make sure it does not overlap */
+}
+
+
+/* ---------------------------------------
+-- Tables --------------------------------
+--------------------------------------- */
+
+tr {
+	vertical-align: middle !important;
+}
+
+table.adminTable tbody {
+	font-size: 14px;
+}
+
+
+/* ---------------------------------------
+-- Common Elements -----------------------
+--------------------------------------- */
+img.coverArt.lrg {
+	border: 2px solid #90a9d2;
+	border-radius: 16px;
+    overflow: hidden;
+    width: 100%;
+    margin-bottom: 15px;
+}
+
+p.summary {
+	text-align: center;
+	font-style: italic;
+	font-family: Georgia, sans-serif;
+	margin-top: 10px;
+	padding: 15px 3px;
+	font-size: 14px;
+}
+
+
+
+
+/* ---------------------------------------
+-- OLDER STYLES - Refactor These ---------
+--------------------------------------- */
+
+div.pageHeader {
+	/*border-bottom: 1px solid rgb(110, 131, 140);*/
+	padding: 0px 0px;
+	margin-top: 0;
+	margin-bottom: 15px;
+}
+
+
 main {
-	padding-top: 80px;
+	/*padding-top: 80px;*/
 }
 
 img.avatar {
@@ -54,17 +153,8 @@ img.avatar.thin-border {
 	border: 2px solid #5774a2;
 }
 
-footer.footer {
-	background-color: rgb(73, 103, 150);
-	padding: 20px 0 ;
-}
 
 
-
-
-div.userInfo {
-	width: 25%;
-}
 
 
 .muted-text {
@@ -108,6 +198,10 @@ img.live-thumb {
 	border-radius: 6px;
 	border: 2px solid white;
 	margin-bottom: 6px
+}
+
+button {
+	cursor: pointer;
 }
 
 
@@ -158,20 +252,6 @@ div.authBtn > button {
 }
 
 
-table {
-	border: 1px solid white;
-	width: 95%;
-}
-
-table td {
-	padding:4px;
-	border: 1px solid white;
-}
-
-table table td img {
-	margin-right: 10px;
-}
-
 .devNote {
 	font-size: 14px;
 	color: red;
@@ -183,7 +263,7 @@ table table td img {
 }
 
 .devNote:before {
-	content: "Developer Note: ";
+	content: "DevNote: ";
 }
 
 
@@ -194,13 +274,29 @@ div.infoBox {
 	margin-bottom: 10px;
 	font-size: 14px;
 	background-color: rgb(41, 37, 72);
+	overflow: hidden;
+}
+
+div.infoBox.col {
+	margin-right: 8px;
 }
 
 div.infoBox > .infoHeader {
 	border-bottom: 1px solid #90a9d2;
 	padding: 8px 0px 0px 8px;
 	background-color: #15123c;
-	border-radius: 10px 10px 0px 0px;
+	
+	/*border-radius: 10px 10px 0px 0px;*/
+}
+
+.subHeader {
+	border-bottom: 1px solid #90a9d2;
+	border-top: 1px solid #90a9d2;
+	margin: 10px -8px 10px -8px;
+	padding: 8px 0px 0px 8px;
+	background-color: #15123c;
+	overflow: hidden;
+	text-overflow: ellipsis;
 }
 
 div.infoInterior {
@@ -212,7 +308,17 @@ div.infoInterior.row {
 }
 
 .infoBox p {
-	margin: 0;
+	margin: 0 0 6px 0;
+}
+
+
+.infoInterior h1,
+.infoInterior h2,
+.infoInterior h3,
+.infoInterior h4,
+.infoInterior h5,
+.infoInterior h6 {
+	margin-top: 8px;
 }
 
 .miniStreamInfo {
@@ -232,6 +338,10 @@ div.miniTypeInfo {
 	text-overflow: ellipsis;
 	margin-right: 6px;
 	margin-bottom: 6px;
+}
+
+.miniTypeInfo a {
+	cursor: pointer;
 }
 
 .tooltip-inner {
@@ -272,10 +382,22 @@ div.activeView {
 
 div.card {
 	margin-bottom: 5px;
+	color: black;
 }
-
-
+div.card-body {
+	color: black;
+}
 
 div.card-body > ul {
 	color: black;
+}
+
+.notices h5 {
+	margin-bottom: 6px;
+	border-bottom: 1px solid;
+}
+
+a.nav-link:hover {
+	background-color: rgb(0,0,0);
+	color: #FFF;
 }

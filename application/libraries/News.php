@@ -12,88 +12,134 @@ class News {
 		$this->CI->load->database();
 		$this->CI->load->library('communities');
 		$this->CI->load->library('types');
+
+		$this->db = $this->CI->db;
+		$this->communities = $this->CI->communities;
+		$this->types = $this->CI->types;
 	}
 
-	public function some_method() {
+	public function addNews($mixer_id, $event, $eventType, $params = array()) {
+		if (empty($params)) {
+			$params = array('TypeID' => null, 'CommunityID' => null, 'MessageParams' => null);
+		} else {
+			if (empty($params['TypeID'])) { $params['TypeID'] = null; };
+			if (empty($params['CommunityID'])) { $params['CommunityID'] = null; };
+			if (empty($params['MessageParams'])) { $params['MessageParams'] = null; };
+		}
 
-	}
+		$eventText = $this->getEventString($event, $params['MessageParams']);
 
-	public function addNews($mixer_id, $eventText, $eventType, $extraVars = "") {
-		$sql_query = "INSERT INTO timeline_events (mixer_id, eventText, eventType, extraVars) VALUES (?, ?, ?, ?)";
-		$values = array($mixer_id, $eventText, $eventType, $extraVars);
+		$sql_query = "INSERT INTO TimelineEvents (MixerID, Content, Type, TypeID, CommunityID) VALUES (?, ?, ?, ?, ?)";
+		$values = array($mixer_id, $eventText, $eventType, $params['TypeID'], $params['CommunityID']);
 		$query = $this->CI->db->query($sql_query, $values);
 	}
 
-	public function getTypeNewsFeed($typeId) {
-		$sql_query = "SELECT *, (SELECT name_token FROM mixer_users WHERE mixer_users.mixer_id=timeline_events.mixer_id) as username FROM timeline_events WHERE eventType='type' AND extraVars=? ORDER BY id DESC LIMIT 0, 10";
-		$query = $this->CI->db->query($sql_query, array($typeId));
+	public function getTypeNewsFeed($typeId, $limit=10) {
+		$query = $this->db
+			->select('TimelineEvents.*')
+			->select('Users.Username as Username')
+			->select('Users.AvatarURL as AvatarURL')
+			->from('TimelineEvents')
+			->join('Users', 'Users.ID = TimelineEvents.MixerID')
+			->where('TimelineEvents.Type', 'type')
+			->where('TimelineEvents.TypeID', $typeId)
+			->order_by('TimelineEvents.ID', 'DESC')
+			->limit($limit)
+			->get();
 
 		return $query->result();
 	}
 
-	public function getCommunityNewsFeed($max = 10) {
-		$sql_query = "SELECT *, (SELECT name_token FROM mixer_users WHERE mixer_users.mixer_id=timeline_events.mixer_id) as username FROM timeline_events WHERE mixer_id IN (276998,265097,273268,205053,222346,255317,217203,2333,249896,534267,261799,280222,13163285,462135,35942,6114513) ORDER BY id DESC LIMIT 0,$max";
-		$query = $this->CI->db->query($sql_query);
+	public function getCommunityNewsFeed($communityId, $limit=35, $isFullNews = false) {
 
-		return  $query->result();
+		$this->db->select('*')->from('TimelineEvents')->where('CommunityID', $communityId);
+
+		if (!$isFullNews) {
+			// all members
+			$allMemberIds = $this->communities->getArrayOfMemberIDs($this->communities->getCommunityMembersByGroup($community->ID, 'member'));
+			$this->db->or_where_in('MixerID', $communityId);
+		}
+
+		$query = $this->db->limit($limit)->get();
+		return $query->result();
 	}
 
-	public function getNewsInsertQueryDataArray ($mixer_id, $eventText, $eventType, $extraVars = "") {
+	public function getNewsArray($mixer_id, $event, $eventType, $params = array()) {
+		if (empty($params)) {
+			$params = array('TypeID' => null, 'CommunityID' => null, 'MessageParams' => null);
+		} else {
+			if (empty($params['TypeID'])) { $params['TypeID'] = null; };
+			if (empty($params['CommunityID'])) { $params['CommunityID'] = null; };
+			if (empty($params['MessageParams'])) { $params['MessageParams'] = null; };
+		}
+
+		$eventText = $this->getEventString($event, $params['MessageParams']);
+
 		$query_data = array(
-			'mixer_id' => $mixer_id,
-			'eventTime' => date('Y-m-d H:i:s'),
-			'eventText' => $eventText,
-			'eventType' => $eventType,
-			'extraVars' => $extraVars
+			'MixerID' => $mixer_id,
+			'TypeID' => $params['TypeID'],
+			'CommunityID' => $params['CommunityID'],
+			'EventTime' => date('Y-m-d H:i:s'),
+			'Content' => $eventText,
+			'Type' => $eventType
 		);
 		return $query_data;
 	}
 
-	public function getNewsDisplay($newsEvent, $avatar = "", $size="normal") {
-		// Convert string bits
 
+	public function getFormattedEventText($newsEvent) {
 		// Add username link to item.
-		$eventText = str_replace("{username}", "<a href=\"/user/$newsEvent->username\">$newsEvent->username</a>", $newsEvent->eventText); 
+		$eventText = str_replace("{username}", "<a href=\"/user/$newsEvent->Username\">$newsEvent->Username</a>", $newsEvent->Content); 
 		// Convert a {commId} string
 		$eventText = $this->convertCommunityString($eventText);
 		// Convert a {typeId} string
 		$eventText = $this->convertTypeString($eventText);
 
-		
-		switch ($size) {
-			case "normal":
-			default:
-				$newsContainer = "<div class=\"userFeedItem\">";
-				$newsContainer .= "<div class=\"feedItemHeader\">";
-					$newsContainer .= "<img src=\"$avatar\" class=\"avatar thin-border\" width=\"42\" />";
-					$newsContainer .=  "<p class=\"postHead\"><a href=\"/user/$newsEvent->username\">$newsEvent->username</a><br><span class=\"postTime\">".$this->displayPostTime($newsEvent->eventTime)."</span></p>";
-				$newsContainer .= "</div>";
-				$newsContainer .= "<p class=\"post\">$eventText</p>";
+		return $eventText;
+	}
 
-				$newsContainer .= "</div>";
+	private function getEventString($event, $params = "") {
+		switch ($event) {
+			case "newSiteRole":
+				return "{username} became a MixMingler ".$params[0].".";
 				break;
 
-			
-			case "condensed":
-				$newsContainer = "<div class=\"userFeedItem condensedNews\">";
-					$newsContainer .= "<p class=\"post\">$eventText</p>";
-					$newsContainer .=  "<p class=\"postHead\"><span class=\"postTime\">".$this->displayPostTime($newsEvent->eventTime)."</span></p>";
-				$newsContainer .= "</div>";
+			case "firstSync":
+				return "{username} was first synced with MixMingler.";
 				break;
 
-			case "mini":
-				$newsContainer = "<div class=\"userFeedItem miniNews\">";
-				$newsContainer .= "<p class=\"post\">$eventText</p>";
-					$newsContainer .= "<div class=\"feedItemHeader\">";
-						$newsContainer .=  "<p class=\"postHead\"><span class=\"postTime\">".$this->displayPostTime($newsEvent->eventTime)."</span></p>";
-					$newsContainer .= "</div>";
-
-				$newsContainer .= "</div>";
+			case "joinMixMingler":
+				return "{username} joined MixMingler.";
 				break;
 
+			case "joinCommunity":
+				return "{username} joined the {commId:".$params[0]."} community.";
+				break;
+
+			case "newStreamType":
+				return "{username} started streaming {typeId:".$params[0]."}.";
+				break;
+
+			case "foundedCommunity":
+				return "{username} founded the {commId:".$params[0]."} community!";
+				break;
+
+			case "newCommRole":
+				return "{username} became a ".$params[0]." for the {commId:".$params[1]."} community.";
+				break;
+
+			case "badge-followers":
+				return "{username} reached {followers:".$params[0]."} followers!";
+				break;
+
+			case "badge-views":
+				return "{username} surpassed {views:".$params[0]."} views!";
+				break;
+
+			case "badge-partner":
+				return "{username} became a Mixer Partner.";
+				break;
 		}
-
-		return $newsContainer;
 	}
 
 	public function displayPostTime($eventTime) {
@@ -133,8 +179,12 @@ class News {
 			$id = str_replace("commId:","", $id);
 
 			$community = $this->CI->communities->getCommunity($id);
-			$communityLink = "<a href=\"/community/$community->slug\">".$community->long_name."</a>";
 
+			if ($community != null) {
+				$communityLink = "<a href=\"/community/$community->Slug\">".$community->Name."</a>";
+			} else {
+				$communityLink = "<span style='color:red'>{UNKNOWN}</span>";
+			}
 			$eventText = str_replace("{commId:".$id."}", $communityLink, $eventText);
 		} 
 		
@@ -154,7 +204,7 @@ class News {
 
 			if ($type != null) {
 				//$typeLink = "<a href=\"/type/$type->slug\">".$type->name."</a>";
-				$typeLink = "<a href=\"/type/$type->typeId/$type->slug\">".$type->typeName."</a>";
+				$typeLink = "<a href=\"/type/$type->ID/$type->Slug\">".$type->Name."</a>";
 
 				$eventText = str_replace("{typeId:".$id."}", $typeLink, $eventText);
 			} else {
@@ -163,6 +213,60 @@ class News {
 		} 
 		
 		return $eventText;
+	}
+
+	public function getNewsFeedForUser($mixerId, $limit = 15) {
+		/*$query = $this->db
+			->select('*')
+			->from('TimelineEvents')
+			->where('MixerID', $mixerId)
+			->get();*/
+
+		$query = $this->db
+			->select('TimelineEvents.*')
+			->select('Users.Username as Username')
+			->select('Users.AvatarURL as AvatarURL')
+			->from('TimelineEvents')
+			->join('Users', 'Users.ID = TimelineEvents.MixerID')
+			->where('TimelineEvents.MixerID', $mixerId)
+			->order_by('TimelineEvents.EventTime', 'DESC')
+			->limit($limit)
+			->get();
+
+		return $query->result();
+	}
+
+	public function getNewsFeedForCommunity($communityId, $limit = 25) {
+		$allMemberIds = $this->communities->getArrayOfMemberIDs($this->communities->getCommunityMembersByGroup($communityId, 'member'));
+
+		$query = $this->db
+			->select('TimelineEvents.*')
+			->select('Users.Username as Username')
+			->select('Users.AvatarURL as AvatarURL')
+			->from('TimelineEvents')
+			->join('Users', 'Users.ID = TimelineEvents.MixerID')
+			//->where('TimelineEvents.CommunityID', $communityId)
+			->or_where_in('TimelineEvents.MixerID', $allMemberIds)
+			->order_by('TimelineEvents.EventTime', 'DESC')
+			->limit($limit)
+			->get();
+		return $query->result();
+	}
+
+	public function getNewsFeedForType($typeId, $limit = 10) {
+		$query = $this->db
+			->select('TimelineEvents.*')
+			->select('Users.Username as Username')
+			->select('Users.AvatarURL as AvatarURL')
+			->from('TimelineEvents')
+			->join('Users', 'Users.ID = TimelineEvents.MixerID')
+			->where('TimelineEvents.Type', 'type')
+			->where('TimelineEvents.TypeID', $typeId)
+			->order_by('TimelineEvents.EventTime', 'DESC')
+			->limit($limit)
+			->get();
+
+		return $query->result();
 	}
 }
 ?>

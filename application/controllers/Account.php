@@ -6,6 +6,8 @@ class Account extends CI_Controller {
 		$this->load->library('users');
 		$this->load->library('communities');
 		$this->load->library('types');
+		$this->load->library('version');
+		$this->load->library('communications');
 		$this->load->database();
 		
 		if (isset($_SESSION['mixer_id'])) {
@@ -15,41 +17,22 @@ class Account extends CI_Controller {
 			$this->users->syncFollows($_SESSION['mixer_userId']);
 
 			// Look in Mingler DB for this user. This is the default data set.
-			$minglerData = $this->users->getUserFromMingler($_SESSION['mixer_id']);
+			$viewData->user = $this->users->getUserFromMingler($_SESSION['mixer_id']);
 
-			// --------------------------------------------------------------------------------
-			// Portion #2: Get Communities Data for the current user
-			// --------------------------------------------------------------------------------
-			$communitiesData = new stdClass();
-			$communitiesData->core = null;
-			$communitiesData->joined = null;
-			$communitiesData->followed = null;
-			$communitiesData->core = null;
+			if (is_null($viewData->user->Settings_Communications)) {
+				$this->users->applyUserSettings('communications', $this->communications->getFreshCommunicationSettings());
+				$viewData->user = $this->users->getUserFromMingler($_SESSION['mixer_id']);}	
 
-			if (!empty($minglerData->coreCommunities)) {
-				$communitiesData->core = $this->communities->getCommunitiesFromList($minglerData->coreCommunities);
-			} 
-			if (!empty($minglerData->joinedCommunities)) {
-				$communitiesData->joined = $this->communities->getCommunitiesFromList($minglerData->joinedCommunities);
-			} 
-			if (!empty($minglerData->followedCommunities)) {
-				$communitiesData->followed = $this->communities->getCommunitiesFromList($minglerData->followedCommunities);
-			} 
-
-			$viewData->minglerData = $minglerData;
-			$viewData->communitiesData = $communitiesData;
-
+			// Get Communities
+			$viewData->communities = $this->users->getUsersCommunitiesInformation($_SESSION['mixer_id']);
 
 			// Get Followed/Ignored Games
-			$viewData->followedTypesData = $this->types->getTypesByIdsFromMingler($minglerData->followedTypes);			
-			$viewData->ignoredTypesData = $this->types->getTypesByIdsFromMingler($minglerData->ignoredTypes);
+			$viewData->types = $this->users->getUserTypesInformation($_SESSION['mixer_id']);
 
 
-			$this->load->view('htmlHead');
+			$this->load->view('htmlHead', $this->version->getVersion());
 			$this->load->view('account', $viewData);
-			$this->load->library('version');
 			$this->load->view('htmlFoot', $this->version->getVersion());
-			echo "Account page coming soon.";
 		} else {
 			header('Location: /');
 		}

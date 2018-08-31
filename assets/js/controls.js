@@ -4,86 +4,14 @@ var baseActionUrl = baseURL+"/servlet/";
 (function(){
 	console.log('MixMingler Start!!');
 	console.log("baseURL:" + baseURL);
+	runNewsCollection();
 
 	$('[data-toggle="tooltip"]').tooltip();
-	
-	$("#protoLogin").submit(function (event) {
-		console.log("submitting!");
-		event.preventDefault();
 
-		mixer_name = $("#inputMixerName").val();
-		if (mixer_name != "") {
-			login(mixer_name);
-		}
-	})
+	// $(".userlist").tablesorter(); 
+	addUserTableSorter();
 
-	$("button.commAction").click(function () {
-		actionUrl = baseActionUrl;
-		switch($(this).attr('id')) {
-			case "join": 
-				actionUrl += "joinCommunity/";
-
-				$(this).removeClass('btn-primary');
-				$(this).addClass('btn-danger');
-				$(this).text('Leave');
-				$(this).attr('id','leave');
-				$(this).attr('title','Leave this community.');
-
-				break;
-			case "leave": 
-				actionUrl += "leaveCommunity/";
-
-				$(this).removeClass('btn-danger');
-				$(this).addClass('btn-primary');
-				$(this).text('Join');
-				$(this).attr('id','join');
-				$(this).attr('title','Become a member of this community so viewers can find you.');
-				break;
-			case "follow": 
-				actionUrl += "followCommunity/";
-
-				$(this).removeClass('btn-primary');
-				$(this).addClass('btn-danger');
-				$(this).text('Unfollow');
-				$(this).attr('id','unfollow');
-				$(this).attr('title','Stop getting updates from this community on your profile.');
-				break;
-			case "unfollow": 
-				actionUrl += "unfollowCommunity/";
-
-				$(this).removeClass('btn-danger');
-				$(this).addClass('btn-primary');
-				$(this).text('Follow');
-				$(this).attr('id','follow');
-				$(this).attr('title','Track streamers in this community from your profile page.');
-				break;
-		}
-		console.log($(this).attr('commId'));
-		actionUrl += $(this).attr('commId');
-
-		console.log(actionUrl);
-		$.ajax({
-			url: actionUrl,
-			type: "POST",
-			dataType: "json"
-		})
-			.done(function (json){
-				console.log('commAction - AJAX done');
-			}) 
-
-			.fail(function (json){
-				console.log('commAction - AJAX failed');
-			})
-
-			.always(function (json){
-				console.log('commAction - AJAX always');
-				console.log(json);
-				//console.log(json.message);
-			});
-
-
-	});
-
+	// Convert follow/ignore type buttons based on display state
 	console.log("classes: " + $("div.actionButtons.types").attr("class"));
 	if ( $("div.actionButtons.types").hasClass("followed") ) {
 		// Hide ignore, make "follow" button into "unfollow"
@@ -95,6 +23,7 @@ var baseActionUrl = baseURL+"/servlet/";
 		$("#follow").attr('title','Stop getting updates about this game.');
 
 
+		$("#follow").attr('action','unfollowType');
 		$("#follow").attr('id','unfollow');
 	}
 
@@ -108,89 +37,10 @@ var baseActionUrl = baseURL+"/servlet/";
 		$("#ignore").text('Unignore');
 		$("#ignore").attr('title','Have this game show up in lists again.');
 
-
+		$("#follow").attr('action','unignoreType');
 		$("#ignore").attr('id','unignore');
 	}
 
-
-	$("button.typeAction").click(function () {
-
-		actionUrl = baseActionUrl;
-		console.log("button.typeAction:" + $(this).attr('typeId'));
-		switch($(this).attr('id')) {
-			case "follow": 
-				actionUrl += "followType/";
-
-				$(this).removeClass('btn-primary');
-				$(this).addClass('btn-danger');
-				$(this).text('Unfollow');
-				$(this).attr('id','unfollow');
-				$(this).attr('title','Stop getting updates about this game.');
-				// show ignore button
-
-				$("#ignore").hide();
-				break;
-
-			case "unfollow": 
-				actionUrl += "unfollowType/";
-
-				$(this).removeClass('btn-danger');
-				$(this).addClass('btn-primary');
-				$(this).text('Follow');
-				$(this).attr('id','follow');
-				$(this).attr('title','Get updates about this game.');
-				// hide ignore button
-				$("#ignore").show();
-				break;
-
-			case "ignore": 
-				actionUrl += "ignoreType/";
-
-				$(this).removeClass('btn-warning');
-				$(this).addClass('btn-danger');
-				$(this).text('Unignore');
-				$(this).attr('id','unignore');
-				$(this).attr('title','Have this game show up in lists again.');
-				// hide follow button
-				$("#follow").hide();
-				break;
-
-			case "unignore": 
-				actionUrl += "unignoreType/";
-
-				$(this).removeClass('btn-danger');
-				$(this).addClass('btn-warning');
-				$(this).text('Ignore');
-				$(this).attr('id','ignore');
-				$(this).attr('title','Hide this game in lists.');
-				// show ignore button
-				$("#follow").show();
-				break;
-		};
-
-		console.log($(this).attr('typeId'));
-		actionUrl += $(this).attr('typeId');
-
-		console.log("actionUrl: "+ actionUrl);
-		$.ajax({
-			url: actionUrl,
-			type: "POST",
-			dataType: "json"
-		})
-			.done(function (json){
-				console.log('typeAction - AJAX done');
-			}) 
-
-			.fail(function (json){
-				console.log('typeAction - AJAX failed');
-			})
-
-			.always(function (json){
-				console.log('typeAction - AJAX always');
-				console.log(json);
-				//console.log(json.message);
-			});
-	});
 
 	$("a.commToggle").click(function () {
 		console.log("toggle community");
@@ -239,144 +89,17 @@ var baseActionUrl = baseURL+"/servlet/";
 				break;
 		}
 	});
-
-	console.log("HIDE!");
-	$("a.typeToggle").click(function () {
-		console.log("toggle type view");
-		category = $(this).attr('category');
-		console.log(" --  "+category);
-
-		switch (category) {
-			case "followed":
-				$("div#followed").show();
-				$("div#allActive").hide();
-				break;
-
-			case "active":
-				$("div#followed").hide();
-				$("div#allActive").show();
-				break;
-			}
-	});
-
-
-	$("div.inactiveView").hide();
-	console.log("HIDE!");
-	$("a.viewToggle.accountTypes").click(function () {
-		console.log("toggle account type management view");
-		category = $(this).attr('category');
-		console.log(" --  "+category);
-
-		switch (category) {
-			case "followed":
-				$("div#followed").show();
-				$("div#ignored").hide();
-				break;
-
-			case "ignored":
-				$("div#followed").hide();
-				$("div#ignored").show();
-				break;
-			}
-	});
-
-
-	var coreLimit = 4;
-	$('input.coreCommunities').on('change', function(evt) {
-		console.log();
-
-		thisActionUrl = baseActionUrl;
-		if($("input[name='core']:checked").length > coreLimit) {
-			this.checked = false;
-			alert("You cannot select more than "+coreLimit+" Core Communities!");
-		} else {
-			commId = $(this).attr("commId");
-			if ($(this).is(':checked')) {
-				thisActionUrl += "setCoreCommunity/";
-				//console.log("this has been checked");
-			} else {
-				thisActionUrl += "unsetCoreCommunity/";
-				//console.log("this has been unchecked");
-			}
-			thisActionUrl += commId+"/";
-
-			console.log(thisActionUrl);
-
-			$.ajax({
-				url: thisActionUrl,
-				type: "POST",
-				dataType: "json"
-			})
-				.done(function (json){
-					console.log('commAction - AJAX done');
-				}) 
-
-				.fail(function (json){
-					console.log('commAction - AJAX failed');
-				})
-
-				.always(function (json){
-					console.log('commAction - AJAX always');
-					console.log(json);
-					//console.log(json.message);
-				});
-		}
-	});
 	
-	$(".newsFeed").hide();
-	$("a.newsToggle").on('click', function () {
-		console.log("clicked: #" + $(this).data("newstype") + "-"+ $(this).data("typeid"));
-		$(".newsFeed").hide();
-		$("#" + $(this).data("newstype") + "-"+ $(this).data("typeid")).show();
+	setNewsToggles();
+	setViewToggleListeners();
+	setFormListeners();
 
-		thisActionUrl = baseActionUrl+"getTopStreamsForType/"+$(this).data("typeid");
+	$( ".typeInfo" ).hover(function() { 
+		$(this).children('.btnGroupContainer').slideToggle(); });
 
-		$.ajax({
-				url: thisActionUrl,
-				type: "POST",
-				dataType: "json"
-			})
-				.done(function (json){
-					console.log('commAction - AJAX done');
-					console.log("json.typeID: "+json.typeID);
 
-					streamCount = json.streams.length;
-					$("div#type-"+json.typeID).empty();
-					$("div#type-"+json.typeID).append("<h4>Current Top Streams</h4>");
-
-					if (streamCount > 0) {
-						$("div#type-"+json.typeID).append("<div class='streamerList row'></div>");
-
-						
-						for (i=0; i<streamCount; i++) {
-							insertElement = "<div class=\"streamerListing mini\">";
-							//echo "<img src=\"".$stream['user']['avatarUrl']."\" width=\"100\" class=\"avatar\" />";
-							insertElement +=  "<a href=\"/user/"+json.streams[i].token+"\"><img class=\"live-thumb list\" src=\"https://thumbs.mixer.com/channel/"+json.streams[i].id+".small.jpg\" onerror=\"this.src='/assets/graphics/blankThumb.jpg'\" width=\"175\"/></a>";
-							insertElement += "<p class=\"streamerName\"><a href=\"/user/"+json.streams[i].token+"\">"+json.streams[i].token+"</a></p>";
-							insertElement += "<p class=\"streamerStats\"><span class=\"onlineStat\" data-placement=\"bottom\"data-toggle=\"tooltip\" title=\"Current Views\"><i class=\"fas fa-eye\"></i> "+json.streams[i].viewersCurrent+"</span> | <span class=\"onlineStat\" data-placement=\"bottom\"data-toggle=\"tooltip\" title=\"Current Followers\"><i class=\"fas fa-user-circle\"></i> "+json.streams[i].numFollowers+"</p>";
-							insertElement += "</span></div>";
-
-							$("div#type-"+json.typeID+" > .row").append(insertElement);
-						}
-					} else {
-						$("div#type-"+json.typeID).append("<p>No one is streaming this game right now.</p>");
-					}
-
-				}) 
-
-				.fail(function (json){
-					console.log('commAction - AJAX failed');
-				})
-
-				.always(function (json){
-					console.log('commAction - AJAX always');
-					console.log(json);
-					//console.log(json.message);
-				});
-
-	});
-
-	setInfoToggleListeners();
+	// When the user scrolls down 20px from the top of the document, show the button
+	window.onscroll = function() {scrollFunction()};
 
 })();
 
@@ -389,7 +112,7 @@ function logout(tgtUser) {
 		.done(function (json){
 			console.log('logout - AJAX done');
 			document.cookie = 'mixer_user=;expires=Thu, 01 Jan 1970 00:00:01 GMT;';
-			window.location.href = "/";
+			location.reload();
 			if (json.success == true) {
 				//console.log(json);
 			}	
@@ -407,3 +130,100 @@ function logout(tgtUser) {
 		});
 }
 
+function hidePharError() {
+	//console.log('hidePharError()');
+	//$("p:contains('Message: Module')").parent().css("background-color", "#000");
+}
+
+function addUserTableSorter() {
+	$.tablesorter.addParser({
+		// set a unique id
+		id: 'data',
+		is: function(s, table, cell, $cell) {
+			// return false so this parser is not auto detected
+			return false;
+		},
+		format: function(s, table, cell, cellIndex) {
+		  var $cell = $(cell);
+			// I could have used $(cell).data(), then we get back an object which contains both
+			// data-lastname & data-date; but I wanted to make this demo a bit more straight-forward
+			// and easier to understand.
+
+			// first column (zero-based index) has lastname data attribute
+			if (cellIndex === 0) {
+			// returns lastname data-attribute, or cell text (s) if it doesn't exist
+			return $cell.attr('data-username') || s;
+
+			// third column has date data attribute
+			} else if (cellIndex === 1) {
+			// return "mm-dd" that way we don't need to use "new Date()" to process it
+			return $cell.attr('data-time') || s;
+			
+
+			// third column has date data attribute
+			} else if (cellIndex === 2) {
+			// return "mm-dd" that way we don't need to use "new Date()" to process it
+			return $cell.attr('data-date') || s;
+
+			// third column has date data attribute
+			} else if (cellIndex === 3) {
+			// return "mm-dd" that way we don't need to use "new Date()" to process it
+			return $cell.attr('data-followers') || s;
+			
+			// third column has date data attribute
+			} else if (cellIndex === 4) {
+			// return "mm-dd" that way we don't need to use "new Date()" to process it
+			return $cell.attr('data-views') || s;
+			}
+
+			// return cell text, just in case
+			return s;
+		},
+		// flag for filter widget (true = ALWAYS search parsed values; false = search cell text)
+		parsed: false,
+		// set type, either numeric or text
+		type: 'text'
+	});
+
+	jQuery.tablesorter.addParser({
+	  id: "fancyNumber",
+	  is: function(s) {
+	    return /^[0-9]?[0-9,\.]*$/.test(s);
+	  },
+	  format: function(s) {
+	    return jQuery.tablesorter.formatFloat( s.replace(/,/g,'') );
+	  },
+	  type: "numeric"
+	});
+
+	$('.userList').tablesorter({
+		theme: 'blue',
+		headers: {
+			0 : { ignoreArticles : 'en' },
+		 	1 : { sorter: 'data' },
+		 	3 : { sorter: 'fancyNumber' },
+		 	4 : { sorter: 'fancyNumber' },
+		},
+		widgets: ['zebra'],
+		sortList: [[1,0]],
+		 textExtraction: {
+	      0: function(node, table, cellIndex) { return $(node).find("a").text(); }
+	    }
+	});
+}
+
+
+
+function scrollFunction() {
+    if (document.body.scrollTop > 20 || document.documentElement.scrollTop > 20) {
+        document.getElementById("topButton").style.display = "block";
+    } else {
+        document.getElementById("topButton").style.display = "none";
+    }
+}
+
+// When the user clicks on the button, scroll to the top of the document
+function topFunction() {
+    document.body.scrollTop = 0; // For Safari
+    document.documentElement.scrollTop = 0; // For Chrome, Firefox, IE and Opera
+}

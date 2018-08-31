@@ -21,7 +21,7 @@ class Online extends CI_Controller {
 
 
 	private function displayOnline($onlineInfo) {
-		$this->load->view('htmlHead');
+		$this->load->view('htmlHead', $this->version->getVersion());
 
 		$this->load->view('user', $user);
 
