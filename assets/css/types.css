@@ -23,6 +23,8 @@ div.typeInfo:hover {
 	background-color: rgb(16, 26, 49);
 }
 
+div.typeInfo:hover .coverArt { border-bottom: 2px solid rgb(37,188,235); }
+
 div.typeInfo > a > img.coverArt {
 	width: 100%;
 	border-bottom: 2px solid white;

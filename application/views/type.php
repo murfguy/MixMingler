@@ -3,8 +3,8 @@
 		<h1><?php echo $typeData->Name; ?> <?php echo devNotes('type'); ?></h1>
 	</div>
 	<div class="row">
-		<div class="col userInfo">
-			<p><img src="<?php echo $typeData->CoverURL; ?>" width="200" class="gameCover" /></p>
+		<div id="sidebar" class="col-3">
+			<p><img src="<?php echo $typeData->CoverURL; ?>" <?php echo imgBackup('type'); ?> width="200" class="coverArt lrg" /></p>
 			<!--<p>Current # of streams: <?php echo count($activeStreams); ?></p>-->
 			<div class="infoBox">
 				<h4 class="infoHeader">Status</h4>
@@ -65,8 +65,8 @@
 							}
 
 
-							echo action_button(array_merge($baseParams, $followParams));
-							echo action_button(array_merge($baseParams, $ignoreParams));
+							echo "<p>".action_button(array_merge($baseParams, $followParams))."</p>";
+							echo "<p>".action_button(array_merge($baseParams, $ignoreParams))."</p>";
 						?>
 					</div><?php
 				}
@@ -88,12 +88,18 @@
 			</div>
 
 		</div>
-		<div class="col-7">
+		<div class="col-6">
 			<?php
 
 				if (!empty($activeStreams)) {
 					echo "<div class=\"row\">";
-					foreach($activeStreams as $stream) {
+
+					/*foreach($activeStreams as $stream) {
+
+
+
+
+
 						if (empty($stream['user']['avatarUrl'])) {
 							$stream['user']['avatarUrl'] = "http://mixmingler.murfguy.com/assets/graphics/blankAvatar.png";
 						}
@@ -105,15 +111,30 @@
 						echo "<p class=\"streamerStats\">Current Views: ".$stream['viewersCurrent']." | Followers: ".$stream['numFollowers']."</p>";
 						echo "</div>";
 					}
-					echo "</div>";
+					*/
+
+					foreach ($activeStreams as $stream) {	
+								$params = [
+									'url' => '/user/'.$stream['token'],
+									'cover' => 'https://thumbs.mixer.com/channel/'.$stream['id'].'.small.jpg',
+									'kind' => 'stream',
+									'name' => $stream['token'],
+									'size' => 'lrg',
+									'stats' => [
+										'followers' => $stream['numFollowers'],
+										'viewers' => $stream['viewersCurrent']]];
+								echo card($params);  
+						 } // foreach ($activeStreams as $stream) 
+
+				echo "</div>";
+					
 				} else {
 					echo "<h2>No one is streaming this right now.</h2>";
 				}
-
 				
 			?>			
 		</div>
-		<div class="col userInfo">
+		<div class="col-3 userInfo">
 				
 			<div class="infoBox">
 				<h6 class="infoHeader">Recent Streamers</h6>

@@ -14,9 +14,9 @@ class Version {
 		$this->CI =& get_instance();
 
 		$this->major = 0;
-		$this->minor = 2;
-		$this->revision = 6;
-		$this->stage = "Types";
+		$this->minor = 3;
+		$this->revision = 0;
+		$this->stage = "Communities";
 
 		// Load Database
 		//$this->CI->load->database();
@@ -90,6 +90,16 @@ class Version {
 		---------------------------------------------------------------------------------
 		--- </end> v0.3 Task List -------------------------------------------------------
 		--------------------------------------------------------------------------------- */
+
+		$patch = new stdClass();
+		$patch->version = "0.3.0";
+		$patch->date = date($date_string, strtotime('2018-08-31'));
+		$patch->notes = array(
+			"<b>v0.3-Communities Release!</b>",
+			"CSS: Adjusted info card highlight on hover.",
+			"CSS: Fixed spacing issues on Type details page.",
+			"Type Profile: Implemented icons for follows/views.");
+		$patchNotes[] = $patch;
 
 		$patch = new stdClass();
 		$patch->version = "0.2.6";
