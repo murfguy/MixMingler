@@ -15,7 +15,7 @@ class Version {
 
 		$this->major = 0;
 		$this->minor = 3;
-		$this->revision = 0;
+		$this->revision = 1;
 		$this->stage = "Communities";
 
 		// Load Database
@@ -90,6 +90,17 @@ class Version {
 		---------------------------------------------------------------------------------
 		--- </end> v0.3 Task List -------------------------------------------------------
 		--------------------------------------------------------------------------------- */
+		
+
+		$patch = new stdClass();
+		$patch->version = "0.3.1";
+		$patch->date = date($date_string, strtotime('2018-08-31'));
+		$patch->notes = array(
+			"General: Followed channels are sync on login.",
+			"Streamer List: Now split into 'online' and 'followed' streams.",
+			"<span color=\"red\">Bug Fix:</span> Account Management: Fixed an issue where buttons were toggling correctly on unfollow/unignore types.",
+			"<span color=\"red\">Bug Fix:</span> Streamer Profile: Fixed an issue where 'unfounded' communities were listing in streamer's communities.");
+		$patchNotes[] = $patch;
 
 		$patch = new stdClass();
 		$patch->version = "0.3.0";

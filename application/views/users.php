@@ -1,77 +1,136 @@
+<?php 
+	$view = "onlineStreamers";
+?>
 <main role="main" class="container">
 	<div id="userHeader" class="pageHeader">
 		<h1>Streamers  <?php echo devNotes('users'); ?></h1>
 	</div>
-	<p class="devNote" data-toggle="tooltip" title="Planned for v0.4" data-placement="left">This page is in 'debug' mode as it has not entered full-scale developement.</p>
 	
 
-		<h1>Registered Members</h1>
-		<div class="streamerList row">
-			<?php 
-			//$online_members = array();
-			$spanCount = 1;
-			if (count($regStreamers) > 0) {
-				echo "<table>";
-				echo "<tr>";
-				echo "<th>Streamer</th>";
-				echo "<th>Status</th>";
-				echo "<th>Stream Type</th>";
-				echo "</tr>";
-				foreach ($regStreamers as $streamer) { 
+	<div class="btn-group d-flex" role="group">
+		<button type="button" class="btn btn-info displayToggle" target="onlineStreamers" <?php if ($view == "onlineStreamers") { echo 'disabled'; } ?>>Online Streamers</button>
+		<?php if (isset($_SESSION['mixer_id'])) { ?><button type="button" class="btn btn-info displayToggle" target="followedStreamers" <?php if ($view == "followedStreamers") {echo 'disabled'; } ?>>Followed Streamers</button><?php } ?>
 
-					echo "<tr>";
+		<button type="button" class="btn btn-info displayToggle" target="suggestions" disabled>Suggestions {coming soon}</button>
+	</div>
+	<div class="row">
+		<div class="col">
+			<div id="onlineStreamers" class="<?php if ($view != "onlineStreamers") { echo 'inactiveView'; } ?>">
 
-					echo "<td><a href=\"/user/".$streamer->Username."\"><img class=\"avatar thin-border\" src=\"".$streamer->AvatarURL."\" width=\"30px\">".$streamer->Username."</a></td>";
-					if (strtotime($streamer->LastSeenOnline) > (time()-(60*10)) ) {
-						echo "<td style=\"color: green\">Online! Started about ".$streamer->LastStartElapsed."</td>";
-						//echo "Now Streaming: <span class=\"mixBlue\">".$streamer->lastType."</span><br>".$streamer->lastSeenElapsed;
-					} else {
+				<h1>Online Streamers</h1>
+					<table class="table table-dark table-striped">
+						<thead>
+							<tr>
+								<th data-toggle="tooltip" title="Click to sort">User</th>
+								<th data-toggle="tooltip" title="Click to sort">Started</th>
+								<th data-toggle="tooltip" title="Click to sort">Last Type</th>
+								<th data-toggle="tooltip" title="Click to sort">Followers</th>
+								<th data-toggle="tooltip" title="Click to sort">Views</th>
+							</tr>	
+						</thead>
+						<tbody>
+							<?php foreach ($onlineStreamers as $streamer) { 
 
-						echo "<td>Last online: ".$streamer->LastSeenElapsed."</td>";
-						//echo "Last Seen Streaming: <span class=\"mixBlue\">".$streamer->lastType."</span><br>".$streamer->lastSeenElapsed;
-					}
-					echo "<td>".$streamer->LastType."</td>";
-					echo "</tr>";
-				 } 
-				 echo "</table>";
-			} else {
-				echo "<h2 class=\"noStream\">We found no streamers. Odd.</h2>";
-			} ?>
+								//$streamer->LastTypeID
+
+								$showRow = true;
+								$state = null;
+
+								//$key = array_search($streamer->LastTypeID, $userTypes);
+								if (isset($_SESSION['mixer_id'])) {
+
+									$key = array_search($streamer->LastTypeID, array_column($userTypes, 'TypeID'));
+									
+									if (!empty($key)) { 
+										$state = $userTypes[$key]->FollowState; }
+
+									if ($state == "ignored") { $showRow = false; }
+								}
+
+								if ($showRow) {
+								?>
+								
+								<tr class="<?php echo $state; ?>">
+									<td data-username="<?php echo $streamer->Username; ?>"><?php echo userListLink(['Username'=>$streamer->Username, 'AvatarURL'=>$streamer->AvatarURL]); ?></td>
+
+									<td data-time="<?php echo strtotime($streamer->LastStreamStart); ?>"><?php 
+									if ($streamer->LastStreamStart != "0000-00-00 00:00:00") {
+										echo getElapsedTimeString($streamer->LastStreamStart);
+									} else {
+										echo "Never Seen";
+									}
+									?></td>
+									<td><a href="/type/<?php echo $streamer->LastTypeID.'/'.createSlug($streamer->LastType); ?>"><?php echo $streamer->LastType; ?></a></td>
+									<td data-followers="<?php echo $streamer->NumFollowers; ?>"><?php echo number_format($streamer->NumFollowers); ?></td>
+									<td data-viewers="<?php echo $streamer->ViewersTotal; ?>"><?php echo number_format($streamer->ViewersTotal); ?></td>
+								</tr>
+								<?php }?> 
+							<?php } //foreach ($members as $member) ?>
+						</tbody>
+						
+					</table>
+				
+			</div><!-- online streamers -->
+			<div id="followedStreamers" class="<?php if ($view != "followedStreamers") { echo 'inactiveView'; } ?>">
+				<h1>Followed Streamers</h1>
+
+				<?php if (!empty($followedStreamers)) { ?> 
+				<table class="table table-dark table-striped">
+						<thead>
+							<tr>
+								<th data-toggle="tooltip" title="Click to sort" >User</th>
+								<th data-toggle="tooltip" title="Click to sort">Started</th>
+								<th data-toggle="tooltip" title="Click to sort">Last Type</th>
+								<th data-toggle="tooltip" title="Click to sort">Followers</th>
+								<th data-toggle="tooltip" title="Click to sort">Views</th>
+							</tr>	
+						</thead>
+						<tbody>
+							<?php foreach ($followedStreamers as $streamer) { 
+
+								//$streamer->LastTypeID
+
+								//$showRow = true;
+
+								//$key = array_search($streamer->LastTypeID, $userTypes);
+								$key = array_search($streamer->LastTypeID, array_column($userTypes, 'TypeID'));
+								$state = null;	
+								if (!empty($key)) { 
+									$state = $userTypes[$key]->FollowState; }
+
+								//if ($state == "ignored") { $showRow = false; }
+
+								if ($showRow) {
+								?>
+								
+								<tr class="<?php echo $state; ?>">
+									<td data-username="<?php echo $streamer->Username; ?>"><?php echo userListLink(['Username'=>$streamer->Username, 'AvatarURL'=>$streamer->AvatarURL]); ?></td>
+
+									<td data-time="<?php echo strtotime($streamer->LastSeenOnline); ?>"><?php 
+									if ($streamer->LastSeenOnline != "0000-00-00 00:00:00") {
+										if (strtotime($streamer->LastSeenOnline) < (time()-(60*10)) ) {
+											echo "Offline since: ".getElapsedTimeString($streamer->LastSeenOnline); }
+											else {
+												echo '<span style="color: rgb(114, 243, 114);">Started: '.getElapsedTimeString($streamer->LastStreamStart).'</span>'; }
+									} else {
+										echo "Never Seen";
+									}
+									?></td>
+									<td><a href="/type/<?php echo $streamer->LastTypeID.'/'.createSlug($streamer->LastType); ?>"><?php echo $streamer->LastType; ?></a></td>
+									<td data-followers="<?php echo $streamer->NumFollowers; ?>"><?php echo number_format($streamer->NumFollowers); ?></td>
+									<td data-viewers="<?php echo $streamer->ViewersTotal; ?>"><?php echo number_format($streamer->ViewersTotal); ?></td>
+								</tr>
+								<?php }?> 
+							<?php } //foreach ($members as $member) ?>
+						</tbody>
+					</table>
+					<?php }  else { ?>
+						<p>You are not following anyone. Go find some streamer first, then try here again.</p>
+					<?php } ?>
+				
+			</div><!-- followedStreamers  -->
 		</div>
-		
-		<h1>Non-Mingler Streamers [Debug only]</h1>
-		<div class="streamerList row">
-			<?php 
-			//$online_members = array();
-			$spanCount = 1;
-			if (count($nonRegStreamers) > 0) {
-				echo "<table>";
-				echo "<tr>";
-				echo "<th>Streamer</th>";
-				echo "<th>Status</th>";
-				echo "<th>Stream Type</th>";
-				echo "</tr>";
-				foreach ($nonRegStreamers as $streamer) { 
-
-					echo "<tr>";
-
-					echo "<td><a href=\"/user/".$streamer->Username."\"><img class=\"avatar thin-border\" src=\"".$streamer->AvatarURL."\" width=\"30px\">".$streamer->Username."</a></td>";
-					if (strtotime($streamer->LastSeenOnline) > (time()-(60*10)) ) {
-						echo "<td style=\"color: green\">Online! Started about ".$streamer->LastStartElapsed."</td>";
-						//echo "Now Streaming: <span class=\"mixBlue\">".$streamer->lastType."</span><br>".$streamer->lastSeenElapsed;
-					} else {
-
-						echo "<td>Last online: ".$streamer->LastSeenElapsed."</td>";
-						//echo "Last Seen Streaming: <span class=\"mixBlue\">".$streamer->lastType."</span><br>".$streamer->lastSeenElapsed;
-					}
-					echo "<td>".$streamer->LastType."</td>";
-					echo "</tr>";
-				 } 
-				 echo "</table>";
-			} else {
-				echo "<h2 class=\"noStream\">We found no streamers. Odd.</h2>";
-			} ?>
-		</div>
+	</div>
 
 	<!--<div class="plans">
 		<p><b>Plans/Ideas for this page:</b></p>

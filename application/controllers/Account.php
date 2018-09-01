@@ -14,8 +14,6 @@ class Account extends CI_Controller {
 			
 			$viewData = new stdClass();
 
-			$this->users->syncFollows($_SESSION['mixer_userId']);
-
 			// Look in Mingler DB for this user. This is the default data set.
 			$viewData->user = $this->users->getUserFromMingler($_SESSION['mixer_id']);
 

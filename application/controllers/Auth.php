@@ -73,43 +73,11 @@ class Auth extends CI_Controller {
 				$channelData = $this->users->getUserFromMixer($owner['username']);
 				$user = $this->users->syncUser($channelData, true);
 
-				// Check if user has data on Mingler
-				/*$minglerData = $this->users->getUserFromMingler($owner['channel']['id']);
-
-				$isNewJoin = false;
-
-				if (!empty($minglerData)) {
-					if ($minglerData->isRegistered < 1) {
-						$isNewJoin = true;
-					}
-				} else {
-					// User is not in database, so we need to add them.
-
-					// Adjust array to include avatarUrl in an expected position.
-					// We do this since the library expects an input for mixer api /channels/ endpoint,
-					// but we are sending in /users/current which has a different data structure.
-					$owner['channel']['user']['avatarUrl'] = $owner['avatarUrl'];
-
-					// If has no data, run an add and a register
-					$userInDatabase = $this->users->addNewUser($owner['channel']);
-					
-					// Note that this person is brand SPANKIN' new, so we note they've been synced for the first time.
-					$this->news->addNews($owner['channel']['id'], 'firstSync', "mingler");
-
-					$isNewJoin = true;
-				}
-
-				if ($isNewJoin) {
-					// Register User
-					$this->users->registerUser($owner['channel']['id']);
-
-					// Add Timeline Event for "joined Mingler"
-					$this->news->addNews($owner['channel']['id'], 'joinMixMingler', 'mingler');
-				}*/
-
 				$emailSynced = $this->users->syncEmailAddress($owner['email'], $owner['channel']['id']);
 
 				$minglerData = $this->users->getUserFromMingler($owner['channel']['id']);
+
+				$this->users->syncFollows($owner['channel']['id'], $owner['id']);
 
 
 				$this->users->loggedIn($owner['channel']['id']);
