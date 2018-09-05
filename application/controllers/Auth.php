@@ -91,15 +91,16 @@ class Auth extends CI_Controller {
 				if (is_null($minglerData->Settings_Communications)) {
 					$this->users->applyUserSettings('communications', $this->communications->getFreshCommunicationSettings());}				
 				
+				$returnLocation = "/";
+				if (isset($_SESSION['returnUrl'])) {
 
-				if (strpos(parse_url($_SESSION['returnUrl'], PHP_URL_HOST), 'mixmingler') !== false) {
-					$returnLocation = $_SESSION['returnUrl'];
-					unset($_SESSION['returnUrl']);
-
-					header('Location: '.$returnLocation);
-				} else {
-					header('Location: /');					
+					if (strpos(parse_url($_SESSION['returnUrl'], PHP_URL_HOST), 'mixmingler') !== false) {
+						$returnLocation = $_SESSION['returnUrl'];
+						unset($_SESSION['returnUrl']);
+					}
 				}
+
+				header('Location: '.$returnLocation);
 
 				//var_export($resourceOwner->toArray());
 

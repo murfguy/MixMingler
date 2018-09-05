@@ -1,5 +1,6 @@
 <?php 
 	$view = "onlineStreamers";
+	//$view="followedStreamers";
 ?>
 <main role="main" class="container">
 	<div id="userHeader" class="pageHeader">
@@ -11,7 +12,7 @@
 		<button type="button" class="btn btn-info displayToggle" target="onlineStreamers" <?php if ($view == "onlineStreamers") { echo 'disabled'; } ?>>Online Streamers</button>
 		<?php if (isset($_SESSION['mixer_id'])) { ?><button type="button" class="btn btn-info displayToggle" target="followedStreamers" <?php if ($view == "followedStreamers") {echo 'disabled'; } ?>>Followed Streamers</button><?php } ?>
 
-		<button type="button" class="btn btn-info displayToggle" target="suggestions" disabled>Suggestions {coming soon}</button>
+		<!--<button type="button" class="btn btn-info displayToggle" target="suggestions" disabled>Suggestions {coming soon}</button>-->
 	</div>
 	<div class="row">
 		<div class="col">
@@ -90,7 +91,7 @@
 
 								//$streamer->LastTypeID
 
-								//$showRow = true;
+								$showRow = true;
 
 								//$key = array_search($streamer->LastTypeID, $userTypes);
 								$key = array_search($streamer->LastTypeID, array_column($userTypes, 'TypeID'));
