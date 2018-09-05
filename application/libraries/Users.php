@@ -53,6 +53,30 @@ class Users {
 		return json_decode($content, true);
 	}
 
+	public function getUsersFollowedChannels($mixerId) {
+		$query = $this->db
+			->select('Users.*')
+			->from('Users')
+			->join('FollowedStreamers', 'FollowedStreamers.StreamerID = Users.ID')
+			->where('FollowedStreamers.FollowerID', $mixerId)
+			->order_by('LastStreamStart', 'DESC')
+			->order_by('Username', 'ASC')
+			->get();
+
+		return $query->result();
+	}
+
+	public function getFollowedChannelIds($mixerId) {
+		$query = $this->db
+			->select('*')
+			->from('FollowedStreamers')
+			->where('FollowerID', $mixerId)
+			->get();
+
+		return $query->result();
+	}
+
+	// The user ID is different from the "Mixer ID"
 	public function getFollowedChannelsFromMixer($userId) {
 		$url = "https://mixer.com/api/v1/users/$userId/follows";
 		$currentPage = 0;
@@ -61,7 +85,7 @@ class Users {
 		$follows = array();
 		
 		while (!$foundAllFollows) {
-			$urlParameters = "?fields=token,id,userId&order=token:ASC&page=$currentPage&limit=100";
+			$urlParameters = "?fields=id,userId,token,online,partnered,suspended,viewersTotal,numFollowers,costreamId,createdAt,user,type&order=token:ASC&page=$currentPage&limit=100";
 			$content = file_get_contents($url.$urlParameters);
 			$newList = json_decode($content, true);
 
@@ -77,6 +101,17 @@ class Users {
 		}
 
 		return $follows;
+	}
+
+	public function getAllOnlineStreamers() {
+		$query = $this->db
+			->select('*')
+			->from('Users')
+			->where(' LastSeenOnline > DATE_SUB(NOW(), INTERVAL 10 MINUTE)')
+			->order_by('LastStreamStart', 'DESC')
+			->get();
+
+		return $query->result();
 	}
 
 	private function getUser($userIndentifier) {
@@ -113,18 +148,47 @@ class Users {
 		return $this->getUserFromMingler($mixerUserData['id']);
 	}
 
-	public function syncFollows($userId) {
-		/*$follows = $this->getFollowedChannelsFromMixer($userId);
+	public function syncFollows($mixerId, $userId) {
 
-		$followList = "";
-		foreach ($follows as $channel) {
-			$followList .= $channel['id'].",";
+		// Get the updated follows information from mixer
+		$mixerFollows = $this->getFollowedChannelsFromMixer($userId);
+		$actualFollows = Array();
+		foreach ($mixerFollows as $channel) { 
+			$this->syncUser($channel); // we sync everyone followed becuase we need all users in the database. plus, why not?
+			$actualFollows[] = (int)$channel['id'];
 		}
 
-		$followList = rtrim($followList, ",");
+		// Get the current list of follows from mingler
+		$minglerFollows = $this->getFollowedChannelIds($mixerId);
+		$currentFollows = Array();
+		foreach ($minglerFollows as $channel) { $currentFollows[] = (int)$channel->StreamerID; }
 
-		$sql_query = "UPDATE Users SET followedChannels=? WHERE user_id=?";
-		$query = $this->CI->db->query($sql_query, array($followList, $userId));*/
+		$newFollows = array();
+		$removeFollows = array();
+
+		$usersAdded = array();
+
+		// loop through mixer follows.
+		foreach ($actualFollows as $channel) {
+			// If mingler doesn't know this follow, add to new follows
+			if (!in_array($channel, $currentFollows)) { $newFollows[] = ['FollowerID'=>$mixerId, 'StreamerID'=>$channel]; } 
+		}
+
+		if (!empty($newFollows)) { $this->db->insert_batch('FollowedStreamers', $newFollows); }
+
+		foreach ($currentFollows as $channel) {
+			// If Mixer doesn't know this follow, then remove from mingler follows
+			if (!in_array($channel, $actualFollows)) { 
+				$this->db->where('FollowerID', $mixerId)->where('StreamerID',$channel)->delete('FollowedStreamers');
+				$removeFollows[] = ['FollowerID'=>$mixerId, 'StreamerID'=>$channel]; } 
+		}
+
+		return [
+			'userId' => $userId,
+			'mixerId' => $mixerId,
+			'usersAdded' => $usersAdded,
+			'removeFollows' =>$removeFollows, 
+			'newFollows' =>$newFollows];
 	} 
 
 	// Takes Mixer API data and adds the user to the database
@@ -178,9 +242,9 @@ class Users {
 		$sql_query = "INSERT INTO UserCommunications (MixerID, Email) VALUES(?, ?) ON DUPLICATE KEY UPDATE MixerID=?, Email=?";
 		$query = $this->CI->db->query($sql_query, array($mixerId, $emailAddress, $mixerId, $emailAddress));
 
-		$this->db->set('Email', $emailAddress);
+		/*$this->db->set('Email', $emailAddress);
 		$this->db->where('ID', $mixerId);
-		$this->db->update('Users');
+		$this->db->update('Users');*/
 
 		return ($this->db->affected_rows() > 0);
 	}

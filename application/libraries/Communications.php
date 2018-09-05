@@ -184,9 +184,6 @@ class Communications {
 	}
 
 	private function getSingleUserEmailAddress($mixerID) {
-		//$sql_query = "SELECT Username, Email FROM Users WHERE ID IN ('owner', 'admin') ORDER BY id ASC";
-		//$query = $this->db->query($sql_query);
-
 		$this->db
 			->select('Users.Username, UserCommunications.Email, UserCommunications.Settings AS Settings_Communications')
 			->from('Users')
