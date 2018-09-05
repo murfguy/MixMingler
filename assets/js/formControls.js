@@ -1339,9 +1339,9 @@ function setSettingsAdjustmentListeners() {
 		keys = [];
 		vals = [];
 
-		if ($(this).hasClass('communications')) {
+		if ($(this).hasClass('UserCommunications')) {
 			
-			$('input:checkbox.communications').each(function () {
+			$('input:checkbox.UserCommunications').each(function () {
 				//var sThisVal = (this.checked ? $(this).val() : "");
 				val = 0;
 				if ($(this).is(':checked')) {
@@ -1358,7 +1358,7 @@ function setSettingsAdjustmentListeners() {
 
 			//console.log(newSettings);
 
-			submitUserSettings('communications', newSettings);
+			submitUserSettings('UserCommunications', newSettings);
 		}
 	})
 }

@@ -175,8 +175,9 @@
 							echo "<h6 class=\"infoHeader\">Member Of</h6>";
 							echo "<div class=\"infoInterior\">";
 							foreach($communities->member as $community) {
-								echo "<p><a href=\"/community/".$community->Slug."/\">".$community->Name."</a></p>";
-								}
+								if (in_array($community->Status, ['open', 'closed'])) {
+									echo "<p><a href=\"/community/".$community->Slug."/\">".$community->Name."</a></p>";}
+							}
 							echo "</div>";
 						echo "</div>";
 					}
@@ -186,7 +187,8 @@
 							echo "<h6 class=\"infoHeader\">Following</h6>";
 							echo "<div class=\"infoInterior\">";
 								foreach($communities->follower as $community) {
-									echo "<p><a href=\"/community/".$community->Slug."/\">".$community->Name."</a></p>";
+									if (in_array($community->Status, ['open', 'closed'])) {
+										echo "<p><a href=\"/community/".$community->Slug."/\">".$community->Name."</a></p>"; }
 								}
 							echo "</div>";
 						echo "</div>";

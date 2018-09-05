@@ -96,10 +96,22 @@ tr {
 	vertical-align: middle !important;
 }
 
-table.adminTable tbody {
-	font-size: 14px;
+table.adminTable tbody,
+table tbody {
+	font-size: 16px;
 }
 
+tr.followed,
+.table-striped tbody tr.followed:nth-of-type(odd) {
+	background-color: rgb(20, 82, 22)
+}
+
+tr.ignored,
+.table-striped tbody tr.ignored:nth-of-type(odd) {
+	background-color: rgb(15, 0, 0);
+	opacity: 0.15;
+	color: rgb(255, 200, 200);
+}
 
 /* ---------------------------------------
 -- Common Elements -----------------------

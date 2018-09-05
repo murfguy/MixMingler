@@ -155,16 +155,25 @@ class Communications {
 	}
 
 	private function getSiteAdminEmailAddresses() {
-		$sql_query = "SELECT Username, Email FROM Users WHERE SiteRole IN ('owner', 'admin') ORDER BY id ASC";
-		$query = $this->db->query($sql_query);
+		//$sql_query = "SELECT Username, Email FROM Users WHERE SiteRole IN ('owner', 'admin') ORDER BY id ASC";
+		//$query = $this->db->query($sql_query);
+
+		$query = $this->db
+			->select('Users.Username, UserCommunications.Email')
+			->from('UserCommunications')
+			->join('Users', 'Users.ID = UserCommunities.MixerID')
+			->where("Users.SiteRole IN ('owner', 'admin')")
+			->get();
+
 		return $query->result();
 	}
 
 	private function getCommunityModsEmailAddresses($communityId) {
 		$query = $this->db
-			->select('Username, Email, Settings_Communications')
+			->select('Users.Username, UserCommunications.Email, UserCommunications.Settings AS Settings_Communications')
 			->from('Users')
 			->join('UserCommunities', 'UserCommunities.MixerID=Users.ID')
+			->join('UserCommunications', 'UserCommunications.MixerID=Users.ID')
 			->where('UserCommunities.CommunityID', $communityId)
 			 	->group_start()
 					->where('UserCommunities.MemberState', 'mod')
@@ -178,9 +187,12 @@ class Communications {
 		//$sql_query = "SELECT Username, Email FROM Users WHERE ID IN ('owner', 'admin') ORDER BY id ASC";
 		//$query = $this->db->query($sql_query);
 
-		$this->db->select('Username, Email, Settings_Communications')
-					->from('Users')
-					->WHERE('ID', $mixerID);
+		$this->db
+			->select('Users.Username, UserCommunications.Email, UserCommunications.Settings AS Settings_Communications')
+			->from('Users')
+			->join('UserCommunications', 'UserCommunications.MixerID=Users.ID')
+			->WHERE('Users.ID', $mixerID);
+
 		$query = $this->db->get();
 		return $query->result();
 	}

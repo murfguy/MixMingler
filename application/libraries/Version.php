@@ -15,7 +15,7 @@ class Version {
 
 		$this->major = 0;
 		$this->minor = 3;
-		$this->revision = 0;
+		$this->revision = 2;
 		$this->stage = "Communities";
 
 		// Load Database
@@ -68,28 +68,23 @@ class Version {
 		$patchNotes[] = $patch;
 		----- Template --------- */
 
-		/* --------------------------------------------------------------------------------- 
-		// --- v0.3 Task List -------------------------------------------------------------- 
-		// --------------------------------------------------------------------------------- 
+		
+		$patch = new stdClass();
+		$patch->version = "0.3.2";
+		$patch->date = date($date_string, strtotime('2018-09-05'));
+		$patch->notes = array(
+			"Backend: Tweaks to communications data structure");
+		$patchNotes[] = $patch;
 
-		Phase Approach:
-			Phase 1: Focus on data input/manipulation (Forms/Servlet) [Function]
-			Phase 2: Focus on data collection/display (Servlet/Views) [Display]
-			Phase 3: Focus on final UI/UX for Candidate release [Form/Flow]
-
-		--- Site Admin Panel ---------------------------------------------------------------
-			Ban user from creating communities -- moved to v0.5
-
-		--- Community Moderation Panel -----------------------------------------------------
-			Moderation Tool: community summary analytics. -- moved to v0.4
-			Moderation Tool: adjust community settings. (Admins only) -- Target: Phase 1
-				- Transfer ownership -- pending
-				- Delete community -- moved to v0.5
-			Moderation Tool: membership management controls (Moderators) -- completed
-
-		---------------------------------------------------------------------------------
-		--- </end> v0.3 Task List -------------------------------------------------------
-		--------------------------------------------------------------------------------- */
+		$patch = new stdClass();
+		$patch->version = "0.3.1";
+		$patch->date = date($date_string, strtotime('2018-08-31'));
+		$patch->notes = array(
+			"General: Followed channels are sync on login.",
+			"Streamer List: Now split into 'online' and 'followed' streams.",
+			"<span color=\"red\">Bug Fix:</span> Account Management: Fixed an issue where buttons were toggling correctly on unfollow/unignore types.",
+			"<span color=\"red\">Bug Fix:</span> Streamer Profile: Fixed an issue where 'unfounded' communities were listing in streamer's communities.");
+		$patchNotes[] = $patch;
 
 		$patch = new stdClass();
 		$patch->version = "0.3.0";

@@ -1,5 +1,5 @@
 <?php
-	$view = "settingsManager";
+	$view = "summaryView";
 ?>
 
 <main role="main" class="container">
@@ -99,7 +99,7 @@
 								if (!empty($types)) {
 									$baseParams = array(
 										'userId' => $_SESSION['mixer_id'],
-										'btnType' => 'mini',
+										
 										'displayType' => 'text');
 									foreach ($types as $type) { 
 										$typeParams = [
@@ -262,7 +262,7 @@
 					<tbody>
 						<?php
 							$baseData = [
-								'group' => 'communications',
+								'group' => 'UserCommunications',
 								'values' => $settings_communications];
 
 							$data = [

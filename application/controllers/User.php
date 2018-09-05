@@ -74,6 +74,18 @@ class User extends CI_Controller {
 				$streamer->LastSeenElapsed = getElapsedTimeString($streamer->LastSeenOnline);
 			}
 
+			// ---- new stuff under this line -------------
+
+			$displayData = new stdClass();
+
+			$displayData->followedStreamers = null;
+			$displayData->userTypes = null;
+			if (isset($_SESSION['mixer_id'])) { 
+				$displayData->followedStreamers = $this->users->getUsersFollowedChannels($_SESSION['mixer_id']); 
+				$displayData->userTypes = $this->users->getUserTypesInformation($_SESSION['mixer_id']);}
+
+			$displayData->onlineStreamers = $this->users->getAllOnlineStreamers();
+
 			$this->load->view('htmlHead', $this->version->getVersion());
 			$this->load->view('users', $displayData);
 

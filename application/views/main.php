@@ -70,9 +70,10 @@
 					<?php
 						if (!empty($communities->follower)) {
 							echo "<p>";
-							foreach ($communities->follower as $community) { ?>
+							foreach ($communities->follower as $community) { 
+								if (in_array($community->Status, ['open', 'closed'])) { ?>
 								<a href="#" class="newsToggle" data-newstype="community" data-id="<?php echo $community->ID; ?>"><?php echo $community->Name; ?></a><br>
-								<?php } // foreach 
+								<?php }} // foreach 
 							echo "</p>"; 
 						} else {
 							echo "<p>You haven't followed any communities.</p>";
@@ -236,7 +237,9 @@
 				<h6 class="infoHeader">Communities You Manage</h6>
 				<div class="infoInterior">
 						<?php	foreach ($communities->manager as $community) {
-								echo '<p>'.communityListLink($community, true).'</p>';
+								if (in_array($community->Status, ['open', 'closed'])) { 
+									echo '<p>'.communityListLink($community, true).'</p>';
+								}
 							
 							}
 					?>
@@ -264,7 +267,9 @@
 					<?php
 						if (!empty($communities->member)) {
 							foreach ($communities->member as $community) {
-								echo '<p>'.communityListLink($community).'</p>';
+								if (in_array($community->Status, ['open', 'closed'])) { 
+									echo '<p>'.communityListLink($community).'</p>';
+								}
 							}
 						} else {
 							echo "<p>You haven't joined any communities.</p>";
