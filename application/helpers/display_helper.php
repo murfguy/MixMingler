@@ -415,7 +415,7 @@ if (! function_exists('settingSelection')) {
 		} else {
 			// set default check state by group
 			switch ($data['group']) {
-				case "communications":
+				case "UserCommunications":
 					$isChecked = true;
 					break;
 

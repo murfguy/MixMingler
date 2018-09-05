@@ -16,9 +16,10 @@ class Account extends CI_Controller {
 
 			// Look in Mingler DB for this user. This is the default data set.
 			$viewData->user = $this->users->getUserFromMingler($_SESSION['mixer_id']);
+			$viewData->user->Settings_Communications = $this->users->getUserSettings($_SESSION['mixer_id'], 'UserCommunications');
 
 			if (is_null($viewData->user->Settings_Communications)) {
-				$this->users->applyUserSettings('communications', $this->communications->getFreshCommunicationSettings());
+				$this->users->applyUserSettings('UserCommunications', $this->communications->getFreshCommunicationSettings());
 				$viewData->user = $this->users->getUserFromMingler($_SESSION['mixer_id']);}	
 
 			// Get Communities

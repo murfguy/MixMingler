@@ -1215,8 +1215,6 @@ class Servlet extends CI_Controller {
 			} else { $this->getWarningText("badData"); } // provided data is bad 
 		} else { $this->getWarningText("notLoggedIn"); }// not logged in
 
-
-
 		$this->returnData();
 	}
 

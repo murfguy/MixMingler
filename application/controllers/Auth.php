@@ -76,6 +76,7 @@ class Auth extends CI_Controller {
 				$emailSynced = $this->users->syncEmailAddress($owner['email'], $owner['channel']['id']);
 
 				$minglerData = $this->users->getUserFromMingler($owner['channel']['id']);
+				$minglerData->Settings_Communications = $this->users->getUserSettings($owner['channel']['id'], 'UserCommunications');
 
 				$this->users->syncFollows($owner['channel']['id'], $owner['id']);
 
@@ -89,7 +90,7 @@ class Auth extends CI_Controller {
 
 
 				if (is_null($minglerData->Settings_Communications)) {
-					$this->users->applyUserSettings('communications', $this->communications->getFreshCommunicationSettings());}				
+					$this->users->applyUserSettings('UserCommunications', $this->communications->getFreshCommunicationSettings());}				
 				
 				$returnLocation = "/";
 				if (isset($_SESSION['returnUrl'])) {

@@ -262,7 +262,7 @@
 					<tbody>
 						<?php
 							$baseData = [
-								'group' => 'communications',
+								'group' => 'UserCommunications',
 								'values' => $settings_communications];
 
 							$data = [
