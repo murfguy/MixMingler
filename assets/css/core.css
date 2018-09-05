@@ -113,6 +113,18 @@ tr.ignored,
 	color: rgb(255, 200, 200);
 }
 
+td.online {
+	color:rgb(62, 232, 62);
+}
+
+td.offline {
+	color: pink;
+}
+
+td.never {
+	color: grey;
+}
+
 /* ---------------------------------------
 -- Common Elements -----------------------
 --------------------------------------- */

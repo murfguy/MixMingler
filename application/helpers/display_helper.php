@@ -34,7 +34,6 @@ if ( ! function_exists('communityListLink')) {
 				$str .= roleBadge('core', $states['isCore']);
 		} 
 
-
 		return $str;
 	}
 }

@@ -235,16 +235,8 @@ class Users {
 
 	// Syncs user's email address to database
 	public function syncEmailAddress($emailAddress, $mixerId) {
-		/*$sql_query = "UPDATE Users SET Email=? WHERE ID=?";
-		$query = $this->CI->db->query($sql_query, array($emailAddress, $mixerId));*/
-
-
 		$sql_query = "INSERT INTO UserCommunications (MixerID, Email) VALUES(?, ?) ON DUPLICATE KEY UPDATE MixerID=?, Email=?";
 		$query = $this->CI->db->query($sql_query, array($mixerId, $emailAddress, $mixerId, $emailAddress));
-
-		/*$this->db->set('Email', $emailAddress);
-		$this->db->where('ID', $mixerId);
-		$this->db->update('Users');*/
 
 		return ($this->db->affected_rows() > 0);
 	}
@@ -548,13 +540,6 @@ class Users {
 	}
 
 	public function applyUserSettings($group, $settingsData) {
-		/*if (isset($_SESSION['mixer_id'])) {
-			$data = ['Settings_'.ucfirst($group) => json_encode($settingsData)];
-
-			$this->db->where('ID', $_SESSION['mixer_id']);
-			$this->db->update('Users', $data);
-		}*/
-
 		if (isset($_SESSION['mixer_id'])) {
 			$data = ['Settings' => json_encode($settingsData)];
 			$this->db->where('MixerID', $_SESSION['mixer_id']);

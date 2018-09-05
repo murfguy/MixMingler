@@ -93,6 +93,7 @@ var baseActionUrl = baseURL+"/servlet/";
 	setNewsToggles();
 	setViewToggleListeners();
 	setFormListeners();
+	getStreamersData();
 
 	$( ".typeInfo" ).hover(function() { 
 		$(this).children('.btnGroupContainer').slideToggle(); });
@@ -220,6 +221,60 @@ function scrollFunction() {
     } else {
         document.getElementById("topButton").style.display = "none";
     }
+}
+
+function getElapsedTimeString(elapsedTime) {
+		/*timecode =  Math.ceil(Date.parse(timestamp)/1000)+10800;
+		now =  Math.ceil(Date.now()/1000);
+
+		elapsedTime = Math.ceil( (now - timecode));*/
+
+		// If under 10 seconds
+		if (elapsedTime < 10) {
+			return "Just now!";
+		}
+
+		// If under one minute
+		if (elapsedTime < 60) {
+			return elapsedTime+" seconds ago";
+		}
+
+		// If under one hour
+		if (elapsedTime < (60 * 60)) {
+			if (Math.ceil(elapsedTime/60) == 1) {
+				return Math.ceil(elapsedTime/60)+" minute ago";
+			} 
+			return Math.ceil(elapsedTime/60)+" minutes ago";
+		}
+
+		// If under one day ago
+		if (elapsedTime < (60 * 60 * 24)) {
+			if (Math.ceil(elapsedTime/(60*60)) == 1) {
+				return Math.ceil(elapsedTime/(60*60))+" hour ago";
+			} 
+			return Math.ceil(elapsedTime/(60*60))+" hours ago";
+		}
+
+		// If over 24 hours
+		if (elapsedTime >= (60 * 60 * 24)) {
+			if (Math.ceil(elapsedTime/(60*60)) == 1) {
+				return Math.ceil(elapsedTime/(60*60*24))+" day ago";
+			} 
+			return Math.ceil(elapsedTime/(60*60*24))+" days ago";
+		}
+	}
+
+function addCommas(nStr)
+{
+	nStr += '';
+	x = nStr.split('.');
+	x1 = x[0];
+	x2 = x.length > 1 ? '.' + x[1] : '';
+	var rgx = /(\d+)(\d{3})/;
+	while (rgx.test(x1)) {
+		x1 = x1.replace(rgx, '$1' + ',' + '$2');
+	}
+	return x1 + x2;
 }
 
 // When the user clicks on the button, scroll to the top of the document

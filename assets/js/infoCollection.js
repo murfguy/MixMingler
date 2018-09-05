@@ -197,3 +197,81 @@ function getNewsFeed(tgt) {
 	}
 
 }
+
+function getStreamersData(e, form) {
+	thisActionUrl = baseURL+"/search/getStreamers/";
+
+	$.ajax({
+		url: thisActionUrl,
+		type: "POST",
+		dataType: "json",
+		data: {
+			limit: 100,
+			followers: "25,999999999",
+			onlineOnly: false,
+			followedOnly: true,
+			showIgnored: false,
+			partnersOnly: false,
+			sameTypes: true,
+			orderBy: 'LastStreamStart',
+			//streamAge: "120",
+		}
+		
+	})
+		.done(function (json){
+			console.log('getStreamersData - AJAX done');
+
+			if (json.success) {
+				console.log(json.message);
+				$("#streamerSearchList tbody").empty();
+
+				resultCount = json.results.length;
+
+				json.results.forEach(function(item){
+					isOffline = false;
+					if (item.LastSeenOnline_Elapsed > (60*10)) {
+						isOffline = true; 
+						row = "<tr class=\"offlineStream\">";
+					} else {
+						row = "<tr class=\"onlineStream\">";
+					}
+
+					
+				 	row += "<td data-username=\""+item.Username+"\"><img src=\""+item.AvatarURL+"\" onerror=\"this.src='https://mixer.com/_latest/assets/images/main/avatars/default.png';\" class=\"avatar thin-border\" width=\"25px\" /> <a href=\"/user/"+item.Username+'">'+item.Username+"</a></td>";
+				 		if (item.LastStreamStart != "0000-00-00 00:00:00") {
+				 			if (isOffline) {
+								row += '<td class="offline">Offline since '+getElapsedTimeString(item.LastSeenOnline_Elapsed)+'</td>';
+				 			} else {
+								row += '<td class="online">Online since '+getElapsedTimeString(item.LastStreamStart_Elapsed)+'</td>';
+				 			}
+				 		} else {
+				 			row += '<td class="never">Never Seen</td>'; 
+				 		}
+						row += '<td><a href="/type/'+item.LastTypeID+'/'+getUrlSlug(item.LastType)+'">'+item.LastType+'</a></td>';
+						row += '<td>'+addCommas(item.NumFollowers)+'</td>';
+						row += '<td>'+addCommas(item.ViewersTotal)+'</td>';
+
+					row += "</tr>"
+
+					$("#streamerSearchList tbody").append(row);
+				});
+			}
+		}) 
+
+		.fail(function (json){
+			console.log('getStreamersData - AJAX failed');
+			//tgt.html("<div class=\"alert alert-danger\"><p>There was a problem in contacting the server. Pick another game and try again.</p></div>");
+		})
+
+		.always(function (json){
+			console.log('getStreamersData - AJAX always');
+			console.log(json);
+			//console.log(json.message);
+		});
+}
+
+function getUrlSlug(str) {
+	fixed = str.replace(/[^a-zA-Z0-9\-\s]/g, '');
+	fixed = fixed.replace(/[\-\s]/g, '_');
+	return fixed;
+}

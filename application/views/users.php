@@ -19,7 +19,44 @@
 			<div id="onlineStreamers" class="<?php if ($view != "onlineStreamers") { echo 'inactiveView'; } ?>">
 
 				<h1>Online Streamers</h1>
-					<table class="table table-dark table-striped">
+				<div class="row">
+
+				<div class="col-3">
+					<div class="infoBox">
+						<h4 class="infoHeader">Filters</h4>
+						<div class="infoInterior">
+							
+
+							<p>Follower Count</p>
+							<p>Total View Count</p>
+							<p>Partners Only</p>
+							
+							<p>Stream Age</p>
+							<p>Mixer Age</p>
+
+							<p>Games I've Streamed</p>
+							<p>Only Games I Follow</p>
+							<p>Include My Ignored Games</p>
+
+							<p>Include Offline</p>
+							<div>
+						        <label class="switch">
+						            <input type="checkbox">
+						            <span class="slider"></span>
+						        </label>
+						        Switch1
+						    </div>
+							
+							<p>Result Limits</p>
+							<p>Get by: Popular, Recent, Username</p>
+
+							<button class="btn btn-primary btn-small">Get Streamers</button>
+						</div>
+					</div>
+				</div>
+
+				<div class="col">
+					<table id="streamerSearchList" class="table table-dark table-striped">
 						<thead>
 							<tr>
 								<th data-toggle="tooltip" title="Click to sort">User</th>
@@ -30,7 +67,10 @@
 							</tr>	
 						</thead>
 						<tbody>
-							<?php foreach ($onlineStreamers as $streamer) { 
+							<tr class="pendingResults">
+								<td colspan="5"><i class="fas fa-spinner fa-pulse"></i> Getting Streamers. One moment please.</td>
+							</tr>
+							<!--<?php foreach ($onlineStreamers as $streamer) { 
 
 								//$streamer->LastTypeID
 
@@ -66,10 +106,12 @@
 									<td data-viewers="<?php echo $streamer->ViewersTotal; ?>"><?php echo number_format($streamer->ViewersTotal); ?></td>
 								</tr>
 								<?php }?> 
-							<?php } //foreach ($members as $member) ?>
+							<?php } //foreach ($members as $member) ?>-->
 						</tbody>
 						
 					</table>
+					</div>
+					</div>
 				
 			</div><!-- online streamers -->
 			<div id="followedStreamers" class="<?php if ($view != "followedStreamers") { echo 'inactiveView'; } ?>">
