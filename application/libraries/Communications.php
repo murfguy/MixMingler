@@ -161,7 +161,7 @@ class Communications {
 		$query = $this->db
 			->select('Users.Username, UserCommunications.Email')
 			->from('UserCommunications')
-			->join('Users', 'Users.ID = UserCommunities.MixerID')
+			->join('Users', 'Users.ID = UserCommunications.MixerID')
 			->where("Users.SiteRole IN ('owner', 'admin')")
 			->get();
 
