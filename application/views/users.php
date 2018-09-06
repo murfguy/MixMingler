@@ -85,7 +85,7 @@
 
 								<tr>
 									<td><label class="switch">
-										<input name="recentSameTypes" id="recentSameTypes"  type="checkbox">
+										<input name="recentSameTypes" id="recentSameTypes" type="checkbox">
 										<span class="slider round"></span>
 									</label></td>
 									<td>Recently Streamed Same Games</td>
@@ -95,6 +95,16 @@
 									<td colspan="2">
 										Max Results: <br />
 										<input type="text" name="limit" width="100%" value="100"></td>
+								</tr>
+								<tr>
+									<td colspan="2">
+										Order By:<br>
+										<select name="orderBy">
+										  <option value="LastStreamStart">Last Stream Start Time</option>
+										  <option value="NumFollowers">Follower Count</option>
+										  <option value="ViewersTotal">Views Count</option>
+										</select>
+									</td>
 								</tr>
 							</table>
 

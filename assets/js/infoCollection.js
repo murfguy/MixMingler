@@ -275,7 +275,6 @@ function setSearchFilterFunctionality() {
 		e.preventDefault();
 		getStreamersData($("form#filterStreamers"), event)} );
 
-
 	$( function() {
 	    $( "#follower-range" ).slider({
 	      range: true,
