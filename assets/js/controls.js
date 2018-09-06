@@ -93,7 +93,11 @@ var baseActionUrl = baseURL+"/servlet/";
 	setNewsToggles();
 	setViewToggleListeners();
 	setFormListeners();
-	getStreamersData();
+	setSearchFilterFunctionality();
+	if ($('form#filterStreamers').length > 0) {
+		getStreamersData($('form#filterStreamers'));
+	}
+	
 
 	$( ".typeInfo" ).hover(function() { 
 		$(this).children('.btnGroupContainer').slideToggle(); });

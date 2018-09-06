@@ -47,16 +47,19 @@ class Search extends CI_Controller {
 		if (isset($_SESSION['mixer_id'])) {
 			$followedGames = explode(",",getIdList($this->users->getUserTypesInformation($_SESSION['mixer_id'], 'followed')));
 			$ignoredGames = explode(",",getIdList($this->users->getUserTypesInformation($_SESSION['mixer_id'], 'ignored')));
-			$recentGames = explode(",",getIdList($this->users->getUsersRecentStreamTypes($_SESSION['mixer_id'])));}
+			$recentGames = explode(",",getIdList($this->users->getUsersRecentStreamTypes($_SESSION['mixer_id']))); }
+		
 
 		// default values
 		$onlineOnly = FALSE;
 		$limit = 100;
-		$showIgnored = TRUE;
+		$showIgnored = FALSE;
 		$orderBy = "LastStreamStart";
 		$followedOnly = FALSE;
 		$partnersOnly = FALSE;
-		$sameTypes = FALSE;
+		$registeredOnly = FALSE;
+		$showExactSameTypes = FALSE;
+		$showRecentSameTypes = FALSE;
 
 
 		$this->db->select('*')
@@ -90,7 +93,9 @@ class Search extends CI_Controller {
 			if (isset($criteria['showIgnored'])) { $showIgnored = filter_var($criteria['showIgnored'], FILTER_VALIDATE_BOOLEAN); }
 			if (isset($criteria['followedOnly'])) { $followedOnly = filter_var($criteria['followedOnly'], FILTER_VALIDATE_BOOLEAN); }
 			if (isset($criteria['partnersOnly'])) { $partnersOnly = filter_var($criteria['partnersOnly'], FILTER_VALIDATE_BOOLEAN); }
-			if (isset($criteria['sameTypes'])) { $sameTypes = filter_var($criteria['sameTypes'], FILTER_VALIDATE_BOOLEAN); }
+			if (isset($criteria['registeredOnly'])) { $registeredOnly = filter_var($criteria['registeredOnly'], FILTER_VALIDATE_BOOLEAN); }
+			if (isset($criteria['exactSameTypes'])) { $showExactSameTypes = filter_var($criteria['exactSameTypes'], FILTER_VALIDATE_BOOLEAN); }
+			if (isset($criteria['recentSameTypes'])) { $showRecentSameTypes = filter_var($criteria['recentSameTypes'], FILTER_VALIDATE_BOOLEAN); }
 			if (isset($criteria['limit'])) { $limit = $criteria['limit']; }
 			if (isset($criteria['orderBy'])) { $orderBy = $criteria['orderBy']; }
 		}
@@ -103,17 +108,32 @@ class Search extends CI_Controller {
 			$this->db->where('isPartner', 1);
 		}
 
-		if (!empty($recentGames) && $sameTypes) {
-			$this->db->where_in('LastTypeId', $recentGames);
+		if ($registeredOnly) {
+			$this->db->where('isRegistered', 1);
 		}
 
-		if (!empty($followedGames) && $followedOnly) {
-			//$this->db->where_in('LastTypeId', $followedGames);
+		if (isset($_SESSION['mixer_id'])) {
+			if (!empty($recentGames) && $showExactSameTypes) {
+				$this->db->where_in('LastTypeId', $recentGames);
+			}
+
+			if (!empty($recentGames) && $showRecentSameTypes) {
+				$this->db->join('TimelineEvents', 'TimelineEvents.MixerID = Users.ID')
+					->group_start()
+						->where_in('TimelineEvents.TypeID', $recentGames)
+						->or_where_in('LastTypeId', $recentGames)
+					->group_end()
+					->group_by('TimelineEvents.MixerID');
+			}
+
+			if (!empty($followedGames) && $followedOnly) {
+				$this->db->where_in('LastTypeId', $followedGames);}
+
+			if (!empty($ignoredGames) && !$showIgnored) {
+				$this->db->where_not_in('LastTypeId', $ignoredGames);}
 		}
 
-		if (!empty($ignoredGames) && !$showIgnored) {
-			$this->db->where_not_in('LastTypeId', $ignoredGames);
-		}
+		
 		
 		$this->db->order_by($orderBy, 'DESC');
 		$this->db->limit($limit);
@@ -123,9 +143,10 @@ class Search extends CI_Controller {
 
 		$this->returnData->success = true;
 		$this->returnData->message = "Search for streamers succeeded.";
-		$this->returnData->sqlQuery = $this->db->last_query();
 		if (isset($_SESSION['mixer_id']) && $_SESSION['mixer_id'] == 217203) {
-			$this->returnData->results = $query->result();}
+			$this->returnData->sqlQuery = $this->db->last_query();}
+
+		$this->returnData->results = $query->result();
 
 		$this->returnData();
 	}

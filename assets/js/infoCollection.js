@@ -198,26 +198,31 @@ function getNewsFeed(tgt) {
 
 }
 
-function getStreamersData(e, form) {
+function getStreamersData(form, e) {
+	if (e != undefined) {
+		e.preventDefault
+	}
+
+	if (form == undefined) {
+		filterData = null;
+	} else {
+		filterData = form.serialize();
+	}
+
 	thisActionUrl = baseURL+"/search/getStreamers/";
 
 	$.ajax({
 		url: thisActionUrl,
 		type: "POST",
 		dataType: "json",
-		data: {
-			limit: 100,
-			followers: "25,999999999",
-			onlineOnly: false,
-			followedOnly: true,
-			showIgnored: false,
-			partnersOnly: false,
-			sameTypes: true,
-			orderBy: 'LastStreamStart',
-			//streamAge: "120",
-		}
+		data: filterData
 		
 	})
+		.always(function (json){
+			console.log('getStreamersData - AJAX always');
+			console.log(json);
+			//console.log(json.message);
+		})
 		.done(function (json){
 			console.log('getStreamersData - AJAX done');
 
@@ -225,7 +230,7 @@ function getStreamersData(e, form) {
 				console.log(json.message);
 				$("#streamerSearchList tbody").empty();
 
-				resultCount = json.results.length;
+				//resultCount = json.results.length;
 
 				json.results.forEach(function(item){
 					isOffline = false;
@@ -261,13 +266,29 @@ function getStreamersData(e, form) {
 		.fail(function (json){
 			console.log('getStreamersData - AJAX failed');
 			//tgt.html("<div class=\"alert alert-danger\"><p>There was a problem in contacting the server. Pick another game and try again.</p></div>");
-		})
-
-		.always(function (json){
-			console.log('getStreamersData - AJAX always');
-			console.log(json);
-			//console.log(json.message);
 		});
+
+}
+
+function setSearchFilterFunctionality() {
+	$("form#filterStreamers").on('submit', function (e) { 
+		e.preventDefault();
+		getStreamersData($("form#filterStreamers"), event)} );
+
+
+	$( function() {
+	    $( "#follower-range" ).slider({
+	      range: true,
+	      min: 1,
+	      max: 10,
+	      values: [ 1, 10 ],
+	      slide: function( event, ui ) {
+	        $( "#followers" ).val( "$" + ui.values[ 0 ] + " - $" + ui.values[ 1 ] );
+	      }
+	    });
+	    $( "#followers" ).val( "$" + $( "#follower-range" ).slider( "values", 0 ) +
+	      " - $" + $( "#follower-range" ).slider( "values", 1 ) );
+  } );
 }
 
 function getUrlSlug(str) {

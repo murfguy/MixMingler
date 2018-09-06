@@ -7,50 +7,125 @@
 		<h1>Streamers  <?php echo devNotes('users'); ?></h1>
 	</div>
 	
-
+	<?php if (isset($_SESSION['mixer_id'])) { ?>
 	<div class="btn-group d-flex" role="group">
-		<button type="button" class="btn btn-info displayToggle" target="onlineStreamers" <?php if ($view == "onlineStreamers") { echo 'disabled'; } ?>>Online Streamers</button>
+		<button type="button" class="btn btn-info displayToggle" target="onlineStreamers" <?php if ($view == "onlineStreamers") { echo 'disabled'; } ?>>Browse Streamers</button>
 		<?php if (isset($_SESSION['mixer_id'])) { ?><button type="button" class="btn btn-info displayToggle" target="followedStreamers" <?php if ($view == "followedStreamers") {echo 'disabled'; } ?>>Followed Streamers</button><?php } ?>
 
 		<!--<button type="button" class="btn btn-info displayToggle" target="suggestions" disabled>Suggestions {coming soon}</button>-->
 	</div>
+	<?php } ?>
 	<div class="row">
 		<div class="col">
 			<div id="onlineStreamers" class="<?php if ($view != "onlineStreamers") { echo 'inactiveView'; } ?>">
 
-				<h1>Online Streamers</h1>
+				<h1>Browse Streamers</h1>
 				<div class="row">
 
 				<div class="col-3">
 					<div class="infoBox">
 						<h4 class="infoHeader">Filters</h4>
 						<div class="infoInterior">
-							
+							<?php 
+								$attributes = array('id' => 'filterStreamers');
+								echo form_open('search/getStreamers', $attributes); ?>
+							<table id="filterOptions">
+								<tr>
+									<td colspan="2">
+										Followers: (min,max)<br />
+										<input type="text" name="followers" width="100%" value="25,500000"></td>
+								</tr>
+								<tr>
+									<td><label class="switch">
+										<input name="onlineOnly" id="onlineOnly"  type="checkbox" checked>
+										<span class="slider round"></span>
+									</label></td>
+									<td>Only Online Streams</td>
+								</tr>
+								<tr>
+									<td><label class="switch">
+										<input name="partnersOnly" id="partnersOnly" type="checkbox">
+										<span class="slider round"></span>
+									</label></td>
+									<td>Partners Only</td>
+								</tr>
+								<tr>
+									<td><label class="switch">
+										<input name="registeredOnly" id="registeredOnly"  type="checkbox">
+										<span class="slider round"></span>
+									</label></td>
+									<td>Only MixMingler Users</td>
+								</tr>
+								<?php if (isset($_SESSION['mixer_id'])) { ?>
 
-							<p>Follower Count</p>
+								
+								<tr>
+									<td><label class="switch">
+										<input name="followedOnly" id="followedOnly"  type="checkbox">
+										<span class="slider round"></span>
+									</label></td>
+									<td>Only Games I Follow</td>
+								</tr>
+
+								<tr>
+									<td><label class="switch">
+										<input name="showIgnored" id="showIgnored" type="checkbox">
+										<span class="slider round"></span>
+									</label></td>
+									<td>Include My Ignored Games</td>
+								</tr>
+
+								<tr>
+									<td><label class="switch">
+										<input name="exactSameTypes" id="exactSameTypes"  type="checkbox">
+										<span class="slider round"></span>
+									</label></td>
+									<td>Last Game Matches My Games</td>
+								</tr>
+
+								<tr>
+									<td><label class="switch">
+										<input name="recentSameTypes" id="recentSameTypes"  type="checkbox">
+										<span class="slider round"></span>
+									</label></td>
+									<td>Recently Streamed Same Games</td>
+								</tr>
+								<?php } ?>
+								<tr>
+									<td colspan="2">
+										Max Results: <br />
+										<input type="text" name="limit" width="100%" value="100"></td>
+								</tr>
+							</table>
+
+
+							<!--<p>
+								<label for="followers">Follower Count:</label>
+  								<input type="text" id="followers" readonly style="border:0; color:#f6931f; font-weight:bold;">
+							</p>
+							<div id="follower-range"></div>
+
+
 							<p>Total View Count</p>
-							<p>Partners Only</p>
+							
+							<p>
+								
+							</p>
 							
 							<p>Stream Age</p>
 							<p>Mixer Age</p>
 
 							<p>Games I've Streamed</p>
 							<p>Only Games I Follow</p>
-							<p>Include My Ignored Games</p>
 
 							<p>Include Offline</p>
-							<div>
-						        <label class="switch">
-						            <input type="checkbox">
-						            <span class="slider"></span>
-						        </label>
-						        Switch1
-						    </div>
+							
 							
 							<p>Result Limits</p>
-							<p>Get by: Popular, Recent, Username</p>
+							<p>Get by: Popular, Recent, Username</p>-->
 
-							<button class="btn btn-primary btn-small">Get Streamers</button>
+							<button class="btn btn-primary btn-small filterStreamers">Get Streamers</button>
+							<?php echo form_close(); ?>
 						</div>
 					</div>
 				</div>

@@ -15,7 +15,7 @@ class Version {
 
 		$this->major = 0;
 		$this->minor = 3;
-		$this->revision = 2;
+		$this->revision = 3;
 		$this->stage = "Communities";
 
 		// Load Database
@@ -68,10 +68,16 @@ class Version {
 		$patchNotes[] = $patch;
 		----- Template --------- */
 
-		
+		$patch = new stdClass();
+		$patch->version = "0.3.3";
+		$patch->date = date($date_string, strtotime('2018-09-06'));
+		$patch->notes = array(
+			"Streamer List: First set of filters implemented.");
+		$patchNotes[] = $patch;
+
 		$patch = new stdClass();
 		$patch->version = "0.3.2";
-		$patch->date = date($date_string, strtotime('2018-09-05'));
+		$patch->date = date($date_string, strtotime('2018-09-04'));
 		$patch->notes = array(
 			"Backend: Tweaks to communications data structure");
 		$patchNotes[] = $patch;

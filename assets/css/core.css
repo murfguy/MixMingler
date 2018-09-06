@@ -125,6 +125,14 @@ td.never {
 	color: grey;
 }
 
+#filterOptions td {
+	font-size: 14px;
+	padding: 2px;
+}
+#filterOptions {
+	margin-bottom: 8px;
+}
+
 /* ---------------------------------------
 -- Common Elements -----------------------
 --------------------------------------- */
