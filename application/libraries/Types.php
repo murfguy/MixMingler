@@ -235,6 +235,16 @@ class Types {
 		return $allTypes;
 	}
 
+	public function findTypesByName($typeName) {
+		$query = $this->db
+			->select('*')
+			->from('StreamTypes')
+			->like('Name', $typeName)
+			->get();
+
+		return $query->result();
+	}
+
 	public function getRecentStreamsForType($typeId) {
 		$query = $this->db
 			->select('TimelineEvents.*')

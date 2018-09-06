@@ -284,7 +284,7 @@ class Users {
 	// Primarly used in Scan/users in a batch UDPATE
 	public function getSyncQueryDataArray($streamer) {
 		if ($streamer['user']['avatarUrl'] == null) {
-			$streamer['user']['avatarUrl'] = "/assets/graphics/blankAvatar.png";
+			$streamer['user']['avatarUrl'] = "";
 		}
 
 		$query_data = array(

@@ -43,11 +43,15 @@ class Search extends CI_Controller {
 
 		$followedGames = null;
 		$ignoredGames = null;
-		$recentGames = null;
+		$userRecentGames = null;
 		if (isset($_SESSION['mixer_id'])) {
 			$followedGames = explode(",",getIdList($this->users->getUserTypesInformation($_SESSION['mixer_id'], 'followed')));
 			$ignoredGames = explode(",",getIdList($this->users->getUserTypesInformation($_SESSION['mixer_id'], 'ignored')));
-			$recentGames = explode(",",getIdList($this->users->getUsersRecentStreamTypes($_SESSION['mixer_id']))); }
+			$userRecentGames = explode(",",getIdList($this->users->getUsersRecentStreamTypes($_SESSION['mixer_id']))); }
+
+		$allRecentGames = null;
+		if (!empty($_POST['recentlyStreamed'])) { 
+			$allRecentGames =  explode(",",getIdList($this->types->findTypesByName($_POST['recentlyStreamed']))); }
 		
 
 		// default values
@@ -58,8 +62,8 @@ class Search extends CI_Controller {
 		$followedOnly = FALSE;
 		$partnersOnly = FALSE;
 		$registeredOnly = FALSE;
-		$showExactSameTypes = FALSE;
-		$showRecentSameTypes = FALSE;
+		$showSameTypes = FALSE;
+		$checkHistory = FALSE;
 
 
 		$this->db->select('*')
@@ -72,37 +76,34 @@ class Search extends CI_Controller {
 
 			$this->returnData->criteria = $criteria;
 
-			if (isset($criteria['registered'])) { $this->db->where('isRegistered', $criteria['registered']); }
-			
-			if (isset($criteria['streamAge'])) {
-				//$ages = explode(',', $criteria['streamAge']);
+			if (!empty($criteria['registered'])) { $this->db->where('isRegistered', $criteria['registered']); }
 
-				if ($criteria['streamAge'] <= (60 * 24)) {
-					$this->db->where('LastStreamStart > DATE_SUB(NOW(), INTERVAL '.$criteria['streamAge'].' MINUTE)'); 
-				} else {
-					$this->db->where('LastStreamStart < DATE_SUB(NOW(), INTERVAL 24 HOUR)');
-				}
-			}
+			$this->checkValueRange("NumFollowers", $criteria['minFollowers'], $criteria['maxFollowers']);
+			$this->checkValueRange("ViewersTotal", $criteria['minViews'], $criteria['maxViews']);
+			//$this->checkValueRange("LastSeenOnline_Elapsed", $criteria['minTime'], $criteria['maxTime']);
 
-			if (isset($criteria['followers'])) {
-				$followers = explode(",", $criteria['followers']);
-				$this->db->where('NumFollowers BETWEEN '.$followers[0].' AND '.$followers[1]);
-			}
 
 			if (isset($criteria['onlineOnly'])) { $onlineOnly = filter_var($criteria['onlineOnly'], FILTER_VALIDATE_BOOLEAN); }
 			if (isset($criteria['showIgnored'])) { $showIgnored = filter_var($criteria['showIgnored'], FILTER_VALIDATE_BOOLEAN); }
 			if (isset($criteria['followedOnly'])) { $followedOnly = filter_var($criteria['followedOnly'], FILTER_VALIDATE_BOOLEAN); }
 			if (isset($criteria['partnersOnly'])) { $partnersOnly = filter_var($criteria['partnersOnly'], FILTER_VALIDATE_BOOLEAN); }
 			if (isset($criteria['registeredOnly'])) { $registeredOnly = filter_var($criteria['registeredOnly'], FILTER_VALIDATE_BOOLEAN); }
-			if (isset($criteria['exactSameTypes'])) { $showExactSameTypes = filter_var($criteria['exactSameTypes'], FILTER_VALIDATE_BOOLEAN); }
+			if (isset($criteria['sameTypes'])) { $showSameTypes = filter_var($criteria['sameTypes'], FILTER_VALIDATE_BOOLEAN); }
 			if (isset($criteria['recentSameTypes'])) { $showRecentSameTypes = filter_var($criteria['recentSameTypes'], FILTER_VALIDATE_BOOLEAN); }
-			if (isset($criteria['limit'])) { $limit = $criteria['limit']; }
-			if (isset($criteria['orderBy'])) { $orderBy = $criteria['orderBy']; }
+			if (isset($criteria['checkHistory'])) { $checkHistory = filter_var($criteria['checkHistory'], FILTER_VALIDATE_BOOLEAN); }
+
+			if (!empty($criteria['limit'])) { $limit = $criteria['limit']; }
 		}
 
 		if ($onlineOnly) {
 			$this->db->where('LastSeenOnline > DATE_SUB(NOW(), INTERVAL 10 MINUTE)');
 		}
+	
+		if (!empty($_POST['minTime'])) {
+			$this->db->where('LastStreamStart < DATE_SUB(NOW(), INTERVAL '.$_POST['minTime'].' MINUTE)');}
+
+		if (!empty($_POST['maxTime'])) {
+			$this->db->where('LastStreamStart > DATE_SUB(NOW(), INTERVAL '.$_POST['maxTime'].' MINUTE)');}
 
 		if ($partnersOnly) {
 			$this->db->where('isPartner', 1);
@@ -112,20 +113,47 @@ class Search extends CI_Controller {
 			$this->db->where('isRegistered', 1);
 		}
 
+		$historicalTypes = null;
+
+		if ($checkHistory) {
+			$this->returnData->log = "checking history";
+			// if were check game histories
+			if (isset($_SESSION['mixer_id']) && !empty($userRecentGames) && $showSameTypes) {
+					$this->returnData->log = "check for personal types only";
+					$historicalTypes = $userRecentGames;
+				}
+
+			if ((isset($_SESSION['mixer_id']) && !empty($userRecentGames) && $showSameTypes) && !empty($allRecentGames)) {
+				// if we are looking for a recent game AND matching personal types, MERGE both sets of ids and search those.
+				$historicalTypes = array_unique(array_merge($allRecentGames,$userRecentGames), SORT_REGULAR);
+				$this->returnData->log = "check for recent type and personal type";
+			}
+
+			if (!empty($allRecentGames)) {
+				$this->returnData->log = "check for recent types only";
+				$historicalTypes = $allRecentGames;
+			}
+
+		} else {
+			$this->returnData->log = "not checking history";
+			
+		}
+
+		
+		if (!is_null($historicalTypes)) {
+			$this->db->join('TimelineEvents', 'TimelineEvents.MixerID = Users.ID')
+				->group_start()
+					->where_in('TimelineEvents.TypeID', $historicalTypes)
+					->or_where_in('LastTypeId', $historicalTypes)
+				->group_end()
+				->group_by('TimelineEvents.MixerID');
+		} else {
+			if (!empty($allRecentGames)) { $this->db->where_in('LastTypeId', $allRecentGames); }
+			if (isset($_SESSION['mixer_id']) && !empty($userRecentGames) && $showSameTypes) { $this->db->where_in('LastTypeId', $userRecentGames); }
+		}		
+
+
 		if (isset($_SESSION['mixer_id'])) {
-			if (!empty($recentGames) && $showExactSameTypes) {
-				$this->db->where_in('LastTypeId', $recentGames);
-			}
-
-			if (!empty($recentGames) && $showRecentSameTypes) {
-				$this->db->join('TimelineEvents', 'TimelineEvents.MixerID = Users.ID')
-					->group_start()
-						->where_in('TimelineEvents.TypeID', $recentGames)
-						->or_where_in('LastTypeId', $recentGames)
-					->group_end()
-					->group_by('TimelineEvents.MixerID');
-			}
-
 			if (!empty($followedGames) && $followedOnly) {
 				$this->db->where_in('LastTypeId', $followedGames);}
 
@@ -133,13 +161,13 @@ class Search extends CI_Controller {
 				$this->db->where_not_in('LastTypeId', $ignoredGames);}
 		}
 
+		//
+
+		$order = explode(",", $_POST['orderBy']);
 		
-		
-		$this->db->order_by($orderBy, 'DESC');
+		$this->db->order_by($order[0], $order[1]);
 		$this->db->limit($limit);
 		$query = $this->db->get();
-
-		$this->returnData->recentGames = $recentGames;
 
 		$this->returnData->success = true;
 		$this->returnData->message = "Search for streamers succeeded.";
@@ -149,6 +177,33 @@ class Search extends CI_Controller {
 		$this->returnData->results = $query->result();
 
 		$this->returnData();
+	}
+
+	private function checkValueRange($target, $minValue, $maxValue) {
+		if (!empty($minValue) || !empty($maxValue)) {
+			$minCount = null;
+			$maxCount = null;
+
+			if (!empty($minValue)) {
+				$minCount = $minValue; }
+
+			if (!empty($maxValue)) {
+				$maxCount =  $maxValue; }
+
+			if (!empty($minCount) && !empty($maxCount)) {
+				// min and max are both defined, so get between those values.
+				$this->db->where($target.' BETWEEN '.$minCount.' AND '.$maxCount);
+			} elseif (!empty($maxCount)) {
+				// max is defined, but min isn't, so get all under max definition
+				$this->db->where($target.' <= '.$maxCount);
+			} elseif (!empty($minCount)) {
+				// min is defined, but max isn't, so get all over min definition
+				$this->db->where($target.' >= '.$minCount);
+			} else {
+				// nothing is defined, so get a default 
+				$this->db->where($target.' >= 25');
+			}		
+		}
 	}
 
 } ?>

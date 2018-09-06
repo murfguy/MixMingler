@@ -72,7 +72,7 @@ class Version {
 		$patch->version = "0.3.3";
 		$patch->date = date($date_string, strtotime('2018-09-06'));
 		$patch->notes = array(
-			"Streamer List: First set of filters implemented.");
+			"Streamer List: Can now filter and browse streamers.");
 		$patchNotes[] = $patch;
 
 		$patch = new stdClass();

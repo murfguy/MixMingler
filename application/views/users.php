@@ -31,10 +31,60 @@
 								echo form_open('search/getStreamers', $attributes); ?>
 							<table id="filterOptions">
 								<tr>
-									<td colspan="2">
-										Followers: (min,max)<br />
-										<input type="text" name="followers" width="100%" value="25,500000"></td>
+									<td colspan="2"><h6>Games</h6></td>
 								</tr>
+								<tr>
+									<td colspan="2">
+										Recently Streamed: <br />
+										<input type="text" name="recentlyStreamed" placeholder="Game Name" width="100%"></td>
+								</tr>
+
+								<tr>
+									<td><label class="switch">
+										<input name="checkHistory" id="checkHistory"  type="checkbox">
+										<span class="slider round"></span>
+									</label></td>
+									<td>Check all recent games</td>
+								</tr>
+
+
+								<?php if (isset($_SESSION['mixer_id'])) { ?>
+									<tr>
+									<td><label class="switch">
+										<input name="sameTypes" id="sameTypes"  type="checkbox">
+										<span class="slider round"></span>
+									</label></td>
+									<td>Matches My Games</td>
+								</tr>
+								<?php } ?>
+
+
+								<tr style="border-top: 1px solid white">
+									<td colspan="2"><h6>Stats</h6></td>
+								</tr>
+
+								<tr>
+									<td colspan="2">
+										Followers: <br />
+										Min: <input type="number" name="minFollowers" style="width: 5em" min="1"> Max: <input type="number" name="maxFollowers" style="width: 5em"></td>
+								</tr>
+
+								<tr>
+									<td colspan="2">
+										Views: <br />
+										Min: <input type="number" name="minViews" style="width: 5em" min="1"> Max: <input type="number" name="maxViews" style="width: 5em"></td>
+								</tr>
+
+								<tr>
+									<td colspan="2">
+										Stream Age (minutes): <br />
+										Min: <input type="number" name="minTime" style="width: 5em" min="10"> Max: <input type="number" name="maxTime" style="width: 5em"></td>
+								</tr>
+
+								<tr style="border-top: 1px solid white">
+									<td colspan="2"><h6>Status Options</h6></td>
+								</tr>
+
 								<tr>
 									<td><label class="switch">
 										<input name="onlineOnly" id="onlineOnly"  type="checkbox" checked>
@@ -75,64 +125,31 @@
 									<td>Include My Ignored Games</td>
 								</tr>
 
-								<tr>
-									<td><label class="switch">
-										<input name="exactSameTypes" id="exactSameTypes"  type="checkbox">
-										<span class="slider round"></span>
-									</label></td>
-									<td>Last Game Matches My Games</td>
-								</tr>
-
-								<tr>
-									<td><label class="switch">
-										<input name="recentSameTypes" id="recentSameTypes" type="checkbox">
-										<span class="slider round"></span>
-									</label></td>
-									<td>Recently Streamed Same Games</td>
-								</tr>
+								
 								<?php } ?>
+
+
+								<tr style="border-top: 1px solid white">
+									<td colspan="2"><h6>Display Settings</h6></td>
+								</tr>
 								<tr>
 									<td colspan="2">
-										Max Results: <br />
-										<input type="text" name="limit" width="100%" value="100"></td>
+										Max Results: <input type="number" name="limit" size="8" placeholder="100" min="1" max="500" style="width: 6em"></td>
 								</tr>
-								<tr>
+								<tr style="border-bottom: 1px solid white">
 									<td colspan="2">
 										Order By:<br>
 										<select name="orderBy">
-										  <option value="LastStreamStart">Last Stream Start Time</option>
-										  <option value="NumFollowers">Follower Count</option>
-										  <option value="ViewersTotal">Views Count</option>
+										  <option value="LastStreamStart,DESC">Recently Started</option>
+										  <option value="LastStreamStart,ASC">Longest Streams</option>
+										  <option value="NumFollowers,DESC">Most Followers</option>
+										  <option value="NumFollowers,ASC">Least Followers</option>
+										  <option value="ViewersTotal,DESC">Most Views</option>
+										  <option value="ViewersTotal,ASC">Least Views</option>
 										</select>
 									</td>
 								</tr>
 							</table>
-
-
-							<!--<p>
-								<label for="followers">Follower Count:</label>
-  								<input type="text" id="followers" readonly style="border:0; color:#f6931f; font-weight:bold;">
-							</p>
-							<div id="follower-range"></div>
-
-
-							<p>Total View Count</p>
-							
-							<p>
-								
-							</p>
-							
-							<p>Stream Age</p>
-							<p>Mixer Age</p>
-
-							<p>Games I've Streamed</p>
-							<p>Only Games I Follow</p>
-
-							<p>Include Offline</p>
-							
-							
-							<p>Result Limits</p>
-							<p>Get by: Popular, Recent, Username</p>-->
 
 							<button class="btn btn-primary btn-small filterStreamers">Get Streamers</button>
 							<?php echo form_close(); ?>
@@ -153,45 +170,9 @@
 						</thead>
 						<tbody>
 							<tr class="pendingResults">
-								<td colspan="5"><i class="fas fa-spinner fa-pulse"></i> Getting Streamers. One moment please.</td>
+								<td colspan="5"><i class="fas fa-spinner fa-pulse"></i> Fetching streamers. One moment please.</td>
 							</tr>
-							<!--<?php foreach ($onlineStreamers as $streamer) { 
-
-								//$streamer->LastTypeID
-
-								$showRow = true;
-								$state = null;
-
-								//$key = array_search($streamer->LastTypeID, $userTypes);
-								if (isset($_SESSION['mixer_id'])) {
-
-									$key = array_search($streamer->LastTypeID, array_column($userTypes, 'TypeID'));
-									
-									if (!empty($key)) { 
-										$state = $userTypes[$key]->FollowState; }
-
-									if ($state == "ignored") { $showRow = false; }
-								}
-
-								if ($showRow) {
-								?>
-								
-								<tr class="<?php echo $state; ?>">
-									<td data-username="<?php echo $streamer->Username; ?>"><?php echo userListLink(['Username'=>$streamer->Username, 'AvatarURL'=>$streamer->AvatarURL]); ?></td>
-
-									<td data-time="<?php echo strtotime($streamer->LastStreamStart); ?>"><?php 
-									if ($streamer->LastStreamStart != "0000-00-00 00:00:00") {
-										echo getElapsedTimeString($streamer->LastStreamStart);
-									} else {
-										echo "Never Seen";
-									}
-									?></td>
-									<td><a href="/type/<?php echo $streamer->LastTypeID.'/'.createSlug($streamer->LastType); ?>"><?php echo $streamer->LastType; ?></a></td>
-									<td data-followers="<?php echo $streamer->NumFollowers; ?>"><?php echo number_format($streamer->NumFollowers); ?></td>
-									<td data-viewers="<?php echo $streamer->ViewersTotal; ?>"><?php echo number_format($streamer->ViewersTotal); ?></td>
-								</tr>
-								<?php }?> 
-							<?php } //foreach ($members as $member) ?>-->
+							
 						</tbody>
 						
 					</table>
@@ -228,22 +209,31 @@
 
 								//if ($state == "ignored") { $showRow = false; }
 
+								$onlineStatus = null;
+								if ($streamer->NumFollowers < 25) {
+									$onlineStatus = "never";
+									$onlineContent = "Not Tracked";
+								} else {
+									if ($streamer->LastSeenOnline != "0000-00-00 00:00:00") {
+										if (strtotime($streamer->LastSeenOnline) < (time()-(60*10)) ) {
+											$onlineStatus = "offline";
+											$onlineContent = "Offline since: ".getElapsedTimeString($streamer->LastSeenOnline); }
+										else {
+											$onlineStatus = "online";
+											$onlineContent = 'Online since: '.getElapsedTimeString($streamer->LastStreamStart); }
+										} else {
+											$onlineStatus = "never";
+											$onlineContent =  "Never Seen";
+										}
+									}
+
 								if ($showRow) {
 								?>
 								
-								<tr class="<?php echo $state; ?>">
+								<tr class="">
 									<td data-username="<?php echo $streamer->Username; ?>"><?php echo userListLink(['Username'=>$streamer->Username, 'AvatarURL'=>$streamer->AvatarURL]); ?></td>
 
-									<td data-time="<?php echo strtotime($streamer->LastSeenOnline); ?>"><?php 
-									if ($streamer->LastSeenOnline != "0000-00-00 00:00:00") {
-										if (strtotime($streamer->LastSeenOnline) < (time()-(60*10)) ) {
-											echo "Offline since: ".getElapsedTimeString($streamer->LastSeenOnline); }
-											else {
-												echo '<span style="color: rgb(114, 243, 114);">Started: '.getElapsedTimeString($streamer->LastStreamStart).'</span>'; }
-									} else {
-										echo "Never Seen";
-									}
-									?></td>
+									<td data-time="<?php echo strtotime($streamer->LastSeenOnline); ?>" class="<?php echo $onlineStatus; ?>"><?php echo $onlineContent; ?></td>
 									<td><a href="/type/<?php echo $streamer->LastTypeID.'/'.createSlug($streamer->LastType); ?>"><?php echo $streamer->LastType; ?></a></td>
 									<td data-followers="<?php echo $streamer->NumFollowers; ?>"><?php echo number_format($streamer->NumFollowers); ?></td>
 									<td data-viewers="<?php echo $streamer->ViewersTotal; ?>"><?php echo number_format($streamer->ViewersTotal); ?></td>

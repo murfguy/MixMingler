@@ -209,6 +209,11 @@ function getStreamersData(form, e) {
 		filterData = form.serialize();
 	}
 
+	$("button.filterStreamers").html("<i class=\"fas fa-spinner fa-pulse\"></i> Fetching Streamers");
+	$("button.filterStreamers").removeClass("btn-primary");
+	$("button.filterStreamers").addClass("btn-dark");
+	$("button.filterStreamers").attr("disabled", "");
+
 	thisActionUrl = baseURL+"/search/getStreamers/";
 
 	$.ajax({
@@ -221,6 +226,11 @@ function getStreamersData(form, e) {
 		.always(function (json){
 			console.log('getStreamersData - AJAX always');
 			console.log(json);
+			
+			$("button.filterStreamers").html("Get Streamers");
+			$("button.filterStreamers").removeClass("btn-dark");
+			$("button.filterStreamers").addClass("btn-primary");
+			$("button.filterStreamers").removeAttr("disabled");
 			//console.log(json.message);
 		})
 		.done(function (json){
@@ -234,6 +244,7 @@ function getStreamersData(form, e) {
 
 				json.results.forEach(function(item){
 					isOffline = false;
+
 					if (item.LastSeenOnline_Elapsed > (60*10)) {
 						isOffline = true; 
 						row = "<tr class=\"offlineStream\">";
@@ -241,16 +252,20 @@ function getStreamersData(form, e) {
 						row = "<tr class=\"onlineStream\">";
 					}
 
-					
 				 	row += "<td data-username=\""+item.Username+"\"><img src=\""+item.AvatarURL+"\" onerror=\"this.src='https://mixer.com/_latest/assets/images/main/avatars/default.png';\" class=\"avatar thin-border\" width=\"25px\" /> <a href=\"/user/"+item.Username+'">'+item.Username+"</a></td>";
-				 		if (item.LastStreamStart != "0000-00-00 00:00:00") {
-				 			if (isOffline) {
-								row += '<td class="offline">Offline since '+getElapsedTimeString(item.LastSeenOnline_Elapsed)+'</td>';
-				 			} else {
-								row += '<td class="online">Online since '+getElapsedTimeString(item.LastStreamStart_Elapsed)+'</td>';
-				 			}
+
+				 		if (item.NumFollowers < 25) {
+				 			row += '<td class="never">Not tracked</td>'
 				 		} else {
-				 			row += '<td class="never">Never Seen</td>'; 
+					 		if (item.LastStreamStart != "0000-00-00 00:00:00") {
+					 			if (isOffline) {
+									row += '<td class="offline">Offline since '+getElapsedTimeString(item.LastSeenOnline_Elapsed)+'</td>';
+					 			} else {
+									row += '<td class="online">Online since '+getElapsedTimeString(item.LastStreamStart_Elapsed)+'</td>';
+					 			}
+					 		} else {
+					 			row += '<td class="never">Never Seen</td>'; 
+					 		}
 				 		}
 						row += '<td><a href="/type/'+item.LastTypeID+'/'+getUrlSlug(item.LastType)+'">'+item.LastType+'</a></td>';
 						row += '<td>'+addCommas(item.NumFollowers)+'</td>';
@@ -273,6 +288,7 @@ function getStreamersData(form, e) {
 function setSearchFilterFunctionality() {
 	$("form#filterStreamers").on('submit', function (e) { 
 		e.preventDefault();
+
 		getStreamersData($("form#filterStreamers"), event)} );
 
 	$( function() {
