@@ -29,6 +29,19 @@ class Users {
 			// User is not on Mingler
 			return null;
 		}
+	}	
+
+	public function getUserFromMinglerByUserID($userId) {
+		// Let's get streamer data from Mingler based on the ID value we got from Mixer.
+		$query = $this->db->select('*')->from('Users')->where('UserID', $userId)->get();
+
+		if (!empty($query->result())) {
+			// User is on Mingler
+			return $query->result()[0];
+		} else {
+			// User is not on Mingler
+			return null;
+		}
 	}
 
 	public function getUserFromMinglerByToken($mixerToken) {
@@ -48,9 +61,28 @@ class Users {
 	// Check the Mixer API for this user
 	public function getUserFromMixer($mixerToken) {
 		// Get Streamer Data from Mixer API
+
 		$url = "https://mixer.com/api/v1/channels/".$mixerToken."?fields=id,userId,token,online,partnered,suspended,viewersTotal,numFollowers,costreamId,createdAt,user,type";
 		$content = file_get_contents($url);
 		return json_decode($content, true);
+	}
+
+	// Check the Mixer API for this user
+	public function getUserFromMixerByUserId($userId) {
+
+		$url = "https://mixer.com/api/v1/users/$userId";
+		if (file_exists($url)) {
+		    // rest of code here
+		    $content = file_get_contents($url);
+			$apiData = json_decode($content, true);
+
+			$returnData = $apiData['channel'];
+			$returnData['user'] = ['avatarUrl' => $apiData['avatarUrl'] ];
+
+			return $returnData;//json_decode($content, true);
+		} else {
+			return null;
+		}
 	}
 
 	public function getUsersFollowedChannels($mixerId) {
@@ -206,7 +238,7 @@ class Users {
 			'Username' => $apiData['token'],
 			'AvatarURL' => $apiData['user']['avatarUrl'],
 			'LastSynced' => $timestamp,
-			'JoinedMixer' => substr($apiData['createdAt'], 0, 9),
+			'JoinedMixer' => substr($apiData['createdAt'], 0, 10),
 			'isPartner' => $apiData['partnered'],
 			'ViewersTotal' => $apiData['viewersTotal'],
 			'NumFollowers' => $apiData['numFollowers']);
@@ -255,6 +287,7 @@ class Users {
 			'Username' => $mixerApi_data['token'],
 			'AvatarURL' => $mixerApi_data['user']['avatarUrl'],
 			'LastSynced' => date('Y-m-d H:i:s'),
+			'JoinedMixer' => substr($apiData['createdAt'], 0, 10),
 			'isPartner' => $mixerApi_data['partnered'],
 			'ViewersTotal' => $mixerApi_data['viewersTotal'],
 			'NumFollowers' => $mixerApi_data['numFollowers'],

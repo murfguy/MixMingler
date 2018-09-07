@@ -151,5 +151,81 @@ class Scan extends CI_Controller {
 
 		//echo json_encode($typesToUpdate);
 	}
+
+	public function teams() {
+		$starttime = time();
+		$this->load->library('teams');
+		$this->load->library('users');
+
+		$url = "https://mixer.com/api/v1/teams";
+		$currentPage = 0;
+		$foundAllTeams = false;
+		$allTeams = array();
+
+		$streamers = array();
+		
+		$urlParameters = "?limit=100";
+		$urlParameters .="&where=totalViewersCurrent:gte:1";
+		//$urlParameters .="&order=viewersCurrent:DESC";
+		//$urlParameters .="&fields=id,token,name";
+		//$urlParameters .="&fields=id,userId,token,online,partnered,suspended,viewersTotal,numFollowers,costreamId,createdAt,user,type";
+
+		while (!$foundAllTeams) {
+
+			$content = file_get_contents($url.$urlParameters."&page=".$currentPage);
+			$newList = json_decode($content, true);
+
+			$allTeams = array_merge($allTeams, $newList);
+
+			$currentPage = $currentPage + 1;
+
+			if ($currentPage % 20 == 0) {
+				//sleep(5);
+			}
+
+			if (count($newList) < 100) {
+				// We've got all followed channels 
+				$foundAllTeams = true;
+			}
+		}
+
+		$addedUserCount = 0;
+		/*foreach ($allTeams as $team) {
+			//$this->teams->syncTeam($team);
+			// Add owner if not in database.
+			if ($this->users->getUserFromMinglerByUserID($team['ownerId']) == null) {
+				$user = $this->users->getUserFromMixerByUserId($team['ownerId']);
+				if (!empty($user)) {
+					$this->users->syncUser($user);
+					$addedUserCount++;
+				}
+			}
+		}*/
+
+		$affectedRows = $this->teams->batchSyncTeams($allTeams);
+
+		$elapsed_time = time() - $starttime;
+
+		echo "<p>We've grabbed ".count($allTeams)." teams in $elapsed_time seconds.</p>";
+		echo "<p>This impacted ".$affectedRows." database rows.</p>";
+		echo "<p>We also added $addedUserCount users since they weren't in the database.</p>";
+		//echo "<p>We created ".count($news_data)." timeline events.</p>";
+		//echo "<p>We added in $inserted_count new streamers.</p>";
+		//echo "<p>We added ".count($allNewTypes)." new types.</p>";
+		//echo "<p>We noted ".count($lastStarted_data)." new streams.</p>";
+
+		/*for ($i=0; $i<count($allTeams); $i++) {
+			//$team = $allTeams[$i];
+
+			//$allTeams[$i]['members'] = $this->teamMembers($allTeams[$i]['id']);
+			unset($allTeams[$i]['members']['channel']['description']);
+		}*/
+
+		//echo "<pre>".json_encode($allTeams)."</pre>";
+	}
+
+	public function teamMembers($teamId) {
+		
+	}
 }
 ?>

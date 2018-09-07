@@ -15,7 +15,7 @@ class Version {
 
 		$this->major = 0;
 		$this->minor = 3;
-		$this->revision = 3;
+		$this->revision = 4;
 		$this->stage = "Communities";
 
 		// Load Database
@@ -68,6 +68,14 @@ class Version {
 		$patchNotes[] = $patch;
 		----- Template --------- */
 
+
+		$patch = new stdClass();
+		$patch->version = "0.3.4";
+		$patch->date = date($date_string, strtotime('2018-09-12'));
+		$patch->notes = array(
+			"Auto-Scan: Now collects all teams with at least one view.");
+		
+		$patchNotes[] = $patch;
 		$patch = new stdClass();
 		$patch->version = "0.3.3";
 		$patch->date = date($date_string, strtotime('2018-09-06'));
