@@ -579,5 +579,21 @@ class Users {
 			$this->db->update($group, $data);
 		}
 	}
+
+	public function syncUserTeams($userId) {
+		$url = "https://mixer.com/api/v1/users/".$userId."/teams";
+		$content = file_get_contents($url);
+		$teams = json_decode($content, true);
+		//return 
+	}
+
+	// Check the Mixer API for this user
+	/*public function getUserFromMixer($mixerToken) {
+		// Get Streamer Data from Mixer API
+
+		$url = "https://mixer.com/api/v1/channels/".$mixerToken."?fields=id,userId,token,online,partnered,suspended,viewersTotal,numFollowers,costreamId,createdAt,user,type";
+		$content = file_get_contents($url);
+		return json_decode($content, true);
+	}*/
 }
 ?>
