@@ -61,6 +61,7 @@ class Search extends CI_Controller {
 		$orderBy = "LastStreamStart";
 		$followedOnly = FALSE;
 		$partnersOnly = FALSE;
+		$nonpartnersOnly = FALSE;
 		$registeredOnly = FALSE;
 		$showSameTypes = FALSE;
 		$checkHistory = FALSE;
@@ -87,6 +88,7 @@ class Search extends CI_Controller {
 			if (isset($criteria['showIgnored'])) { $showIgnored = filter_var($criteria['showIgnored'], FILTER_VALIDATE_BOOLEAN); }
 			if (isset($criteria['followedOnly'])) { $followedOnly = filter_var($criteria['followedOnly'], FILTER_VALIDATE_BOOLEAN); }
 			if (isset($criteria['partnersOnly'])) { $partnersOnly = filter_var($criteria['partnersOnly'], FILTER_VALIDATE_BOOLEAN); }
+			if (isset($criteria['nonpartnersOnly'])) { $nonpartnersOnly = filter_var($criteria['nonpartnersOnly'], FILTER_VALIDATE_BOOLEAN); }
 			if (isset($criteria['registeredOnly'])) { $registeredOnly = filter_var($criteria['registeredOnly'], FILTER_VALIDATE_BOOLEAN); }
 			if (isset($criteria['sameTypes'])) { $showSameTypes = filter_var($criteria['sameTypes'], FILTER_VALIDATE_BOOLEAN); }
 			if (isset($criteria['recentSameTypes'])) { $showRecentSameTypes = filter_var($criteria['recentSameTypes'], FILTER_VALIDATE_BOOLEAN); }
@@ -107,6 +109,8 @@ class Search extends CI_Controller {
 
 		if ($partnersOnly) {
 			$this->db->where('isPartner', 1);
+		} elseif ($nonpartnersOnly) {
+			$this->db->where('isPartner', 0);
 		}
 
 		if ($registeredOnly) {

@@ -287,7 +287,7 @@ class Users {
 			'Username' => $mixerApi_data['token'],
 			'AvatarURL' => $mixerApi_data['user']['avatarUrl'],
 			'LastSynced' => date('Y-m-d H:i:s'),
-			'JoinedMixer' => substr($apiData['createdAt'], 0, 10),
+			'JoinedMixer' => substr($mixerApi_data['createdAt'], 0, 10),
 			'isPartner' => $mixerApi_data['partnered'],
 			'ViewersTotal' => $mixerApi_data['viewersTotal'],
 			'NumFollowers' => $mixerApi_data['numFollowers'],

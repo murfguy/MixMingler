@@ -101,6 +101,13 @@
 								</tr>
 								<tr>
 									<td><label class="switch">
+										<input name="nonpartnersOnly" id="nonpartnersOnly" type="checkbox">
+										<span class="slider round"></span>
+									</label></td>
+									<td>Non-Partners Only</td>
+								</tr>
+								<tr>
+									<td><label class="switch">
 										<input name="registeredOnly" id="registeredOnly"  type="checkbox">
 										<span class="slider round"></span>
 									</label></td>
