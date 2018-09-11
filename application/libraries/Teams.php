@@ -15,6 +15,28 @@ class Teams {
 		// get user's teams: https://mixer.com/api/v1/users/$userId/teams
 	}
 
+	public function getTeam($teamId) {
+
+		if (ctype_digit($teamId)) {
+			// This is an id input
+			$query = $this->db
+				->select("*")
+				->from("Teams")
+				->where("ID", $teamId)
+				->get();
+		} else {
+			// This is a token input
+			$query = $this->db
+				->select("*")
+				->from("Teams")
+				->where("Slug", $teamId)
+				->get();
+		}
+
+		return $query->result();
+
+	}
+
 	public function syncTeam($teamData) {
 		//$sql_query = "INSERT INTO UserCommunications (MixerID, Email) VALUES(?, ?) ON DUPLICATE KEY UPDATE MixerID=?, Email=?";
 		//$query = $this->CI->db->query($sql_query, array($mixerId, $emailAddress, $mixerId, $emailAddress));
@@ -70,6 +92,18 @@ class Teams {
 		return $this->db->affected_rows();
 	}
 
+
+	public function getTeamMembers($teamId) {
+		$query = $this->db
+			->select('*')
+			->from('Users')
+			->join('UserTeams', 'UserTeams.MixerID = Users.ID')
+			->where('UserTeams.TeamID', $teamId)
+			->order_by('LastStreamStart', 'DESC')
+			->get();
+		return $query->result();
+	}
+
 	public function getTeamMembersFromMixer($teamId) {
 		$url = "https://mixer.com/api/v1/teams/$teamId/users";
 		$currentPage = 0;
@@ -102,6 +136,37 @@ class Teams {
 		}
 		
 		return $allTeamMembers;
+	}
+
+	public function syncTeamMembers($teamId) {
+		$actualMembers = $this->getTeamMembersFromMixer($teamId);
+		$actualMemberIDs = array();
+
+		foreach ($actualMembers as $member) { $actualMemberIDs[] = $member['channel']['id']; }
+
+		$storedMembers = $this->getTeamMembers($teamId);
+		$storedMemberIDs = explode(",", getIdList($storedMembers));
+
+		// If team is not in Mixer, but is in mingler: remove
+		$removeMembers = array_diff($storedMemberIDs, $actualMemberIDs);
+		foreach ($removeMembers as $member) {
+			$this->db
+				->where('TeamID', $teamId)
+				->where('MixerID', $member)
+				->delete('UserTeams');
+		}
+
+		// If team is in Mixer, but not mingler: add team
+		$addMembers = array_diff($actualMemberIDs, $storedMemberIDs);
+
+		foreach ($addMembers as $member) {
+			$data = ['TeamID'=>$teamId, 'MixerID'=>$member];
+			//$this->db->insert('UserTeams', $data);
+
+			$insert_query = $this->db->insert_string('UserTeams', $data);
+			$insert_query = str_replace('INSERT INTO','INSERT IGNORE INTO',$insert_query);
+			$this->db->query($insert_query);
+		}
 	}
 
 

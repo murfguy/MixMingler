@@ -90,6 +90,13 @@
 			<div class="infoBox">
 				<h4 class="infoHeader">Teams</h4>
 				<div class="infoInterior">
+					<?php if (!empty($teams)) { 
+						foreach ($teams as $team) { ?>
+							<p><a href="/team/<?php echo $team->Slug; ?>"><?php echo $team->Name; ?></a></p>
+						<?php } ?>
+					<?php } else { ?>
+						<p>Not in any teams.</p>
+					<?php } ?>
 					<p class="devNote" data-toggle="tooltip" title="Planned for v0.4" data-placement="left">Coming Soon</p>
 				</div>
 			</div>

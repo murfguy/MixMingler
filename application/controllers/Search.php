@@ -210,4 +210,51 @@ class Search extends CI_Controller {
 		}
 	}
 
+	public function getStreamersByGroup() {
+
+		$this->returnData->criteria = $_POST;
+
+		$groupType = $_POST['type']; // type, community, OR team
+		$groupId = $_POST['id']; // ID value for group
+
+
+		if (in_array($groupType, ['type', 'team', 'community'])) {
+			$this->db->select('*')
+			->select('TIMESTAMPDIFF(SECOND, LastStreamStart, NOW()) AS LastStreamStart_Elapsed')
+			->select('TIMESTAMPDIFF(SECOND, LastSeenOnline, NOW()) AS LastSeenOnline_Elapsed')
+			->from('Users');
+
+			switch ($groupType) {
+				case "type":
+					$this->db->where('LastTypeID', $groupId);
+					break;
+
+				case "team":
+					$this->db->join('UserTeams', 'UserTeams.MixerID = Users.ID')
+						->where('UserTeams.TeamID', $groupId);
+					break;
+
+				case "community":
+					$this->db->join('UserCommunities', 'UserCommunities.MixerID = Users.ID')
+						->where('UserCommunities.CommunityID', $groupId)
+						->where('UserCommunities.MemberState', 'member');
+					break;
+			}
+			$query = $this->db->order_by('LastStreamStart', 'DESC')->get();
+			$this->returnData->results = $query->result();
+			$this->returnData->success = true;
+			$this->returnData->message = "Search for streamers succeeded.";
+			if (isset($_SESSION['mixer_id']) && $_SESSION['mixer_id'] == 217203) {
+				$this->returnData->sqlQuery = $this->db->last_query();}
+
+		} else {
+			$this->returnData->message = "Invalid Group Type was provided.";
+		}
+
+		$this->returnData();
+	}
+	
+
+
+
 } ?>

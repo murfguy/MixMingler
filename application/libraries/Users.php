@@ -580,20 +580,66 @@ class Users {
 		}
 	}
 
-	public function syncUserTeams($userId) {
+	public function getUserTeamsFromMixer($userId) {
 		$url = "https://mixer.com/api/v1/users/".$userId."/teams";
 		$content = file_get_contents($url);
-		$teams = json_decode($content, true);
-		//return 
+		return json_decode($content, true);		
 	}
 
-	// Check the Mixer API for this user
-	/*public function getUserFromMixer($mixerToken) {
-		// Get Streamer Data from Mixer API
+	public function getUserTeams($mixerId) {
+		$query = $this->db
+			->select('*')
+			->from('UserTeams')
+			->join('Teams', 'Teams.ID = UserTeams.TeamID')
+			->where('UserTeams.MixerID', $mixerId)
+			->get();
+		return $query->result();
+	}
 
-		$url = "https://mixer.com/api/v1/channels/".$mixerToken."?fields=id,userId,token,online,partnered,suspended,viewersTotal,numFollowers,costreamId,createdAt,user,type";
-		$content = file_get_contents($url);
-		return json_decode($content, true);
-	}*/
+	public function syncUserTeams($mixerData, $minglerData, $mixerId) {
+		// loop through both sets teams and see if that team is in the other
+
+		$actualTeamIDs = array();
+		$storedTeamIDs = array();
+
+		foreach ($mixerData as $team) {
+			$actualTeamIDs[] = $team['id'];
+
+			// Also, insert team into database. Will ignore dupes.
+			$data = [
+				'ID'=>$team['id'],
+				'OwnerID'=>$team['ownerId'],
+				'Slug'=>$team['token'],
+				'Name'=>$team['name'],
+				'LogoURL'=>$team['logoUrl'],
+				'backgroundUrl'=>$team['backgroundUrl'],
+				'CreationDate'=>substr($team['createdAt'], 0, 9)];
+
+			$insert_query = $this->db->insert_string('Teams', $data);
+			$insert_query = str_replace('INSERT INTO','INSERT IGNORE INTO',$insert_query);
+			$this->db->query($insert_query);
+		}
+
+		foreach ($minglerData as $team) {
+			$storedTeamIDs[] = $team->TeamID;
+		}
+
+		// If team is not in Mixer, but is in mingler: remove
+		$removeTeams = array_diff($storedTeamIDs, $actualTeamIDs);
+		foreach ($removeTeams as $team) {
+			$this->db
+				->where('TeamID', $team)
+				->where('MixerID', $mixerId)
+				->delete('UserTeams');
+		}
+
+
+		// If team is in Mixer, but not mingler: add team
+		$addTeams = array_diff($actualTeamIDs, $storedTeamIDs);
+		foreach ($addTeams as $team) {
+			$data = ['TeamID'=>$team, 'MixerID'=>$mixerId];
+			$this->db->insert('UserTeams', $data);
+		}
+	}
 }
 ?>

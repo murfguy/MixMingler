@@ -94,6 +94,12 @@ var baseActionUrl = baseURL+"/servlet/";
 	setViewToggleListeners();
 	setFormListeners();
 	setSearchFilterFunctionality();
+
+	if ($('table.fetchStreamerList').length > 0) {
+		fetchStreamersData("table.fetchStreamerList");
+	}
+
+
 	if ($('form#filterStreamers').length > 0) {
 		getStreamersData($('form#filterStreamers'));
 	}
@@ -141,7 +147,7 @@ function hidePharError() {
 }
 
 function addUserTableSorter() {
-	$.tablesorter.addParser({
+	/*$.tablesorter.addParser({
 		// set a unique id
 		id: 'data',
 		is: function(s, table, cell, $cell) {
@@ -214,7 +220,7 @@ function addUserTableSorter() {
 		 textExtraction: {
 	      0: function(node, table, cellIndex) { return $(node).find("a").text(); }
 	    }
-	});
+	});*/
 }
 
 

@@ -128,7 +128,6 @@ function runNewsCollection() {
 }
 
 function getNewsFeed(tgt) {
-	console.log("getNewsFeed("+tgt.attr('id')+")");
 	if (tgt.length > 0) {
 		console.log("getNewsFeed("+tgt.attr('id')+")");
 		//console.log(" -- feedtype: "+ tgt.data('feedtype'));
@@ -221,7 +220,6 @@ function getStreamersData(form, e) {
 		type: "POST",
 		dataType: "json",
 		data: filterData
-		
 	})
 		.always(function (json){
 			console.log('getStreamersData - AJAX always');
@@ -280,6 +278,79 @@ function getStreamersData(form, e) {
 
 		.fail(function (json){
 			console.log('getStreamersData - AJAX failed');
+			//tgt.html("<div class=\"alert alert-danger\"><p>There was a problem in contacting the server. Pick another game and try again.</p></div>");
+		});
+
+}
+
+function fetchStreamersData(tgtTable) {
+	console.log("fetchStreamersData("+tgtTable+")");
+	thisActionUrl = baseURL+"/search/getStreamersByGroup/";
+
+	console.log("type: "+$(tgtTable).data('grouptype'))
+	console.log("id: "+$(tgtTable).data('groupid'))
+
+	$.ajax({
+		url: thisActionUrl,
+		type: "POST",
+		dataType: "json",
+		data: {
+			type: $(tgtTable).data('grouptype'),
+			id:  $(tgtTable).data('groupid')
+		}
+	})
+		.always(function (json){
+			console.log('fetchStreamersData - AJAX always');
+			console.log(json);
+			//console.log(json.message);
+		})
+		.done(function (json){
+			console.log('fetchStreamersData - AJAX done');
+
+			if (json.success) {
+				console.log(json.message);
+				$(tgtTable+" tbody").empty();
+
+				//resultCount = json.results.length;
+
+				json.results.forEach(function(item){
+					isOffline = false;
+
+					if (item.LastSeenOnline_Elapsed > (60*10)) {
+						isOffline = true; 
+						row = "<tr class=\"offlineStream\">";
+					} else {
+						row = "<tr class=\"onlineStream\">";
+					}
+
+				 	row += "<td data-username=\""+item.Username+"\"><img src=\""+item.AvatarURL+"\" onerror=\"this.src='https://mixer.com/_latest/assets/images/main/avatars/default.png';\" class=\"avatar thin-border\" width=\"25px\" /> <a href=\"/user/"+item.Username+'">'+item.Username+"</a></td>";
+
+				 		if (item.NumFollowers < 25) {
+				 			row += '<td class="never">Not tracked</td>'
+				 		} else {
+					 		if (item.LastStreamStart != "0000-00-00 00:00:00") {
+					 			if (isOffline) {
+									row += '<td class="offline">Offline since '+getElapsedTimeString(item.LastSeenOnline_Elapsed)+'</td>';
+					 			} else {
+									row += '<td class="online">Online since '+getElapsedTimeString(item.LastStreamStart_Elapsed)+'</td>';
+					 			}
+					 		} else {
+					 			row += '<td class="never">Never Seen</td>'; 
+					 		}
+				 		}
+						row += '<td><a href="/type/'+item.LastTypeID+'/'+getUrlSlug(item.LastType)+'">'+item.LastType+'</a></td>';
+						row += '<td>'+addCommas(item.NumFollowers)+'</td>';
+						row += '<td>'+addCommas(item.ViewersTotal)+'</td>';
+
+					row += "</tr>"
+
+					$(tgtTable+" tbody").append(row);
+				});
+			}
+		}) 
+
+		.fail(function (json){
+			console.log('fetchStreamersData - AJAX failed');
 			//tgt.html("<div class=\"alert alert-danger\"><p>There was a problem in contacting the server. Pick another game and try again.</p></div>");
 		});
 

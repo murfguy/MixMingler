@@ -30,6 +30,9 @@ class User extends CI_Controller {
 			$minglerData->LastStartElapsed = getElapsedTimeString($minglerData->LastStreamStart);
 			$minglerData->LastSeenElapsed = getElapsedTimeString($minglerData->LastSeenOnline);	
 
+			$actualTeams = $this->users->getUserTeamsFromMixer($minglerData->UserID);
+			$storedTeams = $this->users->getUserTeams($minglerData->ID);
+			$this->users->syncUserTeams($actualTeams, $storedTeams, $minglerData->ID);
 
 			// --------------------------------------------------------------------------------
 			// Portion #4: Prep Data, and Display in Single User view
@@ -40,6 +43,7 @@ class User extends CI_Controller {
 
 
 			$displayData->member = $minglerData;
+			$displayData->teams = $this->users->getUserTeams($minglerData->ID);
 			$displayData->types = $this->users->getUserTypesInformation($minglerData->ID);
 			$displayData->communities = createCommunityObjects($this->users->getUsersCommunitiesInformation($minglerData->ID));
 			$displayData->recentTypes = $this->users->getUsersRecentStreamTypes($minglerData->ID);

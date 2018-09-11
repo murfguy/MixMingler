@@ -99,7 +99,11 @@ if (! function_exists('getIdList')) {
 	function getIdList($groupData, $seperator = ",") {
 		$IdList = array();
 		foreach ($groupData as $item) {
-			$IdList[] = $item->ID;
+			if (is_object($item)) {
+				$IdList[] = $item->ID;
+			} else {
+				$IdList[] = $item['id'];
+			}
 		}
 
 		return implode($seperator, $IdList);

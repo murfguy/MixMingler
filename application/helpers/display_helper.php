@@ -3,13 +3,12 @@
 if ( ! function_exists('userListLink')) {
 	function userListLink($params = array()) {
 
-		$str = '<a href="/user/'.$params['Username'].'"';
+		$str = '<img src="'.$params['AvatarURL'].'" '.imgBackup('streamer').' class="avatar thin-border" width="25px" />';
+
+		$str .= '<a href="/user/'.$params['Username'].'"';
 		if (!empty($params['Tooltip'])) {
 			$str .= 'data-toggle="tooltip" title="'.$params['Tooltip'].'"';	}
 		$str .= '>';
-
-
-		$str .= '<img src="'.$params['AvatarURL'].'" '.imgBackup('streamer').' class="avatar thin-border" width="25px" />';
 		$str .= ' '.$params['Username'];
 		$str .= '</a>';
 
@@ -278,7 +277,8 @@ if ( ! function_exists('imgBackup')) {
 			'type' => "https://mixer.com/_latest/assets/images/main/types/default.jpg",
 			'stream' => "https://mixer.com/_latest/assets/images/browse/thumbnail.jpg?f877a91",
 			'streamer' => "https://mixer.com/_latest/assets/images/main/avatars/default.png",
-			'community' => "/assets/graphics/covers/blankCover.png"
+			'community' => "/assets/graphics/covers/blankCover.png",
+			'team' => "https://mixer.com/_latest/assets/images/teams/logo.png?5b11d2c58"
 		);
 		;
 		return "onerror=\"this.src='".$backupCovers[$kind]."';\"";
@@ -439,6 +439,31 @@ if (! function_exists('settingSelection')) {
 		$str .= "<td>".form_checkbox($formData)."</td>";
 		$str .= "</tr>";
 
+		return $str;
+	}
+}
+
+if (! function_exists('streamerTable')) {
+	function streamerTable($ajaxParams = "") {
+		if (!empty($ajaxParams)) {
+			$str = '<table class="table table-dark table-striped userList fetchStreamerList" data-grouptype="'.$ajaxParams['type'].'" data-groupid="'.$ajaxParams['id'].'">';
+		} else {
+			$str = '<table class="table table-dark table-striped userList">';
+		}
+
+			$str .= '<thead><tr>';
+				$str .= '<th data-toggle="tooltip" title="Click to sort">User</th>';
+				$str .= '<th data-toggle="tooltip" title="Click to sort">Stream/Offline Duration</th>';
+				$str .= '<th data-toggle="tooltip" title="Click to sort">Last Game</th>';
+				$str .= '<th data-toggle="tooltip" title="Click to sort">Followers</th>';
+				$str .= '<th data-toggle="tooltip" title="Click to sort">Views</th>';
+			$str .= '</tr></thead>';
+			$str .= '<tbody>';
+				$str .= '<tr class="pendingResults">';
+					$str .= '<td colspan="5"><i class="fas fa-spinner fa-pulse"></i> Fetching streamers. One moment please.</td>';
+				$str .= '</tr>';
+			$str .= '</tbody>';
+		$str .= '</table>';
 		return $str;
 	}
 }
