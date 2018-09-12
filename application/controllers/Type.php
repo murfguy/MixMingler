@@ -77,10 +77,10 @@ class Type extends CI_Controller {
 				$displayData = new stdClass();
 				$displayData->currentUser = $currentUser;
 				$displayData->mixerData = $this->types->getTypeFromMixer($typeData->ID);
-				$displayData->typeData = $typeData;
-				$displayData->recentStreams = $this->types->getRecentStreamsForType($typeData->ID);
-				$displayData->activeStreams = $this->types->getActiveStreamsFromMixerByTypeId($typeData->ID);
-				$displayData->frequentStreamers = $this->types->getLastMonthsMostFrequentStreamersForType($typeData->ID);
+				$displayData->type = $typeData;
+				//$displayData->recentStreams = $this->types->getRecentStreamsForType($typeData->ID);
+				//$displayData->activeStreams = $this->types->getActiveStreamsFromMixerByTypeId($typeData->ID);
+				//$displayData->frequentStreamers = $this->types->getLastMonthsMostFrequentStreamersForType($typeData->ID);
 				
 				$this->displayType($displayData);
 			}

@@ -75,6 +75,7 @@
 	<script type="text/javascript" src="<?php echo base_url();?>assets/js/viewControls.js<?php echo $v; ?>" ></script>
 	<script type="text/javascript" src="<?php echo base_url();?>assets/js/formControls.js<?php echo $v; ?>" ></script>
 	<script type="text/javascript" src="<?php echo base_url();?>assets/js/infoCollection.js<?php echo $v; ?>" ></script>
+	<script type="text/javascript" src="<?php echo base_url();?>assets/js/contentLoaders.js<?php echo $v; ?>" ></script>
 
 	<!-- Font Awesome -->
 	<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.1.1/css/all.css" integrity="sha384-O8whS3fhG2OnA5Kas0Y9l3cfpmYjapjI0E4theH4iuMD+pLhbf6JI0jIMfYcK3yZ" crossorigin="anonymous">

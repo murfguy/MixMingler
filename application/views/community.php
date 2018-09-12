@@ -2,12 +2,12 @@
 	if (count($online_members) > 0) { 
 		$view = "onlineMembers";
 	} else {
-		$view = "communityNews";
+		$view = "newsFeed";
 	}
 
 	
 	if (!empty($_GET['view'])) {
-	 	if (in_array($_GET['view'], ['onlineMember', 'communityNews', 'allMembers'])) {
+	 	if (in_array($_GET['view'], ['onlineMember', 'newsFeed', 'allMembers'])) {
 			$view = $_GET['view'];
 		}
 	}
@@ -107,87 +107,31 @@
 			</div>-->
 			<div class="btn-group d-flex" role="group">
 				<button type="button" class="btn btn-info displayToggle" target="onlineMembers" <?php if ($view == "onlineMembers") { ?>disabled<?php } ?>>Online Members</button>
-				<button type="button" class="btn btn-info displayToggle" target="communityNews" <?php if ($view == "communityNews") { ?>disabled<?php } ?>>Community News</button>
+				<button type="button" class="btn btn-info displayToggle" target="newsFeed" <?php if ($view == "newsFeed") { ?>disabled<?php } ?>>Community News</button>
 				<button type="button" class="btn btn-info displayToggle" target="allMembers" <?php if ($view == "allMembers") { ?>disabled<?php } ?>>All Members</button>
 			</div>
 
 			<div id="onlineMembers" <?php if ($view != "onlineMembers") { ?>class="inactiveView"<?php } ?>>				
 				<h3>Currently Streaming Members</h3>
-				<?php if (count($online_members) > 0) { ?>
-					<div class="row">
-						<?php foreach ($online_members as $member) {	
-								$params = [
-									'url' => '/user/'.$member->token,
-									'cover' => 'https://thumbs.mixer.com/channel/'.$member->id.'.small.jpg',
-									'kind' => 'stream',
-									'name' => $member->token,
-									'size' => 'lrg',
-									'stats' => [
-										'currentType' => $member->type->name,
-										'followers' => $member->numFollowers,
-										'views' => $member->viewersCurrent]];
-								echo card($params);  
-						 } // foreach ($online_members as $member) ?>
-					</div>
-				<?php } else { ?>
-					<p>No one is currently online!</p>
-				<?php } // if (count($online_members) > 0) ?>
+
+
+				<div id="communityTopStreams" class="fetchTopStreams" data-grouptype="community" data-groupid="<?php echo $community->ID; ?>">
+					<p><i class="fas fa-spinner fa-pulse"></i> Fetching online streams. One moment please.</p>
+				</div>
 			</div><!-- onlineMembers -->
 			
-			<div id="communityNews" <?php if ($view != "communityNews") { ?>class="inactiveView"<?php } ?>>				
+			<div id="newsFeed" <?php if ($view != "newsFeed") { ?>class="inactiveView"<?php } ?>>				
 				<h3>Community News</h3>
 
-				<div id="communityNewsFeed" data-feedtype="community" data-limit="25" data-communityId="<?php echo $community->ID; ?>" data-displaysize="lrg">
+				<div id="communityNewsFeed" class="fetchNewsFeed" data-grouptype="community" data-limit="25" data-groupid="<?php echo $community->ID; ?>" data-displaysize="lrg">
+					<p><i class="fas fa-spinner fa-pulse"></i> Fetching news feed. One moment please.</p>
 				</div>
 			</div><!-- recentlyOnline -->
 
 			<div id="allMembers" <?php if ($view != "allMembers") { ?>class="inactiveView"<?php } ?>>				
 				<h3>All Community Members</h3>
-				
-				<table class="table table-dark table-striped userList tablesorter">
-					<thead>
-						<tr>
-							<th data-toggle="tooltip" title="Click to sort" >User</th>
-							<th data-toggle="tooltip" title="Click to sort">Last Online</th>
-							<th data-toggle="tooltip" title="Click to sort">Last Type</th>
-							<th data-toggle="tooltip" title="Click to sort">Followers</th>
-							<th data-toggle="tooltip" title="Click to sort">Views</th>
-						</tr>	
-					</thead>
-					<tbody>
-						<?php foreach ($members as $member) { ?>
-							<tr>
-								<td data-username="<?php echo $member->Username; ?>"><?php echo userListLink(['Username'=>$member->Username, 'AvatarURL'=>$member->AvatarURL]); ?>
-									<?php
-										if ($member->ID == $community->Founder) {
-											echo ' <i class="fas fa-star" style="color: gold"></i>';}
-										if ($member->ID == $community->Admin) {
-											echo ' <i class="fas fa-crown" style="color: gold"></i>';}
 
-										if ($member->ID == in_array($member->ID, $memberIdLists['moderators'])){
-											echo ' <i class="fas fa-chess-knight" style="color: silver"></i>';}
-
-										// core members here
-									?></td>
-
-								<td data-time="<?php echo strtotime($member->LastSeenOnline); ?>"><?php 
-								if ($member->LastSeenOnline != "0000-00-00 00:00:00") {
-									if (strtotime($member->LastSeenOnline) < (time()-(60*10)) ) {
-										echo getElapsedTimeString($member->LastSeenOnline); }
-										else {
-											echo '<span style="color: rgb(114, 243, 114);">Online now!</span>'; }
-								} else {
-									echo "Never Seen";
-								}
-								?></td>
-								<td><a href="/type/<?php echo $member->LastTypeID.'/'.createSlug($member->LastType); ?>"><?php echo $member->LastType; ?></a></td>
-								<td data-followers="<?php echo $member->NumFollowers; ?>"><?php echo number_format($member->NumFollowers); ?></td>
-								<td data-views="<?php echo $member->ViewersTotal; ?>"><?php echo number_format($member->ViewersTotal); ?></td>
-							</tr>
-						<?php } //foreach ($members as $member) ?>
-					</tbody>
-					
-				</table>
+				<?php echo streamerTable(['grouptype'=>'community', 'groupid'=>$community->ID]); ?>
 			</div><!-- allMembers -->
 		</div>
 

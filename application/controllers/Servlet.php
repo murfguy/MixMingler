@@ -1100,7 +1100,7 @@ class Servlet extends CI_Controller {
 		$this->returnData->id = $typeId;
 		$this->returnData->success = true;
 		$this->returnData->message = "Got streams from mixer.";
-		$this->returnData->streams = $this->types->getActiveStreamsFromMixerByTypeId($typeId, 6);
+		$this->returnData->streams = $this->users->getActiveStreamsFromMixerByTypeId($typeId, 6);
 
 		$this->returnData();
 	}
@@ -1116,10 +1116,62 @@ class Servlet extends CI_Controller {
 		//$this->returnData->members = $members;
 		$this->returnData->success = true;
 		$this->returnData->message = "Got streams from mixer.";
-		$this->returnData->streams = $this->types->getActiveStreamsFromMixer('userID', $members, 6);
+		$this->returnData->streams = $this->users->getActiveStreamsFromMixer('userID', $members, 6);
 
 		$this->returnData();
 	}
+
+
+	public function getTopStreamsForTeam($teamId) {
+		//sleep(1);
+
+		$members = $this->teams->getTeamMembers($teamId);
+
+
+		$this->returnData->group = 'team';
+		$this->returnData->id = $communityId;
+		//$this->returnData->members = $members;
+		$this->returnData->success = true;
+		$this->returnData->message = "Got streams from mixer.";
+		$this->returnData->streams = $this->users->getActiveStreamsFromMixer('userID', $members, 6);
+
+		$this->returnData();
+	}
+
+	public function getTopStreamsFromMixer() {
+		$groupType = $_POST['type'];
+		$groupId = $_POST['id'];
+
+		$limit = 100;
+		if (isset($_POST['limit'])) {
+			$limit = $_POST['limit'];
+			if ($limit > 100) { $limit = 100; }
+		} 
+
+		$this->returnData->group = $groupType;
+		$this->returnData->id = $groupId;
+
+		switch ($groupType) {
+			case "type":
+				$this->returnData->streams = $this->types->getActiveStreamsFromMixerByTypeId($groupId, $limit);
+				break;
+
+			case "community":
+				$members = $this->communities->getCommunityMembersByGroup($groupId, 'member');
+				$this->returnData->streams = $this->users->getActiveStreamsFromMixer('userID', $members, $limit);
+				break;
+
+			case "team":
+				$members = $this->teams->getTeamMembers($groupId);
+				$this->returnData->streams = $this->users->getActiveStreamsFromMixer('userID', $members, $limit);
+				break;
+		}
+
+		$this->returnData->success = true;
+		$this->returnData->message = "Got streams from mixer.";		
+		$this->returnData();
+	}
+
 
 	// --------------------------------------------------------------- 
 	// --- News Collection Functions --------------------------------- 
@@ -1155,22 +1207,26 @@ class Servlet extends CI_Controller {
 	public function getNewsFeed() {
 		$this->returnData->message = "Failed to collect news.";
 		//$feedType, $feedParams, $queryLimit = 25, $displaySize = 'med'
-		$feedType = $_POST['feedType'];
+		$groupType = $_POST['groupType'];
 		$feedParams = $_POST['feedParams'];
 		if (empty($_POST['queryLimit'])) { $queryLimit = 25; } else { $queryLimit = (int)$_POST['queryLimit']; }
 		if (empty($_POST['displaySize'])) { $displaySize = 'med'; } else { $displaySize = $_POST['displaySize']; }
 
-		switch ($feedType) {
+		switch ($groupType) {
 			case "user":
-				$news = $this->news->getNewsFeedForUser($feedParams['mixerId'], $feedParams['limit']);
+				$news = $this->news->getNewsFeedForUser($feedParams['groupid'], $feedParams['limit']);
 				break;
 
 			case "community":
-				$news = $this->news->getNewsFeedForCommunity($feedParams['communityId'], $feedParams['limit']);
+				$news = $this->news->getNewsFeedForCommunity($feedParams['groupid'], $feedParams['limit']);
 				break;
 
 			case "type":
-				$news = $this->news->getNewsFeedForType($feedParams['typeId'], $feedParams['limit']);
+				$news = $this->news->getNewsFeedForType($feedParams['groupid'], $feedParams['limit']);
+				break;
+
+			case "team":
+				$news = $this->news->getNewsFeedForTeam($feedParams['groupid'], $feedParams['limit']);
 				break;
 		}
 

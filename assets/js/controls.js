@@ -89,15 +89,25 @@ var baseActionUrl = baseURL+"/servlet/";
 				break;
 		}
 	});
+
+
+	if ($('table.fetchStreamerList').length > 0) {
+		fetchStreamersList($('table.fetchStreamerList'));
+	}
+
+	if ($('div.fetchNewsFeed').length > 0) {
+		fetchNewsFeed($("div.fetchNewsFeed"));
+	}
+
+	if ($('div.fetchTopStreams').length > 0) {
+		fetchTopStreams($("div.fetchTopStreams"));
+	}
 	
 	setNewsToggles();
 	setViewToggleListeners();
 	setFormListeners();
 	setSearchFilterFunctionality();
 
-	if ($('table.fetchStreamerList').length > 0) {
-		fetchStreamersData("table.fetchStreamerList");
-	}
 
 
 	if ($('form#filterStreamers').length > 0) {

@@ -446,13 +446,22 @@ if (! function_exists('settingSelection')) {
 if (! function_exists('streamerTable')) {
 	function streamerTable($ajaxParams = "") {
 		if (!empty($ajaxParams)) {
-			$str = '<table class="table table-dark table-striped userList fetchStreamerList" data-grouptype="'.$ajaxParams['type'].'" data-groupid="'.$ajaxParams['id'].'">';
+			$parameters = array();
+			foreach ($ajaxParams as $key => $param) {
+				//$parameters[] = 'data-'.$key.'="'.$param.'"';
+				$parameters[] = "data-$key=\"$param\"";
+			}
+
+			$str = '<table class="table table-dark table-striped userList fetchStreamerList" '.implode(" ", $parameters).'>';
+
+			//$str = '<table class="table table-dark table-striped userList fetchStreamerList" data-grouptype="'.$ajaxParams['type'].'" data-groupid="'.$ajaxParams['id'].'">';
 		} else {
-			$str = '<table class="table table-dark table-striped userList">';
+			$str = '<table class="table table-dark table-striped userList fetchStreamerList">';
 		}
 
 			$str .= '<thead><tr>';
 				$str .= '<th data-toggle="tooltip" title="Click to sort">User</th>';
+				$str .= '<th data-toggle="tooltip" title="Click to sort"># of Streams</th>';
 				$str .= '<th data-toggle="tooltip" title="Click to sort">Stream/Offline Duration</th>';
 				$str .= '<th data-toggle="tooltip" title="Click to sort">Last Game</th>';
 				$str .= '<th data-toggle="tooltip" title="Click to sort">Followers</th>';

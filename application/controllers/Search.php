@@ -214,8 +214,10 @@ class Search extends CI_Controller {
 
 		$this->returnData->criteria = $_POST;
 
-		$groupType = $_POST['type']; // type, community, OR team
-		$groupId = $_POST['id']; // ID value for group
+		$groupType = $_POST['grouptype']; // type, community, OR team
+		$groupId = $_POST['groupid']; // ID value for group
+
+
 
 
 		if (in_array($groupType, ['type', 'team', 'community'])) {
@@ -226,7 +228,12 @@ class Search extends CI_Controller {
 
 			switch ($groupType) {
 				case "type":
-					$this->db->where('LastTypeID', $groupId);
+					//$this->db->where('LastTypeID', $groupId);
+
+					$this->db->select('COUNT(DISTINCT DATE(TimelineEvents.EventTime)) as StreamCount')
+						->join('TimelineEvents', 'TimelineEvents.MixerID = Users.ID')
+						->where('TimelineEvents.TypeID', $groupId)
+						->group_by('TimelineEvents.MixerID');
 					break;
 
 				case "team":
@@ -240,7 +247,25 @@ class Search extends CI_Controller {
 						->where('UserCommunities.MemberState', 'member');
 					break;
 			}
-			$query = $this->db->order_by('LastStreamStart', 'DESC')->get();
+
+			if (in_array($groupType, ['team', 'community'])) {
+				$this->db->select('COUNT(DISTINCT DATE(TimelineEvents.EventTime)) as StreamCount')
+					->join('TimelineEvents', 'TimelineEvents.MixerID = Users.ID')
+					->group_by('TimelineEvents.MixerID');
+			}
+
+			/*if (isset($_POST['limit'])) {
+				$this->db->limit($_POST['limit']);}*/
+
+			if (isset($_POST['collection'])) {
+				if ($_POST['collection'] == "frequent") { 
+					$this->db->order_by("StreamCount", "DESC")
+					->where('TimelineEvents.EventTime>DATE_SUB(NOW(), INTERVAL 30 DAY) ');}
+			} else {
+				$this->db->order_by('Users.LastStreamStart', 'DESC');
+			}
+					
+			$query = $this->db->get();
 			$this->returnData->results = $query->result();
 			$this->returnData->success = true;
 			$this->returnData->message = "Search for streamers succeeded.";

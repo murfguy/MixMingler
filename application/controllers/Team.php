@@ -35,7 +35,7 @@ class Team extends CI_Controller {
 
 		$displayData = new stdClass();
 		$displayData->team = $team;
-		$displayData->members = $this->teams->getTeamMembers($team->ID);
+		//$displayData->members = $this->teams->getTeamMembers($team->ID);
 
 		$this->load->view('htmlHead', $this->version->getVersion());
 		$this->load->view('team', $displayData);

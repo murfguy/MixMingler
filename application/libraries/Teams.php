@@ -104,7 +104,7 @@ class Teams {
 		return $query->result();
 	}
 
-	public function getTeamMembersFromMixer($teamId) {
+	public function getTeamMembersFromMixer($teamId, $onlineOnly = false) {
 		$url = "https://mixer.com/api/v1/teams/$teamId/users";
 		$currentPage = 0;
 		$foundAllMembers = false;
@@ -121,13 +121,21 @@ class Teams {
 			$content = file_get_contents($url.$urlParameters."&page=".$currentPage);
 			$newList = json_decode($content, true);
 
-			$allTeamMembers = array_merge($allTeamMembers, $newList);
+			if ($onlineOnly) {
+				foreach ($newList as $member) {
+					if ($member['channel']['online']) {
+						$allTeamMembers[] = $member; }
+				}
+			} else {
+				$allTeamMembers = array_merge($allTeamMembers, $newList);
+				$currentPage = $currentPage + 1;
 
-			$currentPage = $currentPage + 1;
-
-			if ($currentPage % 20 == 0) {
-				//sleep(5);
+				if ($currentPage % 20 == 0) {
+					//sleep(5);
+				}
 			}
+
+			
 
 			if (count($newList) < 100) {
 				// We've got all followed channels 

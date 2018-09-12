@@ -12,10 +12,12 @@ class News {
 		$this->CI->load->database();
 		$this->CI->load->library('communities');
 		$this->CI->load->library('types');
+		$this->CI->load->library('teams');
 
 		$this->db = $this->CI->db;
 		$this->communities = $this->CI->communities;
 		$this->types = $this->CI->types;
+		$this->teams = $this->CI->teams;
 	}
 
 	public function addNews($mixer_id, $event, $eventType, $params = array()) {
@@ -238,6 +240,23 @@ class News {
 
 	public function getNewsFeedForCommunity($communityId, $limit = 25) {
 		$allMemberIds = $this->communities->getArrayOfMemberIDs($this->communities->getCommunityMembersByGroup($communityId, 'member'));
+
+		$query = $this->db
+			->select('TimelineEvents.*')
+			->select('Users.Username as Username')
+			->select('Users.AvatarURL as AvatarURL')
+			->from('TimelineEvents')
+			->join('Users', 'Users.ID = TimelineEvents.MixerID')
+			//->where('TimelineEvents.CommunityID', $communityId)
+			->or_where_in('TimelineEvents.MixerID', $allMemberIds)
+			->order_by('TimelineEvents.EventTime', 'DESC')
+			->limit($limit)
+			->get();
+		return $query->result();
+	}
+
+	public function getNewsFeedForTeam($teamId, $limit = 25) {
+		$allMemberIds = $this->communities->getArrayOfMemberIDs($this->teams->getTeamMembers($teamId));
 
 		$query = $this->db
 			->select('TimelineEvents.*')

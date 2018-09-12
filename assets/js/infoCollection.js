@@ -68,63 +68,10 @@ function getTopStreams(target) {
 		});
 }
 
-/*function getRecentNews(target) {
-	group = target.data("newstype");
-	
-	urlAction = group.substr(0,1).toUpperCase()+group.substr(1);
-	thisActionUrl = baseActionUrl+"getNewsFor"+urlAction+"/"+target.data("id");
-
-	newsDiv ="div#"+group+"-"+target.data("id") + " > div#news-"+target.data("id");
-
-	console.log("getRecentNews("+thisActionUrl+")");
-
-	//thisActionUrl = baseActionUrl+"getNewsForType/"+target.data("typeid");
-	//console.log("getNewsFeed("+target.data("typeid")+")")
-
-		$.ajax({
-				url: thisActionUrl,
-				type: "POST",
-				dataType: "json"
-			})
-				.done(function (json){
-					console.log('getRecentNews - AJAX done');
-					console.log("listDiv: "+listDiv);
-					//console.log("json.typeID: "+json.typeID);
-
-					newsDiv = $(newsDiv);
-					newsDiv.empty();
-
-					if(json.success) {
-						//newsDiv.prepend("<>Collected news!</p>");
-						newsCount = json.displayItems.length;
-
-						for (i = 0; i<newsCount; i++) {
-							newsDiv.append(json.displayItems[i]);
-						}
-
-					} else {
-						newsDiv.prepend("<div class=\"alert alert-danger\"><p>There was an problem with collecting the news:<br>"+json.message+"</p></div>");
-					}
-
-				}) 
-
-				.fail(function (json){
-					console.log('getRecentNews - AJAX failed');
-					newsDiv = $("div#news-"+json.id);
-					newsDiv.prepend("<div class=\"alert alert-danger\"><p>There was a problem in contacting the server. Pick another game and try again.</p></div>");
-				})
-
-				.always(function (json){
-					console.log('getRecentNews - AJAX always');
-					console.log(json);
-					//console.log(json.message);
-				});
-}*/
-
 function runNewsCollection() {
 	console.log("runNewsCollection()");
-	getNewsFeed($('div#userNewsFeed'));
-	getNewsFeed($('div#communityNewsFeed'));
+	//getNewsFeed($('div#userNewsFeed'));
+	//getNewsFeed($('div#communityNewsFeed'));
 }
 
 function getNewsFeed(tgt) {
