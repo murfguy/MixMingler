@@ -196,16 +196,20 @@ class Types {
 	public function getRecentStreamsForType($typeId) {
 		$query = $this->db
 			->select('TimelineEvents.*')
-			->select('Users.Username as Username')
-			->select('Users.AvatarUrl as AvatarURL')
-			->select('MAX(EventTime) as EventTime')
+			->select('Users.*')
+			->select('MAX(EventTime) as MaxEventTime')
+			->select('COUNT(DISTINCT DATE(EventTime)) as StreamCount')
+			->select('TIMESTAMPDIFF(SECOND, Users.LastStreamStart, NOW()) AS LastStreamStart_Elapsed')
+				->select('TIMESTAMPDIFF(SECOND, Users.LastSeenOnline, NOW()) AS LastSeenOnline_Elapsed')
+			->select('TIMESTAMPDIFF(SECOND, MAX(TimelineEvents.EventTime), NOW()) AS LastTypeTime_Elapsed')
 			->from('TimelineEvents')
 			->join('Users', 'Users.ID = TimelineEvents.MixerID')
 			->where('Type', 'type')
 			->where('TypeID', $typeId)
-			->where('EventTime > DATE_SUB(NOW(), INTERVAL 30 DAY)')
+			//->where('EventTime > DATE_SUB(NOW(), INTERVAL 30 DAY)')
+			->order_by('MaxEventTime', 'DESC')
 			->group_by('MixerID')
-			->limit(50)
+			->limit(100)
 			->get();
 		return $query->result();
 	}
@@ -213,10 +217,11 @@ class Types {
 	public function getLastMonthsMostFrequentStreamersForType($typeId) {
 		$query = $this->db
 			->select('MixerID')
-			->select('Users.Username AS Username')
-			->select('Users.NumFollowers AS NumFollowers')
-			->select('Users.AvatarURL AS AvatarURL')
+			->select('Users.*')
 			->select('COUNT(DISTINCT DATE(EventTime)) as StreamCount')
+			->select('TIMESTAMPDIFF(SECOND, MAX(TimelineEvents.EventTime), NOW()) AS LastTypeTime_Elapsed')
+			->select('TIMESTAMPDIFF(SECOND, Users.LastStreamStart, NOW()) AS LastStreamStart_Elapsed')
+			->select('TIMESTAMPDIFF(SECOND, Users.LastSeenOnline, NOW()) AS LastSeenOnline_Elapsed')
 			->from('TimelineEvents')
 			->join('Users', 'Users.ID = TimelineEvents.MixerID')
 			->where('Type', 'type')
@@ -225,7 +230,7 @@ class Types {
 			->group_by('MixerID')
 			->order_by('StreamCount', 'DESC')
 			->order_by('NumFollowers', 'DESC')
-			->limit(50)
+			->limit(100)
 			->get();
 
 		return $query->result();

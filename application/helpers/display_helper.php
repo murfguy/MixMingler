@@ -449,7 +449,11 @@ if (! function_exists('streamerTable')) {
 			$parameters = array();
 			foreach ($ajaxParams as $key => $param) {
 				//$parameters[] = 'data-'.$key.'="'.$param.'"';
-				$parameters[] = "data-$key=\"$param\"";
+				if ($key != "id") {
+					$parameters[] = "data-$key=\"$param\"";
+				} else {
+					$parameters[] = "id=\"$param\"";
+				}
 			}
 
 			$str = '<table class="table table-dark table-striped userList fetchStreamerList" '.implode(" ", $parameters).'>';
@@ -460,16 +464,16 @@ if (! function_exists('streamerTable')) {
 		}
 
 			$str .= '<thead><tr>';
-				$str .= '<th data-toggle="tooltip" title="Click to sort">User</th>';
-				$str .= '<th data-toggle="tooltip" title="Click to sort"># of Streams</th>';
-				$str .= '<th data-toggle="tooltip" title="Click to sort">Stream/Offline Duration</th>';
-				$str .= '<th data-toggle="tooltip" title="Click to sort">Last Game</th>';
-				$str .= '<th data-toggle="tooltip" title="Click to sort">Followers</th>';
-				$str .= '<th data-toggle="tooltip" title="Click to sort">Views</th>';
+				$str .= '<th width="20%">User</th>';
+				$str .= '<th width="10%">Stream Count</th>';
+				$str .= '<th width="20%">Last Streamed</th>';
+				$str .= '<th width="30%">Last Game</th>';
+				$str .= '<th width="10%">Followers</th>';
+				$str .= '<th width="10%">Views</th>';
 			$str .= '</tr></thead>';
 			$str .= '<tbody>';
 				$str .= '<tr class="pendingResults">';
-					$str .= '<td colspan="5"><i class="fas fa-spinner fa-pulse"></i> Fetching streamers. One moment please.</td>';
+					$str .= '<td colspan="6"><i class="fas fa-spinner fa-pulse"></i> Fetching streamers. One moment please.</td>';
 				$str .= '</tr>';
 			$str .= '</tbody>';
 		$str .= '</table>';

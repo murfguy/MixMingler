@@ -2,8 +2,12 @@
 
 
 if ( ! function_exists('getElapsedTimeString')) {
-	function getElapsedTimeString($timestamp) {
+	function getElapsedTimeString($timestamp, $addAgo = true) {
 		$elapsedTime = time() - strtotime($timestamp);
+		$ago = "";
+		if ($addAgo) {
+			$ago = " ago";
+		}
 
 		// If under 10 seconds
 		if ($elapsedTime < 10) {
@@ -12,31 +16,39 @@ if ( ! function_exists('getElapsedTimeString')) {
 
 		// If under one minute
 		if ($elapsedTime < 60) {
-			return $elapsedTime." seconds ago";
+			return $elapsedTime." seconds".$ago;
 		}
 
 		// If under one hour
 		if ($elapsedTime < 60 * 60) {
 			if (ceil($elapsedTime/60) == 1) {
-				return ceil($elapsedTime/60)." minute ago";
+				return ceil($elapsedTime/60)." minute".$ago;
 			} 
-			return ceil($elapsedTime/60)." minutes ago";
+			return ceil($elapsedTime/60)." minutes".$ago;
 		}
 
 		// If under one day ago
 		if ($elapsedTime < 60 * 60 * 24) {
 			if (ceil($elapsedTime/(60*60)) == 1) {
-				return ceil($elapsedTime/(60*60))." hour ago";
+				return ceil($elapsedTime/(60*60))." hour".$ago;
 			} 
-			return ceil($elapsedTime/(60*60))." hours ago";
+			return ceil($elapsedTime/(60*60))." hours".$ago;
 		}
 
 		// If over 24 hours
-		if ($elapsedTime >= 60 * 60 * 24) {
-			if (ceil($elapsedTime/(60*60)) == 1) {
-				return ceil($elapsedTime/(60*60*24))." day ago";
+		if ($elapsedTime < 60 * 60 * 24 * 30) {
+			if (ceil($elapsedTime/(60*60*24)) == 1) {
+				return ceil($elapsedTime/(60*60*24))." day".$ago;
 			} 
-			return number_format(ceil($elapsedTime/(60*60*24)))." days ago";
+			return number_format(ceil($elapsedTime/(60*60*24)))." days".$ago;
+		}
+
+		// If over 30 days
+		if ($elapsedTime >= 60 * 60 * 24 * 30) {
+			if (ceil($elapsedTime/(60*60*24*30)) == 1) {
+				return ceil($elapsedTime/(60*60*24*30))." day".$ago;
+			} 
+			return number_format(ceil($elapsedTime/(60*60*24*30)))." days".$ago;
 		}
 	}
 }

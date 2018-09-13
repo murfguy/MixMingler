@@ -52,6 +52,7 @@ function fetchTopStreams(tgt) {
 // fetches streamer data and fills a user data table
 function fetchStreamersList(tgt) {
 	console.log("fetchStreamersList("+tgt.attr('id')+")");
+	tgt = $("#"+tgt.attr('id')); 
 	thisActionUrl = baseURL+"/search/getStreamersByGroup/";
 
 	//console.log("type: "+tgt.data('grouptype'))
@@ -72,7 +73,6 @@ function fetchStreamersList(tgt) {
 			console.log('fetchStreamersList - AJAX done');
 
 			if (json.success) {
-				console.log(json.message);
 				tgt.children("tbody").empty();
 
 				//resultCount = json.results.length;
@@ -89,23 +89,36 @@ function fetchStreamersList(tgt) {
 
 				 	row += "<td data-username=\""+item.Username+"\"><img src=\""+item.AvatarURL+"\" onerror=\"this.src='https://mixer.com/_latest/assets/images/main/avatars/default.png';\" class=\"avatar thin-border\" width=\"25px\" /> <a href=\"/user/"+item.Username+'">'+item.Username+"</a></td>";
 
-				 		if (item.LastStreamStart != "0000-00-00 00:00:00") {
-				 			row += "<td>"+item.StreamCount+"</td>";
-				 		} else {
-				 			row += "<td>-</td>";
-				 		}
+				 	
+					 		if (item.LastStreamStart != "0000-00-00 00:00:00") {
+					 			row += "<td>"+item.StreamCount+"</td>";
+					 		} else {
+					 			row += "<td>-</td>";
+					 		}
+
+
 
 				 		if (item.NumFollowers < 25) {
 				 			row += '<td class="never">Not tracked</td>'
 				 		} else {
-					 		if (item.LastStreamStart != "0000-00-00 00:00:00") {
-					 			if (isOffline) {
-									row += '<td class="offline">Offline since '+getElapsedTimeString(item.LastSeenOnline_Elapsed)+'</td>';
+
+					 		if (item.LastTypeTime_Elapsed != undefined) {
+					 			if (!isOffline && item.LastTypeID == tgt.data('groupid')) {
+					 				row += '<td class="online">Online: '+getElapsedTimeString(item.LastTypeTime_Elapsed)+'</td>';
 					 			} else {
-									row += '<td class="online">Online since '+getElapsedTimeString(item.LastStreamStart_Elapsed)+'</td>';
+					 				row += '<td>'+getElapsedTimeString(item.LastTypeTime_Elapsed)+'</td>';
 					 			}
 					 		} else {
-					 			row += '<td class="never">Never Seen</td>'; 
+					 			if (item.LastStreamStart != "0000-00-00 00:00:00") {
+						 			if (isOffline) {
+										row += '<td class="offline">Offline since '+getElapsedTimeString(item.LastSeenOnline_Elapsed)+'</td>';
+						 			} else {
+										row += '<td class="online">Online since '+getElapsedTimeString(item.LastStreamStart_Elapsed)+'</td>';
+						 			}
+						 		} else {
+						 			row += '<td class="never">Never Seen</td>'; 
+						 		}
+						 	
 					 		}
 				 		}
 						row += '<td><a href="/type/'+item.LastTypeID+'/'+getUrlSlug(item.LastType)+'">'+item.LastType+'</a></td>';

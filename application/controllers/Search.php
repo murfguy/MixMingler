@@ -210,7 +210,7 @@ class Search extends CI_Controller {
 		}
 	}
 
-	public function getStreamersByGroup() {
+	public function getStreamersByGroupOld() {
 
 		$this->returnData->criteria = $_POST;
 
@@ -218,22 +218,33 @@ class Search extends CI_Controller {
 		$groupId = $_POST['groupid']; // ID value for group
 
 
-
-
 		if (in_array($groupType, ['type', 'team', 'community'])) {
-			$this->db->select('*')
+			/*$this->db->select('*')
 			->select('TIMESTAMPDIFF(SECOND, LastStreamStart, NOW()) AS LastStreamStart_Elapsed')
 			->select('TIMESTAMPDIFF(SECOND, LastSeenOnline, NOW()) AS LastSeenOnline_Elapsed')
-			->from('Users');
+			->from('Users');*/
+
+			$this->db->select('Users.*')
+				->select('TIMESTAMPDIFF(SECOND, Users.LastStreamStart, NOW()) AS LastStreamStart_Elapsed')
+				->select('TIMESTAMPDIFF(SECOND, Users.LastSeenOnline, NOW()) AS LastSeenOnline_Elapsed')
+				->select('COUNT(DISTINCT DATE(TimelineEvents.EventTime)) as StreamCount');
+
+			if (in_array($groupType, ['team', 'community'])) {
+				$this->db->from('Users')
+					->join('TimelineEvents', 'TimelineEvents.MixerID = Users.ID')
+					->group_by('TimelineEvents.MixerID');
+			} else {
+				$this->db->from('TimelineEvents')
+					->select('MAX(TimelineEvents.EventTime) AS MaxEventTime')
+					->select('TIMESTAMPDIFF(SECOND, MAX(TimelineEvents.EventTime), NOW()) AS LastTypeTime_Elapsed')
+					->join('Users', 'TimelineEvents.MixerID = Users.ID')
+					->where('TimelineEvents.TypeID', $groupId)
+					->where('Type', 'type')
+					->group_by('TimelineEvents.MixerID');
+			} 
 
 			switch ($groupType) {
 				case "type":
-					//$this->db->where('LastTypeID', $groupId);
-
-					$this->db->select('COUNT(DISTINCT DATE(TimelineEvents.EventTime)) as StreamCount')
-						->join('TimelineEvents', 'TimelineEvents.MixerID = Users.ID')
-						->where('TimelineEvents.TypeID', $groupId)
-						->group_by('TimelineEvents.MixerID');
 					break;
 
 				case "team":
@@ -248,22 +259,32 @@ class Search extends CI_Controller {
 					break;
 			}
 
-			if (in_array($groupType, ['team', 'community'])) {
-				$this->db->select('COUNT(DISTINCT DATE(TimelineEvents.EventTime)) as StreamCount')
-					->join('TimelineEvents', 'TimelineEvents.MixerID = Users.ID')
-					->group_by('TimelineEvents.MixerID');
-			}
+			
 
-			/*if (isset($_POST['limit'])) {
-				$this->db->limit($_POST['limit']);}*/
+			if (isset($_POST['limit'])) {
+				$this->db->limit($_POST['limit']);}
 
 			if (isset($_POST['collection'])) {
-				if ($_POST['collection'] == "frequent") { 
-					$this->db->order_by("StreamCount", "DESC")
-					->where('TimelineEvents.EventTime>DATE_SUB(NOW(), INTERVAL 30 DAY) ');}
+				switch($_POST['collection']) {
+					case "frequent":
+						$this->db->order_by("StreamCount", "DESC")
+							->order_by("NumFollowers", "DESC")
+							->where('TimelineEvents.EventTime>DATE_SUB(NOW(), INTERVAL 30 DAY) ');
+						break;
+
+					default:
+						//$this->db->select('MAX(TimelineEvents.EventTime) as EventTime')
+						if (in_array($groupType, ['team', 'community'])) {
+							$this->db->order_by('Users.LastStreamStart', 'DESC');
+						} else {
+							$this->db->order_by('MaxEventTime', 'DESC');
+						}
+						break;
+				}
 			} else {
 				$this->db->order_by('Users.LastStreamStart', 'DESC');
 			}
+
 					
 			$query = $this->db->get();
 			$this->returnData->results = $query->result();
@@ -272,6 +293,49 @@ class Search extends CI_Controller {
 			if (isset($_SESSION['mixer_id']) && $_SESSION['mixer_id'] == 217203) {
 				$this->returnData->sqlQuery = $this->db->last_query();}
 
+		} else {
+			$this->returnData->message = "Invalid Group Type was provided.";
+		}
+
+		$this->returnData();
+	}
+
+	public function getStreamersByGroup() {
+		$this->returnData->criteria = $_POST;
+
+		$groupType = $_POST['grouptype']; // type, community, OR team
+		$groupId = $_POST['groupid']; // ID value for group
+
+
+		if (in_array($groupType, ['type', 'team', 'community'])) {
+			if ($groupType == "type") {
+				$collection = null;
+				if (isset($_POST['collection'])) { $collection = $_POST['collection']; }
+					
+				switch($collection) {
+					case "frequent":
+						$this->returnData->results = $this->types->getLastMonthsMostFrequentStreamersForType($groupId);
+						break;
+
+					default:
+						$this->returnData->results = $this->types->getRecentStreamsForType($groupId);
+						break;
+				}
+				$this->returnData->success = true;
+				$this->returnData->message = "Search for streamers succeeded.";
+
+			} else {
+				switch ($groupType) {
+					case "type":
+						break;
+
+					case "team":
+						break;
+
+					case "community":
+						break;
+				}
+			}
 		} else {
 			$this->returnData->message = "Invalid Group Type was provided.";
 		}

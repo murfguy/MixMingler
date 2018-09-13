@@ -92,7 +92,9 @@ var baseActionUrl = baseURL+"/servlet/";
 
 
 	if ($('table.fetchStreamerList').length > 0) {
-		fetchStreamersList($('table.fetchStreamerList'));
+		$('table.fetchStreamerList').each(function () {
+			fetchStreamersList($(this));
+		});
 	}
 
 	if ($('div.fetchNewsFeed').length > 0) {
