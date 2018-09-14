@@ -16,6 +16,21 @@ if ( ! function_exists('userListLink')) {
 	}
 }
 
+if (!function_exists('viewToggleButtons')) {
+	function viewToggleButtons($buttons, $view) {
+
+		$str = '<div class="btn-group d-flex" role="group">';
+		foreach ($buttons as $button) {
+			$str .= '<button type="button" class="btn btn-info displayToggle" target="'.$button['id'].'"';
+			if ($view == $button['id']) { $str.= " disabled"; }
+			$str .= '>'.$button['name'].'</button>';
+		}
+		$str .= '</div>';
+
+		return $str;
+	}
+}
+
 if ( ! function_exists('communityListLink')) {
 	function communityListLink($community, $mod=false) {
 		$str = '<a href="/community/'.$community->Slug;

@@ -9,27 +9,27 @@
 		<div class="col userInfo">
 			<p><img src="<?php echo $avatarUrl = $member->AvatarURL; ?>" class="avatar" <?php echo imgBackup('streamer'); ?> width="200" /></p>
 
-			<?php 
-				switch($member->SiteRole) {
-					case "owner":
-						echo "<p>MixMingler Owner/Creator</p>";
-						break;
-					case "admin":
-						echo "<p>Site Admin</p>";
-						break;
-					case "dev":
-						echo "<p>Site Developer</p>";
-						break;
-
-					case "user":
-					default:
-						break;
-				}
-
-			?>
 			<div class="infoBox">
 				<h4 class="infoHeader">Status</h4>
 				<div class="infoInterior">
+				<?php 
+					switch($member->SiteRole) {
+						case "owner":
+							echo "<p class=\"siteRole\">MixMingler Owner/Creator</p>";
+							break;
+						case "admin":
+							echo "<p class=\"siteRole\">Site Admin</p>";
+							break;
+						case "dev":
+							echo "<p class=\"siteRole\">Site Developer</p>";
+							break;
+
+						case "user":
+						default:
+							break;
+					}
+
+				?>
 				<?php 
 					$isOnline = false; 
 					if (strtotime($member->LastSeenOnline) > (time()-(60*10)) ) {
@@ -104,6 +104,29 @@
 
 		<div class="col-7 userFeed">
 
+			<?php
+				if ($member->NumFollowers >= 25) {
+					$buttons = array();
+					$buttons[] = ['id' => 'newsFeed', 'name'=>'News'];
+					$buttons[] = ['id' => 'games', 'name'=>'Games'];
+					$buttons[] = ['id' => 'communities', 'name'=>'Communities'];
+					echo viewToggleButtons($buttons, 'newsFeed');
+				} else { ?>
+				<div class="infoBox">
+					<h2 class="infoHeader">An Apology</h2>
+					<div class="infoInterior">
+						<?php 
+							if (isset($_SESSION['mixer_id']) && $_SESSION['mixer_id'] == $member->ID) { ?>
+								<p>Sorry, but you currently have less than 25 followers. We do not actively track users under this threshold in order to keep our Mixer API calls at an approprite level and prevent errors. </p>
+						<?php } else { ?>
+							<p>Sorry, but <?php echo $member->Username; ?> has less than 25 followers. We do not actively track users under this threshold in order to keep our Mixer API calls at an approprite level and prevent errors. You could help them out by heading over to the <a href="https://mixer.com/<?php echo $member->Username?>">Mixer Channel</a> and giving them a follow if don't already.</p>
+						<?php } ?>
+					</div>
+				</div>
+			<?php } ?>
+
+
+
 			<?php if ($member->NumFollowers >= 25) {
 				echo "<div class=\"infoBox\">";
 					echo "<h2 class=\"infoHeader\">Common Streams</h2>";
@@ -139,23 +162,15 @@
 
 			<div class="infoBox">
 				<h2 class="infoHeader">Activity Feed</h2>
-				<div class="infoInterior" id="userNewsFeed" data-feedType="user" data-userId="<?php echo $member->ID; ?>"  data-displaySize="sml">
+				<div class="infoInterior">
+					<div id="userNewsFeed" class="fetchNewsFeed" data-grouptype="user" data-limit="25" data-groupid="<?php echo $member->ID; ?>" data-displaysize="sml">
 
 
-					<div class="spinner news alert alert-warning">
-						<p><i class="fas fa-circle-notch fa-spin"></i> Checking MixMingler for recent news. One moment please.</p>
-					</div><!-- alert -->
+						<div class="spinner news alert alert-warning">
+							<p><i class="fas fa-circle-notch fa-spin"></i> Checking MixMingler for recent news. One moment please.</p>
+						</div><!-- alert -->
 
-					<?php
-					//print_r($news);
-					/*if ($feedData != null) {
-							foreach($newsItems as $event) {
-								echo $event;
-							}
-						} else {
-							echo "<p>No activity on MixMingler</p>";
-						}*/
-				?>
+					</div>
 				</div>
 			</div>
 

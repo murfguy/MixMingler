@@ -247,7 +247,8 @@ class CI_Router {
 	 */
 	protected function _set_request($segments = array())
 	{
-		$segments = $this->_validate_request($segments);
+		//$segments = $this->_validate_request($segments); // ORIGNAL LINE
+		$segments = $this->_validate_request(str_replace("_", "-", $segments));
 		// If we don't have any segments left - try the default controller;
 		// WARNING: Directories get shifted out of the segments array!
 		if (empty($segments))

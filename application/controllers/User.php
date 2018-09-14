@@ -15,6 +15,8 @@ class User extends CI_Controller {
 		$this->load->library('tools');
 		$this->load->library('version');
 
+		$method = str_replace("-", "_", $method);
+
 		if ($method != "index") {
 			// Just want to rename this var for clarity's sake.
 			$userToken = $method;
