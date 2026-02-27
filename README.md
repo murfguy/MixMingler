@@ -1,3 +1,5 @@
+#[OFFLINE DUE TO THE SHUTTERING OF MIXER.COM]
+
 # MixMingler
 A site to help discover streamers on Mixer.com
 
